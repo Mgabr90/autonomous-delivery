@@ -42,11 +42,13 @@
 
 | Routine | Model | Trigger | persist_session | Tools |
 |---|---|---|---|---|
-| 1 Worker | strong | cron `12 * * * *` + webhook `pull_request.closed` | true | Bash, Read, Write, Edit, Glob, Grep, Agent, Skill, TodoWrite, WebFetch |
-| 2 Reviewer | strong | webhook `pull_request.opened`, `.reopened`, `.synchronize`, `.ready_for_review` | false | Bash, Read, Glob, Grep, Agent, Skill, TodoWrite |
-| 3 Fixer | strong | webhook `pull_request.labeled` | false | Bash, Read, Write, Edit, Glob, Grep, Agent, Skill, TodoWrite |
+| 1 Worker | strong | cron `12 * * * *` + webhook `pull_request.closed` | true | Bash, Read, Write, Edit, Glob, Grep, Agent, Skill, TodoWrite, WebFetch, WebSearch |
+| 2 Reviewer | strong | webhook `pull_request.opened`, `.reopened`, `.synchronize`, `.ready_for_review` | false | Bash, Read, Glob, Grep, Agent, Skill, TodoWrite, WebSearch, WebFetch |
+| 3 Fixer | strong | webhook `pull_request.labeled` | false | Bash, Read, Write, Edit, Glob, Grep, Agent, Skill, TodoWrite, WebSearch, WebFetch |
 | 4 Usage inspector | mid | cron `0 5 * * *` | false | Bash, Read, Glob, Grep, TodoWrite |
-| 5 Security sweep | strong | cron `0 3 * * 1` | false | Bash, Read, Glob, Grep, Agent, Skill, TodoWrite |
+| 5 Security sweep | strong | cron `0 3 * * 1` | false | Bash, Read, Glob, Grep, Agent, Skill, TodoWrite, WebSearch, WebFetch |
+
+The web tools are needed because the routines dispatch the `researcher` agent, and a subagent can only use tools its session allows.
 
 ## Attach a GitHub webhook
 

@@ -2,7 +2,7 @@
 Routine: {{PROJECT}} · 1 Worker (hourly resume + PR watchdog + wake on merge)
 Model: {{MODEL_STRONG}} · Session: persistent (persist_session true), one phase per run
 Cron: 12 * * * *   ·   Webhook: github pull_request.closed
-Tools: Bash, Read, Write, Edit, Glob, Grep, Agent, Skill, TodoWrite, WebFetch
+Tools: Bash, Read, Write, Edit, Glob, Grep, Agent, Skill, TodoWrite, WebFetch, WebSearch (the researcher agent needs the web tools)
 If the usage inspector reports that the session has grown too large, set persist_session to false: the repo holds all the state.
 -->
 Hourly resume tick for {{PROJECT}} (repo {{REPO}}). This is a persistent session: the same message arrives every hour, so work resumes soon after usage limits reset. Always re-sync from git first, because other sessions may have pushed. Work autonomously; no human is watching. **Don't depend on the user:** resolve everything yourself per `{{HANDOFF}}` 'No dependency on the user'. The user acts only at these hard-limit gates: {{GATES}}. Use `gh api` (REST) or the GitHub MCP tools; GraphQL may be unavailable. Quality first: save tokens only by skipping work that isn't needed.
