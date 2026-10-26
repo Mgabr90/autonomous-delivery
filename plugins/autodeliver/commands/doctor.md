@@ -12,7 +12,7 @@ Check each item below. Report ✅, ⚠️ or ❌ with a one-line reason. With `-
 | 1 | `.autodeliver/config.json` exists, parses, and has `mode`, `profiles`, `proof_full`, `gates` and `paths` |
 | 2 | Every file in `paths` exists. `HANDOFF.md` has the sections "Autonomy charter", "No dependency on the user", "Hard-limit gates" and "Hard limits". `DECISIONS_LOG.md` has "Open items", "Resolved by sessions" and "Hard-limit gates". |
 | 3 | `CLAUDE.md` points to the HANDOFF |
-| 4 | `.claude/agents/` contains `delivery-reviewer`, `delivery-fixer`, `visual-checker` and `translation-reviewer`, and they match the plugin's versions (warn if they are older) |
+| 4 | `.claude/agents/` contains `delivery-reviewer`, `delivery-fixer`, `researcher`, `visual-checker` and `translation-reviewer`, and they match the plugin's versions (warn if they are older) |
 | 5 | Every `proof_full` command runs (dry: `--help` or a quick invocation where possible; otherwise say it was not run) |
 | 6 | `.gitignore` covers `.autodeliver/token_log*`. No secrets are tracked (grep for common token patterns in tracked files) |
 | 7 | Cloud: the label exists (`gh label list`), and the remote and default branch match the config |

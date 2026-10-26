@@ -64,6 +64,7 @@ claude plugin install autodeliver@autonomous-delivery
   - owner facts: derived, or worded so they're true without them.
 
   You act only at hard-limit gates, each prepared as a single action.
+- **A researcher agent** that writes a sourced brief before each phase and fact-checks docs and PRs. Every claim carries a URL, date and quote, or is marked unverified.
 - **A weekly security sweep** of the whole main branch. Serious findings are confirmed at runtime.
 - **A daily usage inspector.** It ranks waste with evidence and proposes exact edits under a quality-first rule.
 - **A staging gate template** for safe cloud access to staging: HTTPS, per-client token hashes, allow-listed verbs, read-only SQL, and isolated rehearsals of irreversible steps.

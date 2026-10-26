@@ -48,7 +48,7 @@ Prepare each gate fully so that it is a single action: gather the evidence, rehe
 
 ## Phase workflow (fixed order)
 
-1. **Plan.** Write the phase plan in `{{PLANS}}`, with tasks that each have a done-when.
+1. **Research, then plan.** Get a sourced brief from the `researcher` agent into `{{PLANS}}<phase>-research.md`. Then write the phase plan in `{{PLANS}}`, with tasks that each have a done-when.
 2. **Each task:**
    - test-first or check-first work;
    - guard skills if available (clean-code, test, docs);

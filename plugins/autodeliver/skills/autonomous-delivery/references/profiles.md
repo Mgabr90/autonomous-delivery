@@ -40,7 +40,8 @@ The generic review checklist applies to every profile:
   - audience, reading level and tone;
   - consistency of terms, numbering and cross-references;
   - accessibility (headings, alt text, contrast in rendered output);
-  - translations reviewed by the `translation-reviewer` agent.
+  - translations reviewed by the `translation-reviewer` agent;
+  - a `researcher` fact-check: CONTRADICTED or OUTDATED claims are Should-fix.
 - **Evidence:** rendered output (HTML/PDF screenshots via the `visual-checker` agent), the source list, and the validator output.
 - **Gates:** publication or sending to an external audience.
 
@@ -86,7 +87,7 @@ The generic review checklist applies to every profile:
 
 ## research (decisions, designs, investigations, competitive or market analysis)
 
-- **Proof (full):** every source reachable and quoted correctly, every claim traced to a source, no fabricated citations, and the structure required by the brief.
+- **Proof (full):** a `researcher` fact-check of the document (every source reachable and quoted correctly, every claim traced to a source, no fabricated citations), plus the structure required by the brief.
 - **Reviewer adds:**
   - evidence quality and recency;
   - alternatives considered;

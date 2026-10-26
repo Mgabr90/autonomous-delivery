@@ -47,7 +47,7 @@ In cloud mode, also ask for the claude.ai/code `environment_id`, and whether the
 
   Ask in one line for the goal and the first phase, or derive a draft from the README and say it is a draft.
 - `CLAUDE.md`: add or append a short section "Ongoing work: read `docs/delivery/HANDOFF.md` first; work autonomously within its hard limits."
-- `.claude/agents/`: copy this plugin's agents (`delivery-reviewer`, `delivery-fixer`, `visual-checker`, `translation-reviewer`, `usage-inspector`), so cloud sessions get them. Optionally, if the official `pr-review-toolkit` plugin is installed locally, offer to copy `silent-failure-hunter`, `pr-test-analyzer`, `type-design-analyzer` and `comment-analyzer` too, with its LICENSE as `.claude/agents/PR-REVIEW-TOOLKIT-LICENSE.txt`.
+- `.claude/agents/`: copy this plugin's agents (`delivery-reviewer`, `delivery-fixer`, `researcher`, `visual-checker`, `translation-reviewer`, `usage-inspector`), so cloud sessions get them. Optionally, if the official `pr-review-toolkit` plugin is installed locally, offer to copy `silent-failure-hunter`, `pr-test-analyzer`, `type-design-analyzer` and `comment-analyzer` too, with its LICENSE as `.claude/agents/PR-REVIEW-TOOLKIT-LICENSE.txt`.
 - Staging (if any): copy `templates/staging/stg.sh` to `tools/stg.sh`, and point the user to `templates/staging/README.md` for the server side. Never ask for or store a token.
 - `.gitignore`: add `.autodeliver/token_log*`, `.autodeliver/*.state.json` and `.autodeliver/loop_state.json`.
 

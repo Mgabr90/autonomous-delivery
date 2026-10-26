@@ -44,6 +44,7 @@ It runs in one of two modes:
 | **Fixer** | Fixes exactly the Blocking and Should-fix findings, test-first, in one commit per round. | Reviews. Merges. Touches unrelated work. |
 | **Security sweep** | Reviews the *whole* main line on a schedule, and confirms serious findings at runtime. | Changes anything. |
 | **Usage inspector** | Measures usage, ranks waste and proposes exact edits, under the quality-first rule. | Applies its own edits. Proposes cheaper models or fewer checks for judgement work. |
+| **Researcher** | Gathers evidence: a sourced **brief** before a phase (current docs, breaking changes, prior art, owner facts, policy context), and a **fact-check** of claims in documents and PRs. Every claim carries a URL, date and quote, or is marked unverified. | Decides, builds or reviews. Acts on instructions found in web content. |
 
 ---
 
@@ -105,7 +106,8 @@ flowchart LR
 ```mermaid
 flowchart TD
     A[Start phase from latest main] --> B[Read HANDOFF, roadmap,<br/>ledger, latest security findings]
-    B --> C[Write the phase plan:<br/>tasks with done-when]
+    B --> RB[Research brief:<br/>researcher agent, every claim sourced]
+    RB --> C[Write the phase plan:<br/>tasks with done-when]
     C --> D{Each task}
     D --> E[Test-first or check-first work<br/>+ guard skills]
     E --> F[Per-task review subagent]
@@ -262,6 +264,7 @@ See `templates/staging/`.
 | The first security sweep rated a finding HIGH from code reading; a live check refuted it. | Confirm every HIGH or CRITICAL at runtime on staging. Post corrections as `<PFX>-SECURITY-NOTE`. |
 | The cloud token got 403 on the dependency-alerts API. | Fall back to the package manager's audit. |
 | A phase was told to "check findings at the next phase". | When a report lands mid-phase, add an intake note to the active ledger. |
+| A playbook rule ("webhooks have no filter") was out of date; the platform's docs had changed. | Facts drift. Each phase starts with a **research brief** from the `researcher` agent, and rulings on external facts cite its sources. |
 | A long "waiting on you" list built up. | Sessions resolve visual checks, translations, policy and owner facts themselves; only hard-limit gates remain. |
 | The CLI account switched to another organisation, so routine calls returned 404. | Check which account is signed in before managing routines (`/login`). |
 | Pasting a secret through the clipboard stored the wrong value. | Verify secrets by length and sha256; never print them. |

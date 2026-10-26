@@ -29,6 +29,7 @@ Hourly resume tick for {{PROJECT}} (repo {{REPO}}). This is a persistent session
 2. Check out that branch, or start the next phase from `origin/{{MAIN}}` as `{{BRANCH_PREFIX}}pNN-<slug>`. On your first tick, after compaction, or when starting a NEW phase:
    - read `{{HANDOFF}}` (autonomy charter, 'No dependency on the user', hard limits), the active ledger under `{{LEDGERS}}`, and `{{ROADMAP}}`;
    - read the latest `{{PFX}}-SECURITY` comment and any `{{PFX}}-SECURITY-NOTE` on the issue '{{PROJECT}} · security sweep', and route every confirmed finding into this phase or the roadmap follow-ups.
+   - **Research brief (new phase):** dispatch the `researcher` agent in `brief` mode on the phase's external facts (current library and API docs, breaking changes, prior art, owner facts, policy context). Save it to `{{PLANS}}<phase>-research.md`, and plan from it. Rulings on external facts cite its sources.
    Otherwise re-read only the latest ledger entries.
 3. GATES. When the next roadmap row is a hard-limit gate:
    - prepare it fully (evidence, a rehearsed runbook);

@@ -11,6 +11,8 @@ Read `.autodeliver/config.json`. If it is missing, use defaults: the profile inf
 
 ## Round 0: build
 
+If the task depends on external facts (library or API behaviour, versions, standards, laws, prior art), first dispatch the `researcher` agent in `brief` mode, and build from its sourced findings. Use `autodeliver:researcher` if `.claude/agents/` doesn't have it.
+
 - If the task describes new work, build it in this session: test-first or check-first, following the profile.
 - If it names existing work (files, a branch or a diff range), skip building.
 - Record the scope precisely: the files, the range and the brief. The reviewer gets exactly this.

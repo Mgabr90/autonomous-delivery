@@ -39,7 +39,8 @@ Read `.autodeliver/config.json` for `profiles`, `proof_full`, `e2e`, `review_che
    - Evidence is committed under `paths.evidence` for visual or rendered claims.
    - Nothing is parked for the user that a session could do.
    - Report it as "N of M done".
-5. **Verify** each finding yourself, with a location and a concrete failure scenario. Drop anything you can't substantiate.
+5. **Fact-check** (docs and research profiles, or work that asserts external facts): dispatch the `researcher` agent in `fact-check` mode if you can (`autodeliver:researcher` if it isn't in `.claude/agents/`). Otherwise check the sources yourself. CONTRADICTED or OUTDATED claims are Should-fix.
+6. **Verify** each finding yourself, with a location and a concrete failure scenario. Drop anything you can't substantiate.
 
 ## Classify
 

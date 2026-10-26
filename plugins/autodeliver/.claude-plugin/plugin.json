@@ -1,7 +1,7 @@
 {
   "name": "autodeliver",
   "displayName": "Autonomous Delivery",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Autonomous build, review and fix loop with an independent gate, a fixer, a watchdog, a security sweep and a usage inspector. Works locally (subagents) or in Claude Code cloud (routines fired by GitHub).",
   "author": {
     "name": "Mahmoud Gabr",

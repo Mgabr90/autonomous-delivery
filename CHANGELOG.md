@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.2.0 (2026-10-26)
+
+- **New agent `researcher`:**
+  - `brief` mode: sourced facts before a phase or task;
+  - `fact-check` mode: verifies the claims in docs, plans and PRs;
+  - every claim carries a URL, date and quote, or is marked UNVERIFIED; read-only, and never decides.
+- **Wired in:**
+  - the Worker runs a research brief at each new phase;
+  - the Reviewer and `delivery-reviewer` fact-check docs, research and fact-asserting PRs;
+  - `/autodeliver:loop` researches first when a task depends on external facts;
+  - the docs and research profiles use the fact-check as proof;
+  - `init` and `doctor` include the new agent.
+
 ## 0.1.0 (2026-10-26)
 
 First public release.

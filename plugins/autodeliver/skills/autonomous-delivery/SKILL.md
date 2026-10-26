@@ -23,6 +23,17 @@ This skill holds the method behind the `autodeliver` plugin. Read the parts you 
 - `/autodeliver:status` reports progress: phases, PRs, verdicts, open items, gates, routine runs.
 - `/autodeliver:doctor` checks that the setup is healthy and fixes what it can.
 
+## Agents
+
+| Agent | Role |
+|---|---|
+| `delivery-reviewer` | The independent gate |
+| `delivery-fixer` | Fixes listed findings |
+| `researcher` | Sourced briefs and fact-checks |
+| `visual-checker` | Screenshots and visual review |
+| `translation-reviewer` | Translation review |
+| `usage-inspector` | Usage and waste |
+
 ## Rules that always apply
 
 1. **Quality first.** Never trade review depth, proof or verification for tokens.
