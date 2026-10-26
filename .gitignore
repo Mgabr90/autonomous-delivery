@@ -1,0 +1,6 @@
+.autodeliver/token_log*
+.autodeliver/*.state.json
+.autodeliver/loop_state.json
+__pycache__/
+*.pyc
+.DS_Store

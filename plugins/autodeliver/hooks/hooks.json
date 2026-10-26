@@ -1,0 +1,27 @@
+{
+  "description": "Token log: active in projects with .autodeliver/config.json (on by default; set \"token_log\": false to turn it off). A silent no-op elsewhere.",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/token_log.py\" 2>/dev/null || python \"${CLAUDE_PLUGIN_ROOT}/scripts/token_log.py\" 2>/dev/null || true",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/token_log.py\" 2>/dev/null || python \"${CLAUDE_PLUGIN_ROOT}/scripts/token_log.py\" 2>/dev/null || true",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

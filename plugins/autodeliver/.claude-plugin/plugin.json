@@ -1,0 +1,21 @@
+{
+  "name": "autodeliver",
+  "displayName": "Autonomous Delivery",
+  "version": "0.1.0",
+  "description": "Autonomous build, review and fix loop with an independent gate, a fixer, a watchdog, a security sweep and a usage inspector. Works locally (subagents) or in Claude Code cloud (routines fired by GitHub).",
+  "author": {
+    "name": "Mahmoud Gabr",
+    "url": "https://github.com/Mgabr90"
+  },
+  "homepage": "https://github.com/Mgabr90/autonomous-delivery",
+  "repository": "https://github.com/Mgabr90/autonomous-delivery",
+  "license": "MIT",
+  "keywords": [
+    "autonomous",
+    "review-gate",
+    "closed-loop",
+    "routines",
+    "quality",
+    "workflow"
+  ]
+}

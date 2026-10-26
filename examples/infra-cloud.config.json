@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "main_branch": "main",
+  "branch_prefix": "work/",
+  "loop": {
+    "cap": 5,
+    "fail_review_cap": 10
+  },
+  "token_log": true,
+  "token_log_path": ".autodeliver/token_log.csv",
+  "paths": {
+    "handoff": "docs/delivery/HANDOFF.md",
+    "decisions": "docs/delivery/DECISIONS_LOG.md",
+    "roadmap": "docs/delivery/ROADMAP.md",
+    "ledgers": "docs/delivery/ledgers/",
+    "plans": "docs/delivery/plans/",
+    "evidence": "docs/delivery/evidence/"
+  },
+  "project": "Platform IaC",
+  "mode": "cloud",
+  "profiles": [
+    "infra"
+  ],
+  "repo": "acme/platform",
+  "marker_prefix": "PLAT",
+  "label": "plat-review-fail",
+  "proof_full": [
+    "terraform fmt -check -recursive",
+    "terraform validate",
+    "terraform plan -lock=false -input=false",
+    "checkov -d ."
+  ],
+  "proof_touched": [
+    "terraform validate"
+  ],
+  "locales": [
+    "en"
+  ],
+  "gates": [
+    "terraform apply to production"
+  ]
+}

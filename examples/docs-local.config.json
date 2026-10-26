@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "main_branch": "main",
+  "branch_prefix": "work/",
+  "loop": {
+    "cap": 5,
+    "fail_review_cap": 10
+  },
+  "token_log": true,
+  "token_log_path": ".autodeliver/token_log.csv",
+  "paths": {
+    "handoff": "docs/delivery/HANDOFF.md",
+    "decisions": "docs/delivery/DECISIONS_LOG.md",
+    "roadmap": "docs/delivery/ROADMAP.md",
+    "ledgers": "docs/delivery/ledgers/",
+    "plans": "docs/delivery/plans/",
+    "evidence": "docs/delivery/evidence/"
+  },
+  "project": "Product Handbook",
+  "mode": "local",
+  "profiles": [
+    "docs"
+  ],
+  "marker_prefix": "HANDBOOK",
+  "label": "handbook-review-fail",
+  "proof_full": [
+    "mkdocs build --strict",
+    "npx markdown-link-check -q docs/**/*.md",
+    "vale docs/"
+  ],
+  "proof_touched": [
+    "mkdocs build --strict"
+  ],
+  "review_checklist": [
+    "matches the agreed outline",
+    "reading level suits new staff",
+    "every claim cites a source"
+  ],
+  "locales": [
+    "en"
+  ],
+  "gates": [
+    "Publishing the handbook to staff"
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "main_branch": "main",
+  "branch_prefix": "work/",
+  "loop": {
+    "cap": 5,
+    "fail_review_cap": 10
+  },
+  "token_log": true,
+  "token_log_path": ".autodeliver/token_log.csv",
+  "paths": {
+    "handoff": "docs/delivery/HANDOFF.md",
+    "decisions": "docs/delivery/DECISIONS_LOG.md",
+    "roadmap": "docs/delivery/ROADMAP.md",
+    "ledgers": "docs/delivery/ledgers/",
+    "plans": "docs/delivery/plans/",
+    "evidence": "docs/delivery/evidence/"
+  },
+  "project": "Churn Analysis",
+  "mode": "local",
+  "profiles": [
+    "data"
+  ],
+  "marker_prefix": "CHURN",
+  "label": "churn-review-fail",
+  "proof_full": [
+    "python -m pytest tests",
+    "jupyter nbconvert --execute --to notebook --inplace notebooks/*.ipynb",
+    "python checks/reconcile.py"
+  ],
+  "proof_touched": [
+    "python -m pytest tests -q"
+  ],
+  "review_checklist": [
+    "no row-level personal data in outputs",
+    "train/test split before any fitting"
+  ],
+  "locales": [
+    "en"
+  ],
+  "gates": [
+    "Sharing results outside the team",
+    "Writing to the production warehouse"
+  ]
+}
