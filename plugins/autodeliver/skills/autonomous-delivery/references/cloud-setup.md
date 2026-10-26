@@ -58,7 +58,23 @@
   "routine_trigger_id": "trig_…" }
 ```
 
-There is no filter field: each prompt checks the event, the branches and its marker itself. `issue_comment` events did not fire routines in practice, so use labels.
+**Add filters** to cut wasted runs. They are set in the trigger's edit dialog at claude.ai/code/routines; the API also accepts a structured filter. All conditions must match:
+
+| Routine | Event | Filters |
+|---|---|---|
+| Reviewer | `pull_request.opened`, `.reopened`, `.synchronize`, `.ready_for_review` | base branch equals `<main>`; head branch starts with `<branch_prefix>`; is draft = false |
+| Fixer | `pull_request.labeled` | labels include `<label>`; base branch equals `<main>` |
+| Worker (wake) | `pull_request.closed` | is merged = true; base branch equals `<main>` |
+
+Keep the event, branch and marker checks in the prompts anyway, as defence in depth.
+
+**Supported events** are pull request, release and issue. Comment events are not supported, which is why the loop uses a label to fire the Fixer.
+
+**Limits:**
+- GitHub events beyond the per-task and per-account hourly caps are **dropped**, so the Worker's watchdog is required.
+- Schedules can't run more often than hourly.
+- Scheduled runs are capped at 100 per hour per account.
+- Every run counts against your subscription usage.
 
 ## GitHub settings
 

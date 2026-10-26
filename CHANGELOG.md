@@ -8,3 +8,5 @@ First public release.
 - **Skill:** `autonomous-delivery`, with the playbook, the profiles (software, docs, data, infra, migration, research), and config and cloud-setup references.
 - **Templates:** the five cloud routine prompts (Worker, Reviewer, Fixer, Usage inspector, Security sweep), the charter docs, and the staging ops gate.
 - **Token log:** records token usage per role and round. It is on by default in new configs; set `"token_log": false` to turn it off.
+- **Community:** issue and PR templates, a Code of Conduct, the CI validate workflow, and the plugin icon.
+- **Docs:** GitHub trigger filters, the supported events, and dropped-event limits (cloud setup and lessons).

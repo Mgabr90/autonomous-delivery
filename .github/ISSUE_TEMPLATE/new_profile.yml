@@ -1,0 +1,29 @@
+name: New profile
+description: Propose a profile for another kind of work (mobile, ML training, game dev, legal docs, …)
+labels: ["profile", "good first issue"]
+body:
+  - type: markdown
+    attributes:
+      value: A profile tells the loop what "proof" means for a kind of work. See references/profiles.md for the existing ones.
+  - type: input
+    id: name
+    attributes:
+      label: Profile name
+      placeholder: mobile
+    validations:
+      required: true
+  - type: textarea
+    id: proof
+    attributes:
+      label: Proof (deterministic checks the reviewer runs)
+      placeholder: "e.g. ./gradlew test, xcodebuild test, detekt, swiftlint"
+    validations:
+      required: true
+  - type: textarea
+    id: checklist
+    attributes:
+      label: What the reviewer should add to its checklist
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence to commit, and typical gates

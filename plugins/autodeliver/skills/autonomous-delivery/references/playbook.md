@@ -153,7 +153,7 @@ sequenceDiagram
 | Marker | Writer | Meaning |
 |---|---|---|
 | `<PFX>-REVIEW <sha> VERDICT: PASS\|FAIL` plus `(round N, full\|delta\|docs-only)` | Reviewer | The verdict for exactly that sha; the idempotency key. |
-| label `<pfx>-review-fail` | Reviewer adds, Fixer removes | **Fires the Fixer.** Label events fire routines; comment events did not. |
+| label `<pfx>-review-fail` | Reviewer adds, Fixer removes | **Fires the Fixer.** Label events are supported triggers; comment events are not. |
 | `<PFX>-FIXER <sha> round <k>` / `blocked: …; Worker takes over` | Fixer | What was fixed, or a hand-off. |
 | `<PFX>-RETRY review\|fixer <sha>` | Worker | The watchdog's one retry per kind per sha. |
 | `<PFX>-SECURITY <date>`, `<PFX>-SECURITY-NOTE`, `<PFX>-USAGE <date>` | Sweep, operator, inspector | Reports and corrections on their issues. |
@@ -241,8 +241,9 @@ See `templates/staging/`.
 
 | What happened | Rule |
 |---|---|
-| `issue_comment` webhooks never fired the routine. | Drive the Fixer with a **label** (`pull_request.labeled`). |
-| Webhooks have no filter. | Each prompt checks the event, the branches and its per-sha marker before acting. |
+| `issue_comment` webhooks never fired the routine. Comment events aren't a supported trigger; only pull request, release and issue events are. | Drive the Fixer with a **label** (`pull_request.labeled`). |
+| GitHub triggers support filters (base and head branch, labels, draft, merged, author, title, body). | Filter each trigger to cut wasted runs. For example: Reviewer with base = main and head starting with the branch prefix; Fixer with labels including the fail label. **Also** keep the event, branch and marker checks in every prompt, as defence in depth. |
+| GitHub events over the per-task or per-account hourly caps are dropped, not queued. | The Worker's watchdog is required, not optional: it re-fires stalled reviews and fixers. Schedules can't run more often than hourly. |
 | `pull_request.*` events also fire for the bot's own pushes. | That closes the loop. Guard it with per-sha markers and a cap. |
 | GraphQL was unavailable in cloud sessions. | Use REST `gh api` or the GitHub MCP tools. |
 | Cloud sessions can't be messaged from other sessions. | Talk to them through files (ledger, HANDOFF) and issues. |

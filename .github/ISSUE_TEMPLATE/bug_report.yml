@@ -1,0 +1,35 @@
+name: Bug report
+description: Something in the plugin, a template or the playbook doesn't work as described
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for reporting. Please don't paste secrets, tokens or private repository content.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options: ["/autodeliver:init", "/autodeliver:loop", "/autodeliver:status", "/autodeliver:doctor", "an agent", "a routine template (cloud)", "staging gate template", "token log hook", "playbook / docs"]
+    validations:
+      required: true
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Mode
+      options: ["local", "cloud", "both / not applicable"]
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what you expected
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: "1. /autodeliver:init local software\n2. ..."
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      placeholder: "Claude Code 2.1.x, autodeliver 0.1.0, OS"

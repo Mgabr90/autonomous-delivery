@@ -1,0 +1,43 @@
+name: validate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install Claude Code CLI (no login needed to validate)
+        run: npm install -g @anthropic-ai/claude-code
+      - name: Validate marketplace and plugin
+        run: |
+          claude plugin validate . --strict
+          claude plugin validate plugins/autodeliver --strict
+      - name: Scripts compile and parse
+        run: |
+          python3 -m py_compile plugins/autodeliver/scripts/token_log.py
+          python3 -m py_compile plugins/autodeliver/skills/autonomous-delivery/templates/staging/ops.py
+          bash -n plugins/autodeliver/skills/autonomous-delivery/templates/staging/gate.sh
+          bash -n plugins/autodeliver/skills/autonomous-delivery/templates/staging/stg.sh
+      - name: JSON files parse
+        run: |
+          for f in $(git ls-files '*.json'); do python3 -m json.tool "$f" > /dev/null || { echo "bad JSON: $f"; exit 1; }; done
+      - name: Token log hook smoke test
+        run: |
+          T=$(mktemp -d); mkdir -p "$T/.autodeliver" "$T/.git"; echo '{"version":1}' > "$T/.autodeliver/config.json"
+          echo '{"timestamp":"2026-01-01T00:00:00Z","message":{"model":"m","usage":{"input_tokens":3,"output_tokens":2}}}' > "$T/t.jsonl"
+          echo "{\"hook_event_name\":\"Stop\",\"cwd\":\"$T\",\"transcript_path\":\"$T/t.jsonl\"}" | python3 plugins/autodeliver/scripts/token_log.py
+          grep -q ",main,m,3,2," "$T/.autodeliver/token_log.csv"
+      - name: No placeholders leaked outside templates and docs
+        run: |
+          ! git grep -nE "\{\{[A-Z_]+\}\}" -- ':!plugins/autodeliver/skills/autonomous-delivery/templates' ':!plugins/autodeliver/skills/autonomous-delivery/references' ':!CONTRIBUTING.md' ':!.github/pull_request_template.md'

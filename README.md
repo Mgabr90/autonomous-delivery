@@ -96,6 +96,12 @@ Plugins don't load in cloud sessions, so `init` copies the agents into your repo
 
 **Context cost:** about 1K tokens of always-on context per session (skill and agent descriptions). The full instructions load only when a command or agent runs.
 
+## Community
+
+- **Questions, ideas and show-and-tell:** [Discussions](https://github.com/Mgabr90/autonomous-delivery/discussions).
+- **Easy first contributions:** a new [profile](https://github.com/Mgabr90/autonomous-delivery/issues/new?template=new_profile.yml), a [lesson learned](https://github.com/Mgabr90/autonomous-delivery/issues/new?template=lesson_learned.yml), an example config for your stack, or a translation of the playbook. See the [`good first issue`](https://github.com/Mgabr90/autonomous-delivery/labels/good%20first%20issue) label.
+- **Every PR is validated by CI**, and contributors are credited in the CHANGELOG.
+
 ## Maintainers
 
 [@Mgabr90](https://github.com/Mgabr90) and [@Ahmed0623](https://github.com/Ahmed0623). Contributions are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md).

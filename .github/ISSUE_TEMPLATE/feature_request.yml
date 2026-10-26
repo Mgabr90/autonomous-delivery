@@ -1,0 +1,21 @@
+name: Feature request
+description: Suggest an improvement to the loop, an agent, a command or a template
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem it solves
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+  - type: checkboxes
+    id: quality
+    attributes:
+      label: Quality first
+      options:
+        - label: This doesn't weaken the gate (PASS needs zero Blocking, zero Should-fix and the full proof), the hard limits, or the "no dependency on the user" rule.
+          required: true

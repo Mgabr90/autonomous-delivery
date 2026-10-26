@@ -1,0 +1,25 @@
+name: Lesson learned
+description: A failure mode you hit while running an autonomous loop, and the rule that prevents it
+labels: ["lesson", "good first issue"]
+body:
+  - type: markdown
+    attributes:
+      value: Lessons are the most valuable part of the playbook. Keep it generic, with no project names, hosts or secrets.
+  - type: textarea
+    id: happened
+    attributes:
+      label: What happened
+      placeholder: "The fixer pushed a fix and a formatting commit a minute apart, which triggered two full reviews."
+    validations:
+      required: true
+  - type: textarea
+    id: rule
+    attributes:
+      label: The rule that prevents it
+      placeholder: "One commit per round; never push formatting-only commits."
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: How you know (optional)
