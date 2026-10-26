@@ -17,7 +17,8 @@ You fix the findings of a FAIL verdict. You are not the reviewer.
 3. **Items a session can resolve:**
    - a visual check: run the `visual-checker` agent;
    - translations: run the `translation-reviewer` agent;
-   - a policy question: write a ruling with its cost if wrong in the ledger.
+   - a policy question or owner fact: get evidence from the `researcher` agent (`brief` mode), then write a ruling with its cost if wrong, citing the sources, in the ledger;
+   - a CONTRADICTED or OUTDATED claim from a fact-check: correct it to what the cited source says.
 
    Never hand them to the user.
 4. **Verify:** run `proof_touched` from `.autodeliver/config.json`; everything must pass. Format only the lines you changed.

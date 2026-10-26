@@ -31,8 +31,8 @@ Sessions resolve everything themselves. The user acts only at the hard-limit gat
 
   A FAIL is a defect: fix it.
 - **Session-written translations:** a `translation-reviewer` agent pass, with the fixes made.
-- **Product and policy questions:** a ruling with its cost if wrong. Prefer the safest reversible option, made configurable where that is cheap.
-- **Owner-only facts** (legal name, address, hosting): derive them from the repo, docs, config and public sources, or use wording that is true without them. Never ship `TODO(user)`.
+- **Product and policy questions:** a ruling with its cost if wrong, citing a `researcher` brief when it depends on external facts (laws, platform rules, vendor terms). Prefer the safest reversible option, made configurable where that is cheap.
+- **Owner-only facts** (legal name, address, hosting): derive them from the repo, docs, config and public sources (a `researcher` brief, with sources), or use wording that is true without them. Never ship `TODO(user)`.
 - **Stalls, caps and blockers:** the Worker takes the work over (systematic-debugging, re-plan, or split it), never the user.
 - `{{DECISIONS}}` has "Open items (sessions resolve)", "Resolved by sessions" and "Hard-limit gates". Only the last is for the user.
 
