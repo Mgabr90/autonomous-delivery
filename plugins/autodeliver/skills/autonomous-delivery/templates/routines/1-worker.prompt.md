@@ -1,11 +1,10 @@
 <!--
 Routine: {{PROJECT}} · 1 Worker (hourly resume + PR watchdog + wake on merge)
-Model: {{MODEL_STRONG}} · Session: persistent (persist_session true), one phase per run
+Model: {{MODEL_STRONG}} · Session: fresh per tick (persist_session false; the repo holds all state), one phase per run
 Cron: 12 * * * *   ·   Webhook: github pull_request.closed
 Tools: Bash, Read, Write, Edit, Glob, Grep, Agent, Skill, TodoWrite, WebFetch, WebSearch (the researcher agent needs the web tools)
-If the usage inspector reports that the session has grown too large, set persist_session to false: the repo holds all the state.
 -->
-Hourly resume tick for {{PROJECT}} (repo {{REPO}}). This is a persistent session: the same message arrives every hour, so work resumes soon after usage limits reset. Always re-sync from git first, because other sessions may have pushed. Work autonomously; no human is watching. **Don't depend on the user:** resolve everything yourself per `{{HANDOFF}}` 'No dependency on the user'. The user acts only at these hard-limit gates: {{GATES}}. Use `gh api` (REST) or the GitHub MCP tools; GraphQL may be unavailable. Quality first: save tokens only by skipping work that isn't needed.
+Hourly resume tick for {{PROJECT}} (repo {{REPO}}). Each tick is a FRESH session with no memory of earlier ticks: the repo is your memory, so re-sync from git and read the files in step 2 first. Work autonomously; no human is watching. **Don't depend on the user:** resolve everything yourself per `{{HANDOFF}}` 'No dependency on the user'. The user acts only at these hard-limit gates: {{GATES}}. Use `gh api` (REST) or the GitHub MCP tools; GraphQL may be unavailable. Quality first: save tokens only by skipping work that isn't needed.
 
 0. PR WATCHDOG (always first; cheap). For each open, non-draft PR from `{{BRANCH_PREFIX}}*` into `{{MAIN}}`, using its head sha and the head commit's time:
    - **REVIEW STALLED:** there is no `{{PFX}}-REVIEW <head sha>`, the head is over 45 minutes old, and no `{{PFX}}-RETRY review <head sha>` exists. Push an empty commit `chore(review): re-request review gate` (normal fast-forward), then comment `{{PFX}}-RETRY review <new sha>`.
@@ -23,15 +22,18 @@ Hourly resume tick for {{PROJECT}} (repo {{REPO}}). This is a persistent session
    - its newest commit is over 30 minutes old.
    Never anything else, never force.
 1. CHEAP CHECK. Find the newest `{{BRANCH_PREFIX}}*` commit.
-   - If it is under 90 minutes old and wasn't pushed by you in this conversation, another session is working: reply in one line and STOP.
+   - If it is under 90 minutes old, another session is working: reply in one line and STOP.
    - If the newest branch has an OPEN PR, it is in the review loop: STOP.
    - If `{{DECISIONS}}` contains 'READY FOR GATE' for the final gate: STOP.
 2. Check out that branch, or start the next phase from `origin/{{MAIN}}` as `{{BRANCH_PREFIX}}pNN-<slug>`. On your first tick, after compaction, or when starting a NEW phase:
    - read `{{HANDOFF}}` (autonomy charter, 'No dependency on the user', hard limits), the active ledger under `{{LEDGERS}}`, and `{{ROADMAP}}`;
    - read the latest `{{PFX}}-SECURITY` comment and any `{{PFX}}-SECURITY-NOTE` on the issue '{{PROJECT}} · security sweep', and route every confirmed finding into this phase or the roadmap follow-ups.
    - **Research brief (new phase):** dispatch the `researcher` agent in `brief` mode on the phase's external facts (current library and API docs, breaking changes, prior art, owner facts, policy context). Save it to `{{PLANS}}<phase>-research.md`, and plan from it. Rulings on external facts cite its sources.
-   Otherwise re-read only the latest ledger entries.
+   - **New phase only:**
+     - **nits intake:** copy every `## Nits` item from the last merged PR's PASS review into this phase's ledger. Do each, or route it to a roadmap row with a ruling;
+     - **research brief:** see the researcher bullet above.
 3. GATES. When the next roadmap row is a hard-limit gate:
+   - **a rehearsal on real data runs only when its own row is next** (the previous phase is merged), never earlier just because the owner already placed the data. Finish with `rehearsal-down` WITHOUT `shred`, so the copy stays for the final gate;
    - prepare it fully (evidence, a rehearsed runbook);
    - write one line under 'Hard-limit gates' in `{{DECISIONS}}`: `READY FOR GATE: <gate> — <evidence links>`;
    - push it and STOP. Never perform the gated action yourself.

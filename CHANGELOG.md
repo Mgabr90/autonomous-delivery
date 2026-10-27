@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.4.0 (2026-10-27)
+
+- **Owner steps made one-time and early:** `templates/owner/place-real-data.sh` (hidden decryption prompt, a single dump uploaded root-only) and `templates/owner/stage-production-secrets.sh` (hidden prompts into a root-only file).
+- **Staging gate:** `rehearsal-down` keeps the real-data copy for the final restore (`shred` destroys it).
+- **Worker template:**
+  - a fresh session per tick;
+  - nits from the last PASS are carried into the next phase;
+  - a rehearsal runs only when its own roadmap row is next.
+- **Reviewer template:**
+  - e2e on every PASS when the whole PR touches the UI;
+  - operator CLIs must load from the built image;
+  - nits listed precisely.
+- **Playbook:** five new lessons, and the gates guidance updated.
+
 ## 0.3.0 (2026-10-27)
 
 - **Staging kit: configuration without an operator.**

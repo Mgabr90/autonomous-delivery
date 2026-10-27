@@ -68,11 +68,10 @@ Add to the app service in compose:
 
 ## Rehearsal before a cutover gate
 
-1. `rehearsal-up`.
-2. **The owner** places the decrypted dump at `rehearsal/backup.dump`. Its presence is their consent.
-3. `rehearsal-restore`.
-4. `rehearsal-migrate <sha>` (timed).
-5. `rehearsal-check` (counts only).
-6. `rehearsal-down` (removes everything and shreds the copy).
+1. **The owner places the decrypted dump once**, ideally well before it's needed, with `templates/owner/place-real-data.sh`. Its presence is their consent. It stays root-only on the server.
+2. **Run the rehearsal only when its roadmap row is next** (the previous phase is merged), never early just because the data is there.
+3. `rehearsal-up`, then `rehearsal-restore`, then `rehearsal-migrate <sha>` (timed), then `rehearsal-check` (counts only).
+4. `rehearsal-down` removes the container, volume and network and **keeps** the copy, so the final gate's restore doesn't need the owner again.
+5. After a verified production restore: `rehearsal-down shred`.
 
 The rehearsal DB sits on an internal network that is joined to nothing else, and no verb ever returns row contents.

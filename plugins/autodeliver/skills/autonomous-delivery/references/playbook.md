@@ -215,7 +215,10 @@ Typical gates are a production deploy, publication, a production data write, and
 - aggregate checks only, never row contents;
 - torn down and shredded afterwards.
 
-Run the exact cutover steps there first. The owner placing the copy is their consent.
+Run the exact cutover steps there first.
+- **The owner placing the copy is their consent.** Have them place it **once, early** (`templates/owner/place-real-data.sh`), and keep it root-only until the final restore is verified.
+- **Run the rehearsal only when its roadmap row is next.**
+- **Stage owner-only credentials early too** (`templates/owner/stage-production-secrets.sh`). The go-live then needs only the owner's "go" in chat.
 
 **Staging access from the cloud** goes through an allow-listed gate, never SSH keys in sessions:
 
@@ -270,6 +273,11 @@ See `templates/staging/`.
 | Old build images grew toward a full disk on a shared host. | Prune this project's own tags after every deploy (keep the running one + 2). Never run a global prune on a shared host. |
 | An operator CLI was excluded from the image by `.dockerignore`, so the production step would have failed. | Smoke-test every operator CLI from the built image (`run-cli … --dry-run`) during the phase. |
 | Cloud sessions can't install server files, by design. | Sessions list repo-side server changes under "Pending installs"; the operator installs them during the next progress check. |
+| A rehearsal step shredded the owner's data copy, so the final restore would have needed the owner a second time. | Keep the copy (root-only) until the final restore is verified; shred only then. |
+| A Worker that treated "backup present" as "go" would have rehearsed on real data before the build phases were done. | Gate a rehearsal on its roadmap row being next, not on the data being present. |
+| Nits left at a PASS were lost between phases. | The next phase copies them into its ledger, and does each one or routes it with a ruling. |
+| A delta-round PASS skipped e2e although the PR as a whole changed the UI. | Run e2e on every PASS whenever the whole PR touches the UI. |
+| An attempt to relax the production hard limit through a file-recorded approval was blocked by the safety system. | Production approval stays a chat message from the owner, by design. Prepare everything else so that it is the only step. |
 | A playbook rule ("webhooks have no filter") was out of date; the platform's docs had changed. | Facts drift. Each phase starts with a **research brief** from the `researcher` agent, and rulings on external facts cite its sources. |
 | A long "waiting on you" list built up. | Sessions resolve visual checks, translations, policy and owner facts themselves; only hard-limit gates remain. |
 | The CLI account switched to another organisation, so routine calls returned 404. | Check which account is signed in before managing routines (`/login`). |

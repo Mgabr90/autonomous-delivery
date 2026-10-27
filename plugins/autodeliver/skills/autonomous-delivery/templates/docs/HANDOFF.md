@@ -42,6 +42,12 @@ Sessions resolve everything themselves. The user acts only at the hard-limit gat
 
 Prepare each gate fully so that it is a single action: gather the evidence, rehearse the runbook, and write one notice line under "Hard-limit gates".
 
+**Make the owner's part one-time and early.** Give the owner the scripts in `templates/owner/`:
+- real data is placed once and kept root-only until a verified final restore;
+- owner-only credentials are staged in a root-only file through hidden prompts.
+
+Then the remaining owner action is just the go-ahead in chat.
+
 ## Hard limits (never crossed)
 
 {{HARD_LIMITS_LIST}}

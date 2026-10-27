@@ -106,8 +106,11 @@ case "$VERB" in
     docker rm -f ${PROJECT}-rehearsal-pg >/dev/null 2>&1 || true
     docker volume rm ${PROJECT}_rehearsal_pg >/dev/null 2>&1 || true
     docker network rm ${PROJECT}-rehearsal >/dev/null 2>&1 || true
-    [ -f "$ROOT/rehearsal/backup.dump" ] && shred -u "$ROOT/rehearsal/backup.dump"
-    echo "rehearsal removed (container, volume, network, backup copy)";;
+    # The owner places real data ONCE; keep the copy for the final gate's restore. `shred` destroys it.
+    if [ "${ARGV[1]:-}" = shred ]; then
+      for f in backup.dump backup.sql; do [ -f "$ROOT/rehearsal/$f" ] && shred -u "$ROOT/rehearsal/$f"; done
+      echo "rehearsal removed and the backup copy shredded"
+    else echo "rehearsal removed (container, volume, network); backup copy kept (root-only) for the final gate"; fi;;
   config-show)
     touch "$CFG" "$CLI"; chmod 600 "$CFG" "$CLI"
     for f in "$CFG" "$CLI"; do
