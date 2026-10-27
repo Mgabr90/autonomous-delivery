@@ -18,11 +18,45 @@ read -r -a ARGV <<< "${SSH_ORIGINAL_COMMAND:-help}"
 VERB="${ARGV[0]:-help}"
 echo "$(date -u +%FT%TZ) ${SSH_CLIENT%% *} ${SSH_ORIGINAL_COMMAND:-}" >> "$ROOT/gate.log"
 sha_ok() { [[ "${1:-}" =~ ^[0-9a-f]{7,40}$ ]]; }
+# ---- Staging configuration without an operator --------------------------------------------------------------------
+CFG=$ROOT/config.env   # read by the app (env_file in compose); chmod 600
+CLI=$ROOT/cli.env      # read only by run-cli: secrets the app must never hold; chmod 600
+APP_SECRETS="DATA_ENCRYPTION_KEYS"        # secrets the app needs (generated here, never printed)
+CLI_SECRETS="EXPORT_KEY"                  # secrets only the operator CLI may hold
+CLI_SCRIPTS="data:encrypt-backfill admin:data"   # app CLIs run-cli may start (package.json script names)
+is_secret() { [[ " $APP_SECRETS $CLI_SECRETS " == *" ${1:-} "* ]] && [ -n "${1:-}" ]; }
+secret_file() { [[ " $CLI_SECRETS " == *" ${1:-} "* ]] && echo "$CLI" || echo "$CFG"; }
+gen_value() {  # how each secret is generated: edit to match your app's expected format
+  case "$1" in
+    DATA_ENCRYPTION_KEYS) echo "stg$(date -u +%Y%m%d):$(openssl rand -base64 32)";;
+    *) openssl rand -base64 48 | tr -d '\n';;
+  esac
+}
+config_rule() {  # allow-listed settings: bool | int:min:max | dec:min:max | slug
+  case "${1:-}" in
+    FEATURE_DRY_RUN|REQUIRE_DATA_ENCRYPTION|DISABLE_SIGNUPS) echo bool;;
+    TRUST_PROXY_HOPS) echo int:0:5;;
+    RETENTION_DAYS) echo int:1:3650;;
+    QUALITY_THRESHOLD) echo dec:0:1;;
+    EXPORT_BUCKET) echo slug;;
+    *) return 1;;
+  esac
+}
+config_valid() {
+  local rule="$1" v="$2" min max
+  case "$rule" in
+    bool) [[ "$v" =~ ^(true|false)$ ]];;
+    int:*) IFS=: read -r _ min max <<< "$rule"; [[ "$v" =~ ^[0-9]{1,6}$ ]] && (( 10#$v >= min && 10#$v <= max ));;
+    dec:*) IFS=: read -r _ min max <<< "$rule"; [[ "$v" =~ ^[0-9]{1,4}(\.[0-9]{1,4})?$ ]] && python3 -c "import sys; sys.exit(0 if $min <= float(sys.argv[1]) <= $max else 1)" "$v";;
+    slug) [[ "$v" =~ ^[a-z0-9][a-z0-9-]{2,62}$ ]];;
+    *) return 1;;
+  esac
+}
 email_ok() { [[ "${1:-}" =~ ^[A-Za-z0-9._%+-]+@example\.com$ ]]; }
 
 case "$VERB" in
   help)
-    echo "verbs: status | logs [n<=500] | logs-since [min<=1440] | upload (tgz on stdin) | deploy <sha> | verify-test-user <x@example.com> | sql-ro (SQL on stdin) | rehearsal-status|up|restore|migrate <sha>|check|down";;
+    echo "verbs: status | logs [n<=500] | logs-since [min<=1440] | upload (tgz on stdin) | deploy <sha> | verify-test-user <x@example.com> | sql-ro (SQL on stdin) | rehearsal-status|up|restore|migrate <sha>|check|down | config-show | gen-secret <NAME> | set-config <NAME> <v> | unset-config <NAME> | apply-config | run-cli <sha> <script> [args] | prune-images";;
   status)
     docker ps --filter "name=${PROJECT}-stg" --format '{{.Names}} {{.Image}} {{.Status}}';;
   logs)
@@ -74,6 +108,42 @@ case "$VERB" in
     docker network rm ${PROJECT}-rehearsal >/dev/null 2>&1 || true
     [ -f "$ROOT/rehearsal/backup.dump" ] && shred -u "$ROOT/rehearsal/backup.dump"
     echo "rehearsal removed (container, volume, network, backup copy)";;
+  config-show)
+    touch "$CFG" "$CLI"; chmod 600 "$CFG" "$CLI"
+    for f in "$CFG" "$CLI"; do
+      [ "$f" = "$CFG" ] && echo "[app: config.env]" || echo "[cli only: cli.env]"
+      while IFS='=' read -r k v; do [ -z "$k" ] && continue
+        if is_secret "$k"; then echo "  $k = <set, fingerprint $(printf '%s' "$v" | sha256sum | cut -c1-12)>"; else echo "  $k = $v"; fi
+      done < "$f"
+    done;;
+  gen-secret)     # generate-once; never prints the value; rotation stays operator-only
+    k="${ARGV[1]:-}"; is_secret "$k" || { echo "allowed secrets: $APP_SECRETS $CLI_SECRETS"; exit 2; }
+    sf="$(secret_file "$k")"; touch "$sf"; chmod 600 "$sf"
+    grep -q "^$k=" "$sf" && { echo "$k already set; not overwritten (rotation is operator-only)"; exit 0; }
+    val="$(gen_value "$k")"; printf '%s=%s\n' "$k" "$val" >> "$sf"
+    echo "$k generated (fingerprint $(printf '%s' "$val" | sha256sum | cut -c1-12)) into $(basename "$sf")";;
+  set-config)
+    k="${ARGV[1]:-}"; v="${ARGV[2]:-}"; rule="$(config_rule "$k")" || { echo "not an allowed setting: $k"; exit 2; }
+    config_valid "$rule" "$v" || { echo "invalid value for $k ($rule)"; exit 2; }
+    touch "$CFG"; tmp="$(mktemp)"; grep -v "^$k=" "$CFG" > "$tmp" || true; printf '%s=%s\n' "$k" "$v" >> "$tmp"
+    install -m 600 "$tmp" "$CFG"; rm -f "$tmp"; echo "$k = $v (applies at the next deploy or apply-config)";;
+  unset-config)
+    k="${ARGV[1]:-}"; config_rule "$k" >/dev/null || { echo "not an allowed setting: $k"; exit 2; }
+    tmp="$(mktemp)"; grep -v "^$k=" "$CFG" > "$tmp" || true; install -m 600 "$tmp" "$CFG"; rm -f "$tmp"; echo "$k removed";;
+  apply-config)   # recreate the app with the current image and config.env
+    docker compose up -d app 2>&1 | tail -n 3;;
+  run-cli)        # allow-listed app CLI in a throwaway container from a built image, against STAGING only
+    sha_ok "${ARGV[1]:-}" || { echo "usage: run-cli <sha> <script> [args]"; exit 2; }
+    script="${ARGV[2]:-}"; [[ " $CLI_SCRIPTS " == *" $script "* ]] || { echo "allowed scripts: $CLI_SCRIPTS"; exit 2; }
+    args=("${ARGV[@]:3}"); [ "${#args[@]}" -le 8 ] || { echo "too many arguments"; exit 2; }
+    for a in "${args[@]}"; do [[ "$a" =~ ^-{0,2}[A-Za-z0-9][A-Za-z0-9:=._/-]{0,63}$ ]] || { echo "argument not allowed: $a"; exit 2; }; done
+    envf="$(mktemp)"; chmod 600 "$envf"; trap 'rm -f "$envf"' EXIT
+    docker compose config --format json | python3 -c 'import json,sys; e=json.load(sys.stdin)["services"]["app"].get("environment",{}); [print(f"{k}={v}") for k,v in e.items() if v is not None and "\n" not in str(v)]' > "$envf"
+    cat "$CFG" "$CLI" >> "$envf" 2>/dev/null || true
+    docker run --rm --env-file "$envf" --network "$NET" --memory 1g --pids-limit 256 --security-opt no-new-privileges \
+      "${IMAGE}:${ARGV[1]}-build" pnpm "$script" "${args[@]}" 2>&1 | tail -n 200;;
+  prune-images)   # only this project's tags; never a global prune on a shared host
+    ./prune-images.sh;;
   *)
     echo "verb not allowed: ${VERB}"; exit 2;;
 esac

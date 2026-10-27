@@ -85,4 +85,7 @@ At the start of each phase, and whenever a new `{{PFX}}-SECURITY` report or `{{P
 
 ## Environment
 
+- **Staging settings and secrets:** use the gate verbs (`config-show`, `gen-secret`, `set-config`, `apply-config`, `run-cli`). Don't wait for an operator.
+- **Server file changes** (gate, deploy script, compose): list them under "Pending installs" in the staging README. The operator installs them.
+
 {{ENVIRONMENT_NOTES}}

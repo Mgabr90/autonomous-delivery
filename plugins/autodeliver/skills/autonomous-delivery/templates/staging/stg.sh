@@ -43,6 +43,11 @@ case "$verb" in
   deploy|rehearsal-migrate) job "$verb" "sha=${1:?sha required}" ;;
   rehearsal-up|rehearsal-restore|rehearsal-check|rehearsal-down) job "$verb" ;;
   verify-test-user) call POST "$verb?email=${1:?email required}" ;;
+  config-show) call GET config-show ;;
+  gen-secret|unset-config) call POST "$verb?name=${1:?NAME required}" ;;
+  set-config) call POST "set-config?name=${1:?NAME required}&value=${2:?value required}" ;;
+  apply-config|prune-images) job "$verb" ;;
+  run-cli) s="${1:?sha required}" c="${2:?script required}"; shift 2; a="$(IFS=,; echo "$*")"; job run-cli "sha=$s&script=$c${a:+&args=$a}" ;;
   api)
     m="${1:?method}" p="${2:?/api/... path}"; shift 2
     JAR="${STG_COOKIES:-/tmp/stg.cookies}"

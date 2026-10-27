@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.0 (2026-10-27)
+
+- **Staging kit: configuration without an operator.**
+  - New gate verbs `config-show`, `gen-secret` (generate-once, never printed), `set-config` / `unset-config` (allow-listed, typed and range-checked), `apply-config`, `run-cli` (allow-listed app CLIs in a throwaway container) and `prune-images`.
+  - Two env files: `config.env` for the app and a CLI-only `cli.env`.
+  - `prune-images.sh` removes only this project's images.
+  - The ops service and client support the new verbs.
+- **The "Pending installs" convention** for server-file changes that only an operator may install.
+- **Playbook:** five new lessons (operator dependency, CLI-only secrets, disk growth on shared hosts, CLIs missing from images, pending installs).
+
 ## 0.2.0 (2026-10-26)
 
 - **New agent `researcher`:**

@@ -24,6 +24,10 @@ TEST_DOMAIN = re.escape(os.environ.get("TEST_ACCOUNT_DOMAIN", "example.com"))
 
 SHA = re.compile(r"^[0-9a-f]{7,40}$")
 EMAIL = re.compile(rf"^[A-Za-z0-9._%+-]+@{TEST_DOMAIN}$")
+NAME = re.compile(r"^[A-Z][A-Z0-9_]{2,63}$")
+VALUE = re.compile(r"^[A-Za-z0-9.-]{1,64}$")
+SCRIPT = re.compile(r"^[a-z]+:[a-z-]+$")
+ARG = re.compile(r"^-{0,2}[A-Za-z0-9][A-Za-z0-9:=._/-]{0,63}$")
 APP_PREFIX = "/_ops/app/"
 MAX_APP_BODY = 10_000_000
 DROP_REQ = {"host", OPS_HEADER.lower(), "content-length", "connection", "authorization", "proxy-authorization"}
@@ -45,6 +49,13 @@ VERBS = {
     "rehearsal-migrate": ("POST", "job", ("sha",)),
     "rehearsal-check": ("POST", "job", None),
     "rehearsal-down": ("POST", "job", None),
+    "config-show": ("GET", "sync", None),
+    "gen-secret": ("POST", "sync", ("name",)),
+    "set-config": ("POST", "sync", ("name_value",)),
+    "unset-config": ("POST", "sync", ("name",)),
+    "apply-config": ("POST", "job", None),
+    "run-cli": ("POST", "job", ("cli",)),
+    "prune-images": ("POST", "job", None),
 }
 JOBS, JOBS_LOCK = {}, threading.Lock()
 
@@ -165,6 +176,19 @@ class H(BaseHTTPRequestHandler):
             if not SHA.match(q.get("sha", "")):
                 return self.send(400, "sha=<7-40 hex> required\n")
             args.append(q["sha"])
+        elif isinstance(arg, tuple) and arg[0] == "name":
+            if not NAME.match(q.get("name", "")):
+                return self.send(400, "name=<SETTING_NAME> required\n")
+            args.append(q["name"])
+        elif isinstance(arg, tuple) and arg[0] == "name_value":
+            if not NAME.match(q.get("name", "")) or not VALUE.match(q.get("value", "")):
+                return self.send(400, "name=<SETTING_NAME>&value=<value> required\n")
+            args += [q["name"], q["value"]]
+        elif isinstance(arg, tuple) and arg[0] == "cli":
+            extra = [a for a in q.get("args", "").split(",") if a]
+            if not SHA.match(q.get("sha", "")) or not SCRIPT.match(q.get("script", "")) or len(extra) > 8 or not all(ARG.match(a) for a in extra):
+                return self.send(400, "sha=<hex>&script=<name>[&args=a,b] required\n")
+            args += [q["sha"], q["script"], *extra]
         elif isinstance(arg, tuple) and arg[0] == "email":
             if not EMAIL.match(q.get("email", "")):
                 return self.send(400, "email=<test account> required\n")

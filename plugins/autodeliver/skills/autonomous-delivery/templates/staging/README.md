@@ -11,6 +11,7 @@ cloud session ── HTTPS + header token ──► reverse proxy /_ops/* ──
 | `stg.sh` | in the repo, under `tools/` | The client sessions call: `status`, `logs-since`, `ship`, `api`, `sql-ro`, `rehearsal-*` |
 | `ops.py` | a small container behind your reverse proxy, route `/_ops/*` | Checks the token's sha256 against a per-client hash file, then relays an allow-listed verb over SSH |
 | `gate.sh` | the host, as the forced command of the ops key | The only things the key can do, each validated |
+| `prune-images.sh` | the host, next to `gate.sh` | Removes this project's old images only |
 
 ## Setup checklist
 
@@ -39,6 +40,31 @@ cloud session ── HTTPS + header token ──► reverse proxy /_ops/* ──
    On a shared host, keep strict name prefixes and take the shared deploy lock.
 7. **Mirror:** keep a copy of the server files in the repo under `tools/staging-ops/`, so sessions can read how staging works. Editing the copy changes nothing on the server.
 8. **Test it:** call every verb once (`status`, `logs-since 5`, `rehearsal-up`, then `rehearsal-restore`, which should refuse while no backup is present, then `rehearsal-down`), and confirm nothing is left behind.
+
+## Configure staging without an operator
+
+New settings and secrets are the most common reason a cloud session would need a human with server access. These verbs remove that need without giving sessions code execution as root:
+
+| Verb | What it does |
+|---|---|
+| `config-show` | Lists settings; secrets appear only as a fingerprint |
+| `gen-secret NAME` | Generates an allow-listed secret, once, never printed. App secrets go to `config.env` (the app reads it through `env_file`); **CLI-only secrets go to `cli.env`, which the app never sees** |
+| `set-config NAME VALUE` / `unset-config NAME` | Allow-listed, typed and range-checked settings (bool, int:min:max, dec:min:max, slug) |
+| `apply-config` | Recreates the app with the current image and settings |
+| `run-cli <sha> <script> [args]` | Runs an allow-listed app CLI (for example a backfill or export) in a throwaway container from the built image, with the app's environment, against staging only |
+| `prune-images` | Removes this project's old images (keeps the running one plus 2). Also run it at the end of `deploy.sh`. Never use a global prune on a shared host |
+
+Add to the app service in compose:
+
+```yaml
+    env_file:
+      - path: ./config.env
+        required: false
+```
+
+**Server file changes** (`gate.sh`, `deploy.sh`, compose, `ops.py`) stay operator-only. When a session changes the repo copy, it lists the change under **"Pending installs"** in this README, and the operator installs it during the next progress check.
+
+**Test that every app CLI loads from the built image** (`run-cli <sha> <script> --help` or `--dry-run`). A `.dockerignore` that excludes the scripts folder silently breaks operator steps.
 
 ## Rehearsal before a cutover gate
 

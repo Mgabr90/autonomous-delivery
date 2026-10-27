@@ -235,7 +235,8 @@ Useful verbs:
 - `sql-ro`;
 - test-account helpers restricted to `@example.com`;
 - `rehearsal-up|restore|migrate|check|down`;
-- an app API proxy that still requires the app's own login.
+- an app API proxy that still requires the app's own login;
+- **configuration without an operator:** `config-show`, `gen-secret`, `set-config`, `apply-config`, `run-cli` (allow-listed app CLIs) and `prune-images`. CLI-only secrets live in a file the app never reads.
 
 See `templates/staging/`.
 
@@ -264,6 +265,11 @@ See `templates/staging/`.
 | The first security sweep rated a finding HIGH from code reading; a live check refuted it. | Confirm every HIGH or CRITICAL at runtime on staging. Post corrections as `<PFX>-SECURITY-NOTE`. |
 | The cloud token got 403 on the dependency-alerts API. | Fall back to the package manager's audit. |
 | A phase was told to "check findings at the next phase". | When a report lands mid-phase, add an intake note to the active ledger. |
+| Every new staging setting or secret needed a human with server access. | Allow-listed config verbs: generate-once secrets that are never printed, typed and range-checked settings, `apply-config`, and allow-listed app CLIs via `run-cli`. Sessions never get code execution as root. |
+| A secret meant only for the operator CLI was loaded into the app's environment. | Keep two env files: one the app reads, one only the CLI runner reads. |
+| Old build images grew toward a full disk on a shared host. | Prune this project's own tags after every deploy (keep the running one + 2). Never run a global prune on a shared host. |
+| An operator CLI was excluded from the image by `.dockerignore`, so the production step would have failed. | Smoke-test every operator CLI from the built image (`run-cli … --dry-run`) during the phase. |
+| Cloud sessions can't install server files, by design. | Sessions list repo-side server changes under "Pending installs"; the operator installs them during the next progress check. |
 | A playbook rule ("webhooks have no filter") was out of date; the platform's docs had changed. | Facts drift. Each phase starts with a **research brief** from the `researcher` agent, and rulings on external facts cite its sources. |
 | A long "waiting on you" list built up. | Sessions resolve visual checks, translations, policy and owner facts themselves; only hard-limit gates remain. |
 | The CLI account switched to another organisation, so routine calls returned 404. | Check which account is signed in before managing routines (`/login`). |
