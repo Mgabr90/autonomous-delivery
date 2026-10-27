@@ -36,13 +36,13 @@
 
 - **Empty `cron_expression`:** the routine is webhook-only (Reviewer, Fixer).
 - **Cron:** for example `12 * * * *` (Worker), `0 5 * * *` (usage inspector), `0 3 * * 1` (security sweep).
-- **`persist_session: true`** (Worker only) sends every run into one session, so it keeps context across ticks.
+- **`persist_session`:** keep it `false` for every routine, the Worker included. A persistent Worker carried several phases in one growing context, and while it was busy its hourly cleanup never ran. Fresh sessions resume from the pushed ledger, and the 'another session is active' check prevents overlap.
 - **Updates:** `action: "update"` with `trigger_id` and the same `job_config` shape. Use a **new uuid** in `events[0].data.uuid` whenever the prompt changes. The change takes effect at the next run.
 - **Testing:** `action: "run"` triggers it once by hand. Do this for every new routine. Then read `list_runs` and `get_run_log`.
 
 | Routine | Model | Trigger | persist_session | Tools |
 |---|---|---|---|---|
-| 1 Worker | strong | cron `12 * * * *` + webhook `pull_request.closed` | true | Bash, Read, Write, Edit, Glob, Grep, Agent, Skill, TodoWrite, WebFetch, WebSearch |
+| 1 Worker | strong | cron `12 * * * *` + webhook `pull_request.closed` | false | Bash, Read, Write, Edit, Glob, Grep, Agent, Skill, TodoWrite, WebFetch, WebSearch |
 | 2 Reviewer | strong | webhook `pull_request.opened`, `.reopened`, `.synchronize`, `.ready_for_review` | false | Bash, Read, Glob, Grep, Agent, Skill, TodoWrite, WebSearch, WebFetch |
 | 3 Fixer | strong | webhook `pull_request.labeled` | false | Bash, Read, Write, Edit, Glob, Grep, Agent, Skill, TodoWrite, WebSearch, WebFetch |
 | 4 Usage inspector | mid | cron `0 5 * * *` | false | Bash, Read, Glob, Grep, TodoWrite |

@@ -17,7 +17,7 @@ Every session reads this file before doing anything else. It is the charter: wha
 
 - **Decide on your own.** Don't stop to ask. Log every ruling in the ledger as `R<n> — decision — why — cost if wrong`, and index product, data or scope rulings in `{{DECISIONS}}`.
 - **Quality first.** Never trade proof, review depth or verification for tokens.
-- Commit and push the ledger after every task, and at least every 60 minutes.
+- Commit and push the ledger after every task, and at least every 30 minutes, with the exact next step written down. Each Worker tick is a fresh session that resumes only from what is pushed.
 
 ## No dependency on the user
 

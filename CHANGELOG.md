@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.2 (2026-10-27)
+
+- **Reviewer template:** a duplicate guard. Before posting, it re-checks for a review of the same sha and for a moved head, so two webhook events on one PR produce one review.
+- **Fresh sessions everywhere:**
+  - `cloud-setup.md` now sets `persist_session: false` for the Worker too, with the reason;
+  - the Worker and HANDOFF templates push the ledger at least every 30 minutes, with the exact next step.
+- **Usage-inspector template:** a Worker fresh-run health check (tick time, resume gaps, lost work, ledger cadence, merged branches left behind) and duplicate-review detection, replacing the session-size check.
+- **Playbook:** two lessons (a persistent Worker blocking cleanup; duplicate reviews from two webhook events).
+
 ## 0.4.1 (2026-10-27)
 
 - **Roadmap template:** a production-readiness phase (capacity plan, encrypted backups with a restore test, a production-watch routine, a dependency batch) and a rehearsal row, both before the go-live gate.

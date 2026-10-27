@@ -266,7 +266,8 @@ See `templates/staging/`.
 | A reviewer passed with plan items undelivered (15 of 21). | A plan-completeness section is mandatory; a missing item is a Should-fix. |
 | The Fixer pushed a fix and a formatting commit a minute apart, which triggered two full reviews. | One commit per round; never push formatting-only commits. |
 | Long sessions re-read 700K+ contexts every turn. | One phase per session run; state in files; narrow subagent briefs. |
-| A persistent Worker session keeps growing. | The usage inspector watches it and recommends fresh sessions when needed. |
+| A persistent Worker session carried four phases in one growing context, and while it was busy its hourly cleanup never ran (merged branches stayed for hours). | Run every routine with `persist_session: false`. State lives in the pushed ledger (push at least every 30 minutes), and the 'another session is active' check prevents overlap. |
+| Two webhook events on one PR started two reviewers on the same sha, and both posted a full review. | The reviewer re-checks for an existing review of the sha right before posting, and stops silently if one appeared or the head moved. |
 | Pushing setup changes onto an active branch forced catch-up merges. | Change the setup between phases; mid-phase, touch only docs and tools. |
 | A prompt updated mid-run took effect only at the next tick. | Expect a one-tick delay; for urgent changes, also leave a ledger note. |
 | A routine nobody had triggered was untested. | Trigger every new routine once by hand and read its output. |

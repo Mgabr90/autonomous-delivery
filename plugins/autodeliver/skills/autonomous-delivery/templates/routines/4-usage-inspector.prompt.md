@@ -30,7 +30,14 @@ The automation: the routines listed in `.autodeliver/config.json` (`routines`), 
    - Worker work while another session was active;
    - rate-limit hits.
 
-   **Worker session size (always):** if it is too large, propose `persist_session: false`, with the trade-off.
+   **Worker fresh-run health (always):**
+   - early-exit tick duration (under about 30 s);
+   - resume gaps: over 2 hours with no commit while a phase is unfinished and no PR is open;
+   - lost or redone work;
+   - ledger pushed at least every 30 minutes;
+   - merged branches still present 2 hours after merge (cleanup not running).
+   If a session is still persistent, propose `persist_session: false`, with the trade-off.
+   **Duplicate reviews of one sha** are a regression of the reviewer's duplicate guard: report them with the PR and the times.
 
    **Quality risks rank above savings:** a PASS without full proof, deferrals without a ruling, merges before staging or evidence, items parked for the user, unrouted security findings.
 3. **DIRECT.** Give the target setup for the next 24 hours. For each edit, give:
