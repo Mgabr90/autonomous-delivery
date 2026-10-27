@@ -210,10 +210,18 @@ flowchart LR
 
 Typical gates are a production deploy, publication, a production data write, and placing real data that only the owner can decrypt.
 
+**Add a production-readiness phase before the rehearsal.** Building the features doesn't make a system ready to run. Before going live, the sessions must:
+- size it for the host it shares;
+- give it encrypted, restore-tested backups;
+- set up a watch routine;
+- clear critical dependency advisories.
+
+Sessions can do all of this; the owner is involved only if more hardware is needed.
+
 **Rehearse before the irreversible step.** Restore a copy of the real data into an isolated, throwaway environment:
 - an internal network, joined to nothing else;
 - aggregate checks only, never row contents;
-- torn down and shredded afterwards.
+- torn down afterwards, with the data copy kept root-only until the final restore is verified, then shredded.
 
 Run the exact cutover steps there first.
 - **The owner placing the copy is their consent.** Have them place it **once, early** (`templates/owner/place-real-data.sh`), and keep it root-only until the final restore is verified.
@@ -278,6 +286,7 @@ See `templates/staging/`.
 | Nits left at a PASS were lost between phases. | The next phase copies them into its ledger, and does each one or routes it with a ruling. |
 | A delta-round PASS skipped e2e although the PR as a whole changed the UI. | Run e2e on every PASS whenever the whole PR touches the UI. |
 | An attempt to relax the production hard limit through a file-recorded approval was blocked by the safety system. | Production approval stays a chat message from the owner, by design. Prepare everything else so that it is the only step. |
+| The roadmap ended at "features done → go live", with no backups, monitoring or capacity check for a server shared with another production site. | Add a production-readiness phase (capacity, encrypted backups + restore test, watch routine, dependency batch) before the rehearsal. |
 | A playbook rule ("webhooks have no filter") was out of date; the platform's docs had changed. | Facts drift. Each phase starts with a **research brief** from the `researcher` agent, and rulings on external facts cite its sources. |
 | A long "waiting on you" list built up. | Sessions resolve visual checks, translations, policy and owner facts themselves; only hard-limit gates remain. |
 | The CLI account switched to another organisation, so routine calls returned 404. | Check which account is signed in before managing routines (`/login`). |

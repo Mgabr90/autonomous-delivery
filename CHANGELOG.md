@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.1 (2026-10-27)
+
+- **Roadmap template:** a production-readiness phase (capacity plan, encrypted backups with a restore test, a production-watch routine, a dependency batch) and a rehearsal row, both before the go-live gate.
+- **Playbook:** the guidance and a lesson for this; the rehearsal text now keeps the data copy until the final restore.
+
 ## 0.4.0 (2026-10-27)
 
 - **Owner steps made one-time and early:** `templates/owner/place-real-data.sh` (hidden decryption prompt, a single dump uploaded root-only) and `templates/owner/stage-production-secrets.sh` (hidden prompts into a root-only file).
