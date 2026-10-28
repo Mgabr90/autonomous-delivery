@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.3 (2026-10-28)
+
+- **Fixer template:** answers the union of every FAIL review on the current head, not only the latest, and lists the review ids it answered.
+- **Reviewer template:** a claim step (`<PFX>-REVIEW-CLAIM <sha>`, expires after 30 minutes) that stops a duplicate run before it reviews. The step-7 guard still stops a duplicate post.
+- **Worker and HANDOFF templates:** one ledger commit per task close-out.
+- **cloud-setup.md:** always `get` and edit the live routine prompt; never rebuild it from an older copy.
+- **Playbook:** two lessons (duplicate reviews reaching the Fixer; a stale-copy update reverting another session's changes).
+
 ## 0.4.2 (2026-10-27)
 
 - **Reviewer template:** a duplicate guard. Before posting, it re-checks for a review of the same sha and for a moved head, so two webhook events on one PR produce one review.

@@ -37,7 +37,7 @@
 - **Empty `cron_expression`:** the routine is webhook-only (Reviewer, Fixer).
 - **Cron:** for example `12 * * * *` (Worker), `0 5 * * *` (usage inspector), `0 3 * * 1` (security sweep).
 - **`persist_session`:** keep it `false` for every routine, the Worker included. A persistent Worker carried several phases in one growing context, and while it was busy its hourly cleanup never ran. Fresh sessions resume from the pushed ledger, and the 'another session is active' check prevents overlap.
-- **Updates:** `action: "update"` with `trigger_id` and the same `job_config` shape. Use a **new uuid** in `events[0].data.uuid` whenever the prompt changes. The change takes effect at the next run.
+- **Updates:** first `action: "get"` the routine and edit its **live** prompt. Never rebuild it from an older copy: another session may have changed it since, and an update replaces the whole prompt. Then `action: "update"` with `trigger_id` and the same `job_config` shape. Use a **new uuid** in `events[0].data.uuid` whenever the prompt changes. The change takes effect at the next run.
 - **Testing:** `action: "run"` triggers it once by hand. Do this for every new routine. Then read `list_runs` and `get_run_log`.
 
 | Routine | Model | Trigger | persist_session | Tools |
