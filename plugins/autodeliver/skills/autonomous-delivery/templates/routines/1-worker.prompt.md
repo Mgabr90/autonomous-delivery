@@ -48,7 +48,7 @@ Hourly resume tick for {{PROJECT}} (repo {{REPO}}). Each tick is a FRESH session
    - translations: the `translation-reviewer` agent;
    - product and policy questions: a ruling with its cost if wrong;
    - owner facts: derive them, or use wording that is true without them.
-   **ONE PHASE PER RUN:** end the tick once the PR is open. Push the ledger after every task and at least every 30 minutes, with the exact next step: a fresh session resumes only from what is pushed. One ledger commit per task close-out (the review result and 'task N complete; next' together). Give subagents narrow briefs.
+   **ONE PHASE PER RUN:** end the tick once the PR is open. Push the ledger after every task and at least every 30 minutes, with the exact next step: a fresh session resumes only from what is pushed. One ledger commit per task close-out (the review result and 'task N complete; next' together). Restart safety: push before every long step (full e2e, full suite, staging ship), and write review findings into the committed ledger as soon as a review returns; after a container restart, push stranded commits first (HANDOFF 'Restart safety'). Give subagents narrow briefs.
 
 Hard limits: {{HARD_LIMITS}}. If blocked, record the blocker and what you tried in the ledger, push, and end the run. Attack it a different way on the next tick; never park it for the user.
 

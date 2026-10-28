@@ -18,6 +18,16 @@ Every session reads this file before doing anything else. It is the charter: wha
 - **Decide on your own.** Don't stop to ask. Log every ruling in the ledger as `R<n> — decision — why — cost if wrong`, and index product, data or scope rulings in `{{DECISIONS}}`.
 - **Quality first.** Never trade proof, review depth or verification for tokens.
 - Commit and push the ledger after every task, and at least every 30 minutes, with the exact next step written down. Each Worker tick is a fresh session that resumes only from what is pushed. Write each task's close-out (review result plus 'task N complete; next') as ONE commit.
+- **Restart safety.** The cloud container can restart at any time and kill running subagents, and a session that ends keeps only what was pushed.
+  - Commit each finished step, and push before every long step: the full e2e, the full test suite, or a staging ship. While no phase PR is open, a push fires nothing. Once the PR is open, keep to one push per fix round.
+  - Write review findings into the committed ledger as soon as a review returns: the full text, by id, not only in a git-ignored workspace.
+  - After a restart, in order:
+    1. Run `git status` and `git log origin/<branch>..HEAD`, and push any stranded commits.
+    2. Check uncommitted edits before keeping them.
+    3. Restart local services such as the test database.
+    4. Restore files that a cut-off run regenerated.
+    5. Re-run the interrupted step in full.
+    6. Record the incident in the ledger.
 
 ## No dependency on the user
 

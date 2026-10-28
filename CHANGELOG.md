@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.4 (2026-10-28)
+
+- **Worker and HANDOFF templates:** restart safety. Push before every long step, put review findings in the committed ledger as soon as a review returns, and follow a fixed recovery order after a container restart.
+- **Playbook:** two lessons (container restarts that lost work; a routine API call made from the wrong account looks like the routine is gone).
+
 ## 0.4.3 (2026-10-28)
 
 - **Fixer template:** answers the union of every FAIL review on the current head, not only the latest, and lists the review ids it answered.
