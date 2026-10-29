@@ -11,7 +11,7 @@
       "name": "autodeliver",
       "source": "./plugins/autodeliver",
       "description": "Set up and run an autonomous delivery loop: independent review gate, automatic fixer, watchdog, security sweep and usage inspector, for software, docs, data, infra, migrations and research.",
-      "version": "0.4.4",
+      "version": "0.4.5",
       "author": {
         "name": "Mahmoud Gabr",
         "url": "https://github.com/Mgabr90"

@@ -15,6 +15,7 @@ Hourly resume tick for {{PROJECT}} (repo {{REPO}}). Each tick is a FRESH session
      - fix the root cause test-first, or split the PR;
      - run the touched checks, push (this re-fires the review), and record it in the ledger.
      Once per sha.
+   - **MERGE PENDING:** a `{{PFX}}-REVIEW <head sha> VERDICT: PASS` is over 20 minutes old and the PR is still open, which means the gate's merge was refused or blocked. Never merge it yourself. Post `{{PFX}}-MERGE-PENDING <head sha>` if it isn't there, send one push notification per sha asking the owner to merge, don't re-request the review, and stop the tick.
    - One retry of each kind per sha. Never review or merge in this step.
 0b. BRANCH CLEANUP (cheap). `git fetch -q --prune origin`. Delete a remote `{{BRANCH_PREFIX}}*` branch only if all of these hold:
    - its tip is an ancestor of `origin/{{MAIN}}`;

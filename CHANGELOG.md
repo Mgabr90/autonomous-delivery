@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.5 (2026-10-29)
+
+- **Reviewer template:** merge through the REST endpoint pinned to the reviewed sha, after stating that the merge carries out the posted PASS. If the merge is blocked, post `<PFX>-MERGE-PENDING` and send a push notification, never retry another way.
+- **Worker template:** a MERGE PENDING watchdog check flags a PASS left unmerged and notifies the owner. It never merges.
+- **Playbook:** one lesson (a permission check blocked the gate's merge after its own PASS).
+
 ## 0.4.4 (2026-10-28)
 
 - **Worker and HANDOFF templates:** restart safety. Push before every long step, put review findings in the committed ledger as soon as a review returns, and follow a fixed recovery order after a container restart.
