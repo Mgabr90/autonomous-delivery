@@ -7,6 +7,7 @@
   "version": 1,
   "project": "Acme Portal",
   "mode": "cloud",
+  "host": "github",
   "profiles": ["software"],
   "repo": "acme/portal",
   "main_branch": "main",
@@ -20,7 +21,16 @@
     "roadmap": "docs/delivery/ROADMAP.md",
     "ledgers": "docs/delivery/ledgers/",
     "plans": "docs/delivery/plans/",
-    "evidence": "docs/delivery/evidence/"
+    "evidence": "docs/delivery/evidence/",
+    "host_doc": "docs/delivery/HOST.md"
+  },
+  "ado": {
+    "org": "https://dev.azure.com/acme",
+    "project": "Portal",
+    "repo": "portal",
+    "git_name": "Delivery Bot",
+    "git_email": "delivery@acme.example",
+    "reports_branch": "delivery-reports"
   },
   "proof_full": ["npm test", "npx tsc --noEmit", "npm run build"],
   "proof_touched": ["npx vitest related --run", "npx tsc --noEmit"],
@@ -52,7 +62,9 @@
 
 | Field | Meaning |
 |---|---|
-| `mode` | `local` (subagents in one session) or `cloud` (routines fired by GitHub) |
+| `mode` | `local` (subagents in one session) or `cloud` (routines fired by host events) |
+| `host` | `github` (default) or `ado` (Azure DevOps). Picks the host-operations doc copied to `paths.host_doc` (`templates/docs/HOST-<host>.md`); the routine prompts stay the same for both |
+| `ado` | Only for `host: "ado"`: the org URL, project, repo, the git identity commits are made as, and the branch that holds the usage and security reports (Azure DevOps has no issues the loop uses) |
 | `profiles` | Built-in profile names, or inline objects (see `profiles.md`) |
 | `marker_prefix` / `label` | The machine-readable markers in PR comments, and the label that fires the Fixer |
 | `proof_full` | Run by the reviewer before **any** PASS, never scoped down |
@@ -61,7 +73,7 @@
 | `loop.cap` | Local loop rounds before it stops and reports (default 5) |
 | `loop.fail_review_cap` | Cloud FAIL reviews per PR before the Worker takes over (default 10) |
 | `token_log` | **On by default.** The plugin hook appends token usage per role and round to `token_log_path` (CSV, git-ignored). Set it to `false` to turn it off. It only runs in projects that have this config. |
-| `routines` | Filled in by init in cloud mode; used by `status` and `doctor` |
+| `routines` | Filled in by init in cloud mode; used by `status` and `doctor`. On Azure DevOps the routine ids are also needed by the service-hook script and the `FIXER_ROUTINE_ID` environment variable |
 
 ## Template placeholders
 
@@ -77,6 +89,11 @@
 | `{{LABEL}}` | `label` |
 | `{{HANDOFF}}`, `{{DECISIONS}}`, `{{ROADMAP}}`, `{{LEDGERS}}`, `{{PLANS}}`, `{{EVIDENCE}}` | `paths.handoff`, `paths.decisions`, `paths.roadmap`, `paths.ledgers`, `paths.plans`, `paths.evidence` |
 | `{{WORK_DIR}}` | `work_dir` |
+| `{{HOST}}` | `host` |
+| `{{HOST_DOC}}` | `paths.host_doc` |
+| `{{ADO_ORG}}`, `{{ADO_PROJECT}}`, `{{ADO_REPO}}` | `ado.org`, `ado.project`, `ado.repo` (host `ado` only) |
+| `{{GIT_NAME}}`, `{{GIT_EMAIL}}` | `ado.git_name`, `ado.git_email` |
+| `{{REPORTS_BRANCH}}` | `ado.reports_branch` |
 | `{{PROOF_FULL}}` | `proof_full`, joined with `; ` |
 | `{{PROOF_TOUCHED}}` | `proof_touched`, joined with `; ` |
 | `{{E2E}}` | `e2e`, or "none" |

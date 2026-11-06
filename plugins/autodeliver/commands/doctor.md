@@ -15,9 +15,9 @@ Check each item below. Report ✅, ⚠️ or ❌ with a one-line reason. With `-
 | 4 | `.claude/agents/` contains `delivery-reviewer`, `delivery-fixer`, `researcher`, `visual-checker` and `translation-reviewer`, and they match the plugin's versions (warn if they are older) |
 | 5 | Every `proof_full` command runs (dry: `--help` or a quick invocation where possible; otherwise say it was not run) |
 | 6 | `.gitignore` covers `.autodeliver/token_log*`. No secrets are tracked (grep for common token patterns in tracked files) |
-| 7 | Cloud: the label exists (`gh label list`), and the remote and default branch match the config |
+| 7 | Cloud: GitHub: the label exists (`gh label list`); Azure DevOps: `ADO_PAT` works for the repo (list PRs) and the gate branch has no policy that blocks the Reviewer's merge. Both: the remote and default branch match the config, and `docs/delivery/HOST.md` matches the host |
 | 8 | Cloud: each routine in `config.routines` exists, is enabled, and has the expected model, trigger and `persist_session`. Its last run succeeded. A 404 means the wrong account may be signed in (`/login`). |
-| 9 | Cloud: the webhooks are attached. List them if the API allows; otherwise check that a recent PR got a `<PFX>-REVIEW` within 15 minutes. |
+| 9 | Cloud: the triggers are attached. GitHub: the webhooks (list them if the API allows). Azure DevOps: the service-hook subscriptions to the Reviewer and the Worker exist and are `enabled` (not on probation), and the environment has `FIXER_ROUTINE_ID`, `FIXER_FIRE_TOKEN` and `ANTHROPIC_VERSION` (names only). Otherwise check that a recent PR got a `<PFX>-REVIEW` within 15 minutes. |
 | 10 | Cloud: there are no stalled PRs (the same rules as `/autodeliver:status`) |
 | 11 | Staging, if configured: `tools/stg.sh status` returns 2xx |
 | 12 | Token log (on unless `token_log` is false): `.autodeliver/token_log.csv` gets rows after a subagent run, and Python 3 is available for the hook |

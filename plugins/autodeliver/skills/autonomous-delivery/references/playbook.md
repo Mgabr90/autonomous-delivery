@@ -6,7 +6,9 @@ It works for any work that can be checked: software, documents and courses, data
 
 It runs in one of two modes:
 - **Local:** one Claude Code session on your machine, with subagents and hooks. No GitHub or cloud is needed.
-- **Cloud:** Claude Code routines on the web, fired by GitHub events. This mode runs around the clock and survives usage-limit resets.
+- **Cloud:** Claude Code routines on the web, fired by events from the code host (GitHub, or Azure DevOps service hooks). This mode runs around the clock and survives usage-limit resets.
+
+The code host is a setting (`host: github | ado`). The routine prompts say *what* to do; one host-operations doc per host (`templates/docs/HOST-github.md`, `templates/docs/HOST-ado.md`) says *how*: cloning, PR comments, labels, merging pinned to a sha, firing the next routine, and where reports go.
 
 ---
 
@@ -31,7 +33,7 @@ It runs in one of two modes:
 6. **State lives in files, not in sessions.** The handoff doc, roadmap, plans, ledgers and decisions log make any session restartable from zero.
 7. **Least privilege everywhere.** Sessions reach outside systems only through narrow, allow-listed gates.
 8. **Event-driven, with a watchdog.** Events drive the loop; a periodic tick catches anything that stalls.
-9. **No paid CI needed.** Everything runs in Claude Code sessions.
+9. **No paid CI needed.** Everything runs in Claude Code sessions, whichever host holds the code.
 
 ---
 
@@ -75,7 +77,7 @@ flowchart LR
         U[4 Usage inspector<br/>daily, read-only]
         S[5 Security sweep<br/>weekly, read-only]
     end
-    subgraph GH["GitHub repo"]
+    subgraph GH["Code host: GitHub or Azure DevOps"]
         B[(work branches)]
         PR[(Pull requests<br/>labels + marker comments)]
         MAIN[(main branch)]
@@ -255,6 +257,12 @@ See `templates/staging/`.
 
 | What happened | Rule |
 |---|---|
+| Azure DevOps has no event for a PR label change, so a label can't fire the Fixer there. | On Azure DevOps the **Reviewer fires the Fixer** through the routine fire endpoint after posting FAIL (the label stays as a visible marker), and the Worker's watchdog re-fires a stalled Fixer the same way. |
+| The routine docs say cloning needs GitHub, yet routines with no repo attached cloned Azure DevOps repos fine with `git clone https://pat:$ADO_PAT@dev.azure.com/…` (`dev.azure.com` is on the default Trusted list). | On Azure DevOps, routines have `sources: []` and clone in the prompt's first step. |
+| A service hook POSTs its own event JSON; the fire endpoint reads only a top-level `text`, so the run started with no PR context. | Prompts never depend on the trigger: they find their work from the host state (open loop PRs without a review of the head). |
+| Every routine acts as the one PAT owner on Azure DevOps. | Authorship proves nothing there: the exact marker format, the per-sha claim and the sha-pinned merge carry the trust. |
+| Azure DevOps service hooks have no source-branch filter, so they fire for people's own PRs into the gate branch too. | Filter on target branch in the hook; every prompt keeps only `<branch_prefix>*` PRs and exits on the rest. |
+| A failing service-hook subscription goes on probation, then gets disabled, silently. | The Worker's watchdog lists the subscriptions each tick and re-fires stalled routines by hand. |
 | `issue_comment` webhooks never fired the routine. Comment events aren't a supported trigger; only pull request, release and issue events are. | Drive the Fixer with a **label** (`pull_request.labeled`). |
 | GitHub triggers support filters (base and head branch, labels, draft, merged, author, title, body). | Filter each trigger to cut wasted runs. For example: Reviewer with base = main and head starting with the branch prefix; Fixer with labels including the fail label. **Also** keep the event, branch and marker checks in every prompt, as defence in depth. |
 | GitHub events over the per-task or per-account hourly caps are dropped, not queued. | The Worker's watchdog is required, not optional: it re-fires stalled reviews and fixers. Schedules can't run more often than hourly. |
