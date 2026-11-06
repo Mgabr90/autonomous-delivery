@@ -29,6 +29,7 @@ jobs:
           python3 -m py_compile plugins/autodeliver/skills/autonomous-delivery/templates/staging/ops.py
           bash -n plugins/autodeliver/skills/autonomous-delivery/templates/staging/gate.sh
           bash -n plugins/autodeliver/skills/autonomous-delivery/templates/staging/stg.sh
+          bash -n plugins/autodeliver/skills/autonomous-delivery/templates/owner/ado-service-hooks.sh
       - name: JSON files parse
         run: |
           for f in $(git ls-files '*.json'); do python3 -m json.tool "$f" > /dev/null || { echo "bad JSON: $f"; exit 1; }; done

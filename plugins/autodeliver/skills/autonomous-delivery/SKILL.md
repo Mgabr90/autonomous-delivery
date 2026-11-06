@@ -1,6 +1,6 @@
 ---
 name: autonomous-delivery
-description: Run long work almost hands-off with an independent build, review and fix loop (local subagents, or Claude Code cloud routines fired by GitHub), plus security, usage and quality monitors. Use when someone wants to set up, run, check or improve an autonomous or closed-loop delivery workflow, a review gate, a builder/reviewer/fixer loop, phase-based delivery, or routines that keep working while they are away. It covers software, docs, data, infra, migrations and research.
+description: Run long work almost hands-off with an independent build, review and fix loop (local subagents, or Claude Code cloud routines fired by GitHub or Azure DevOps), plus security, usage and quality monitors. Use when someone wants to set up, run, check or improve an autonomous or closed-loop delivery workflow, a review gate, a builder/reviewer/fixer loop, phase-based delivery, or routines that keep working while they are away. It covers software, docs, data, infra, migrations and research.
 ---
 
 # Autonomous delivery
@@ -14,6 +14,7 @@ This skill holds the method behind the `autodeliver` plugin. Read the parts you 
 | Project config fields | `references/config.md` |
 | Routine prompts (Worker, Reviewer, Fixer, Usage inspector, Security sweep) | `templates/routines/*.prompt.md` |
 | Repo docs (HANDOFF charter, decisions log, roadmap, ledger) | `templates/docs/*` |
+| Host operations per code host (GitHub, Azure DevOps) | `templates/docs/HOST-github.md`, `templates/docs/HOST-ado.md` |
 | Staging access from the cloud (ops gate, client, rehearsal) | `templates/staging/*` |
 
 ## Commands

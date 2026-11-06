@@ -1,14 +1,14 @@
 <!--
 Routine: {{PROJECT}} · 1 Worker (hourly resume + PR watchdog + wake on merge)
 Model: {{MODEL_STRONG}} · Session: fresh per tick (persist_session false; the repo holds all state), one phase per run
-Cron: 12 * * * *   ·   Webhook: github pull_request.closed
+Cron: 12 * * * *   ·   Wake: PR merged into {{MAIN}} (GitHub `pull_request.closed`; Azure DevOps service hook `git.pullrequest.merged`), see `{{HOST_DOC}}`
 Tools: Bash, Read, Write, Edit, Glob, Grep, Agent, Skill, TodoWrite, WebFetch, WebSearch (the researcher agent needs the web tools)
 -->
-Hourly resume tick for {{PROJECT}} (repo {{REPO}}). Each tick is a FRESH session with no memory of earlier ticks: the repo is your memory, so re-sync from git and read the files in step 2 first. Work autonomously; no human is watching. **Don't depend on the user:** resolve everything yourself per `{{HANDOFF}}` 'No dependency on the user'. The user acts only at these hard-limit gates: {{GATES}}. Use `gh api` (REST) or the GitHub MCP tools; GraphQL may be unavailable. Quality first: save tokens only by skipping work that isn't needed.
+Hourly resume tick for {{PROJECT}} (repo {{REPO}}). Each tick is a FRESH session with no memory of earlier ticks: the repo is your memory, so re-sync from git and read the files in step 2 first. Work autonomously; no human is watching. **Don't depend on the user:** resolve everything yourself per `{{HANDOFF}}` 'No dependency on the user'. The user acts only at these hard-limit gates: {{GATES}}. Do every host operation (clone, PRs, comments, labels, firing a routine, reports) exactly as `{{HOST_DOC}}` says; on Azure DevOps run its section 0 first, since no repo is attached to the routine. Quality first: save tokens only by skipping work that isn't needed.
 
 0. PR WATCHDOG (always first; cheap). For each open, non-draft PR from `{{BRANCH_PREFIX}}*` into `{{MAIN}}`, using its head sha and the head commit's time:
    - **REVIEW STALLED:** there is no `{{PFX}}-REVIEW <head sha>`, the head is over 45 minutes old, and no `{{PFX}}-RETRY review <head sha>` exists. Push an empty commit `chore(review): re-request review gate` (normal fast-forward), then comment `{{PFX}}-RETRY review <new sha>`.
-   - **FIXER STALLED:** the latest review is `<head sha> VERDICT: FAIL` and over 45 minutes old, with no `{{PFX}}-FIXER` after it and no `{{PFX}}-RETRY fixer <head sha>`. Remove and re-add the label `{{LABEL}}` (labels fire the Fixer; comments don't), then comment `{{PFX}}-RETRY fixer <head sha>`.
+   - **FIXER STALLED:** the latest review is `<head sha> VERDICT: FAIL` and over 45 minutes old, with no `{{PFX}}-FIXER` after it and no `{{PFX}}-RETRY fixer <head sha>`. Re-fire the Fixer as `{{HOST_DOC}}` 'Watchdog → Fixer' says (GitHub: remove and re-add the label `{{LABEL}}`, since comments don't fire it; Azure DevOps: call the Fixer's fire endpoint, since labels fire nothing there), then comment `{{PFX}}-RETRY fixer <head sha>`.
    - **STAGING NEEDED:** the latest `{{PFX}}-FIXER` for the head says `blocked: staging step needed`. Do the missing step from the phase plan: `{{STAGING_CLIENT}} ship`, the plan's checks, then the log scan. Record it in ONE ledger commit and push it. If staging fails, diagnose and fix the cause yourself. Once per sha.
    - **TAKE OVER, never the user:** if a retry already exists and the PR is still stuck 45 minutes later, or a `{{PFX}}-FIXER: cap reached` or `{{PFX}}-FIXER: blocked:` comment exists:
      - take the PR over as phase work: read the review and fixer comments and use systematic-debugging to find why it doesn't converge;
@@ -16,6 +16,7 @@ Hourly resume tick for {{PROJECT}} (repo {{REPO}}). Each tick is a FRESH session
      - run the touched checks, push (this re-fires the review), and record it in the ledger.
      Once per sha.
    - **MERGE PENDING:** a `{{PFX}}-REVIEW <head sha> VERDICT: PASS` is over 20 minutes old and the PR is still open, which means the gate's merge was refused or blocked. Never merge it yourself. Post `{{PFX}}-MERGE-PENDING <head sha>` if it isn't there, send one push notification per sha asking the owner to merge, don't re-request the review, and stop the tick.
+   - Also run the host's watchdog extras (`{{HOST_DOC}}` section 3).
    - One retry of each kind per sha. Never review or merge in this step.
 0b. BRANCH CLEANUP (cheap). `git fetch -q --prune origin`. Delete a remote `{{BRANCH_PREFIX}}*` branch only if all of these hold:
    - its tip is an ancestor of `origin/{{MAIN}}`;
@@ -28,7 +29,7 @@ Hourly resume tick for {{PROJECT}} (repo {{REPO}}). Each tick is a FRESH session
    - If `{{DECISIONS}}` contains 'READY FOR GATE' for the final gate: STOP.
 2. Check out that branch, or start the next phase from `origin/{{MAIN}}` as `{{BRANCH_PREFIX}}pNN-<slug>`. On your first tick, after compaction, or when starting a NEW phase:
    - read `{{HANDOFF}}` (autonomy charter, 'No dependency on the user', hard limits), the active ledger under `{{LEDGERS}}`, and `{{ROADMAP}}`;
-   - read the latest `{{PFX}}-SECURITY` comment and any `{{PFX}}-SECURITY-NOTE` on the issue '{{PROJECT}} · security sweep', and route every confirmed finding into this phase or the roadmap follow-ups.
+   - read the latest `{{PFX}}-SECURITY` comment and any `{{PFX}}-SECURITY-NOTE` in the security sweep reports (`{{HOST_DOC}}` section 4), and route every confirmed finding into this phase or the roadmap follow-ups.
    - **Research brief (new phase):** dispatch the `researcher` agent in `brief` mode on the phase's external facts (current library and API docs, breaking changes, prior art, owner facts, policy context). Save it to `{{PLANS}}<phase>-research.md`, and plan from it. Rulings on external facts cite its sources.
    - **New phase only:**
      - **nits intake:** copy every `## Nits` item from the last merged PR's PASS review into this phase's ledger. Do each, or route it to a roadmap row with a ruling;

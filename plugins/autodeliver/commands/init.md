@@ -11,7 +11,7 @@ First load the `autonomous-delivery` skill, and read `references/playbook.md`, `
 
 ## 1. Detect (no questions yet)
 
-- Check whether this is a git repo, find the remote (`git remote get-url origin`), and get the main branch (`git symbolic-ref refs/remotes/origin/HEAD`, or `main`).
+- Check whether this is a git repo, find the remote (`git remote get-url origin`), and get the main branch (`git symbolic-ref refs/remotes/origin/HEAD`, or `main`). Derive the **host** from the remote: `dev.azure.com` or `visualstudio.com` → `ado` (parse org, project and repo from the URL); anything else → `github`.
 - Find the tooling: `package.json` scripts, `pyproject.toml`, `Makefile`, `go.mod`, `Cargo.toml`, `pom.xml`/`build.gradle`, CI files, docs generators (mkdocs, docusaurus, sphinx), notebooks, Terraform. Propose the proof commands from these.
 - Find locales: i18n folders and catalogue files.
 - Look for existing `CLAUDE.md`, `.claude/`, `.autodeliver/config.json`. If a config exists, offer to update it instead of starting over.
@@ -20,7 +20,7 @@ First load the `autonomous-delivery` skill, and read `references/playbook.md`, `
 
 1. **Mode:**
    - local: one session, with subagents;
-   - cloud: routines fired by GitHub; needs a GitHub repo and a claude.ai/code environment.
+   - cloud: routines fired by the code host; needs a claude.ai/code environment, and either a GitHub repo (GitHub app installed) or an Azure DevOps repo (a PAT in the environment, service hooks set up by the owner).
 2. **Profiles:** software, docs, data, infra, migration or research. Allow several.
 3. **Proof commands:** confirm or edit the detected `proof_full` (and `proof_touched`).
 4. **Gates:** what may only happen with the owner's approval, for example production deploy, publication or a production data write. Default: "Production deploy".
@@ -33,7 +33,7 @@ Derive the rest without asking:
 - `locales` from detection;
 - `loop.cap` 5 and `fail_review_cap` 10.
 
-In cloud mode, also ask for the claude.ai/code `environment_id`, and whether there is a staging host (if so, its URL).
+In cloud mode, also ask for the claude.ai/code `environment_id`, and whether there is a staging host (if so, its URL). On Azure DevOps, also confirm the git identity commits are made as (`ado.git_name`, `ado.git_email`) and the reports branch (default `delivery-reports`).
 
 ## 3. Write files (show the list first, then write)
 
@@ -43,7 +43,8 @@ In cloud mode, also ask for the claude.ai/code `environment_id`, and whether the
   - `docs/delivery/DECISIONS_LOG.md` (today's date);
   - `docs/delivery/ROADMAP.md`;
   - `docs/delivery/ledgers/` and `docs/delivery/plans/`;
-  - `docs/delivery/evidence/` (with a `.gitkeep`).
+  - `docs/delivery/evidence/` (with a `.gitkeep`);
+  - in cloud mode, `docs/delivery/HOST.md` from `templates/docs/HOST-<host>.md` (the host operations every routine reads).
 
   Ask in one line for the goal and the first phase, or derive a draft from the README and say it is a draft.
 - `CLAUDE.md`: add or append a short section "Ongoing work: read `docs/delivery/HANDOFF.md` first; work autonomously within its hard limits."
@@ -53,11 +54,12 @@ In cloud mode, also ask for the claude.ai/code `environment_id`, and whether the
 
 ## 4. Cloud mode only (confirm before each persistent change)
 
-1. **Label and alerts:** create `<label>` with `gh`, and offer to enable dependency alerts.
+1. **Label and alerts:** GitHub: create `<label>` with `gh`, and offer to enable dependency alerts. Azure DevOps: read the gate branch's policies (`_apis/policy/configurations`) and say whether the Reviewer can complete PRs itself; labels need no setup.
 2. **Routines:** for each of the five templates in `templates/routines/`:
    - fill the placeholders from the config (proof lists joined with `; `, gates and hard limits as `;`-separated sentences);
    - show the routine name, trigger and model;
-   - after one confirmation for all five, create them with RemoteTrigger (body shape in `references/cloud-setup.md`, with a fresh uuid each), then attach the webhooks.
+   - after one confirmation for all five, create them with RemoteTrigger (body shape in `references/cloud-setup.md`, with a fresh uuid each), then attach the webhooks (GitHub) or prepare the owner's service-hook step (Azure DevOps: `sources: []`, a bootstrap block that clones with `$ADO_PAT`, and `templates/owner/ado-service-hooks.sh` plus the Fixer's environment variables, per `references/cloud-setup.md` → "Azure DevOps host");
+   - check the connectors the server attached: remove any the routines don't need (for example a mail connector) with `clear_mcp_connections` or an explicit list.
 
    Save the trigger ids into `config.routines`.
 3. **Commit and push** the setup files on a branch `<branch_prefix>setup`, and open a PR. That PR is the **deliberate loop test**: the Reviewer must review and merge it.
