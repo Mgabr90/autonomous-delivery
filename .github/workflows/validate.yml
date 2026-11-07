@@ -26,6 +26,7 @@ jobs:
       - name: Scripts compile and parse
         run: |
           python3 -m py_compile plugins/autodeliver/scripts/token_log.py
+          python3 -m py_compile plugins/autodeliver/scripts/loop_report.py
           python3 -m py_compile plugins/autodeliver/skills/autonomous-delivery/templates/staging/ops.py
           bash -n plugins/autodeliver/skills/autonomous-delivery/templates/staging/gate.sh
           bash -n plugins/autodeliver/skills/autonomous-delivery/templates/staging/stg.sh
@@ -39,6 +40,7 @@ jobs:
           echo '{"timestamp":"2026-01-01T00:00:00Z","message":{"model":"m","usage":{"input_tokens":3,"output_tokens":2}}}' > "$T/t.jsonl"
           echo "{\"hook_event_name\":\"Stop\",\"cwd\":\"$T\",\"transcript_path\":\"$T/t.jsonl\"}" | python3 plugins/autodeliver/scripts/token_log.py
           grep -q ",main,m,3,2," "$T/.autodeliver/token_log.csv"
+          python3 plugins/autodeliver/scripts/loop_report.py "$T/.autodeliver/token_log.csv" | grep -q "| main |"
       - name: No placeholders leaked outside templates and docs
         run: |
           ! git grep -nE "\{\{[A-Z_]+\}\}" -- ':!plugins/autodeliver/skills/autonomous-delivery/templates' ':!plugins/autodeliver/skills/autonomous-delivery/references' ':!CONTRIBUTING.md' ':!.github/pull_request_template.md'

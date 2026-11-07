@@ -37,10 +37,13 @@ Agent names: use `delivery-reviewer` and `delivery-fixer` if `.claude/agents/` h
    - **FAIL:** fix exactly the Blocking and Should-fix items, either in this session (it already holds the context) or by dispatching the `delivery-fixer` agent if the config sets `"fixer": "agent"`. Then run `proof_touched`.
 3. **Log the round** in the active ledger (`paths.ledgers`), or in `.autodeliver/loop-log.md` if there is no ledger: round, verdict, counts, files changed.
 4. **Loop.** If a finding comes back unchanged, use systematic debugging for the root cause before the next fix.
+5. **Stop guards**, checked before each new round:
+   - **No progress:** stop when the same finding (same location and problem) is open for a third round, or when the number of open Blocking plus Should-fix findings hasn't fallen across two rounds in a row. More rounds of the same fix rarely converge: report it as below and propose a re-plan or a split.
+   - **Budget:** if `loop.token_budget` is set, sum `input_tokens + output_tokens + cache_write_tokens` for this `loop_id` in the token log. At or over the budget, stop and report. At 80%, say so in the round log. No budget is set by default; quality comes first, so a budget stops the loop and never makes the review shallower.
 
-## At the cap
+## At the cap, or when a stop guard fires
 
-Stop. Report:
+Stop. Report which limit stopped the loop (round cap, no progress or budget), and:
 - what still fails;
 - what was tried;
 - the most promising next approach (re-plan, split, or a different design).

@@ -16,6 +16,7 @@ Hourly resume tick for {{PROJECT}} (repo {{REPO}}). Each tick is a FRESH session
      - run the touched checks, push (this re-fires the review), and record it in the ledger.
      Once per sha.
    - **MERGE PENDING:** a `{{PFX}}-REVIEW <head sha> VERDICT: PASS` is over 20 minutes old and the PR is still open, which means the gate's merge was refused or blocked. Never merge it yourself. Post `{{PFX}}-MERGE-PENDING <head sha>` if it isn't there, send one push notification per sha asking the owner to merge, don't re-request the review, and stop the tick.
+   - **PHASE NOT PROGRESSING** (no PR open yet): the active ledger's "Resume here → Next" has stayed the same across three pushed ticks, or the phase has run longer than `loop.phase_tick_cap` ticks (default 12) without opening its PR. Don't try the same step a fourth time: use systematic-debugging, then re-plan the step or split the phase (a ruling with its cost if wrong, plus a roadmap row for the split-off part). Record it in the ledger.
    - Also run the host's watchdog extras (`{{HOST_DOC}}` section 3).
    - One retry of each kind per sha. Never review or merge in this step.
 0b. BRANCH CLEANUP (cheap). `git fetch -q --prune origin`. Delete a remote `{{BRANCH_PREFIX}}*` branch only if all of these hold:

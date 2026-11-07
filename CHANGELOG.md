@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.7.0 (2026-11-07)
+
+- **Try it without setup:**
+  - `/autodeliver:review [scope] [--fix] [--comment]` runs the independent gate once on the current changes, a branch, a PR or files. It detects the proof commands when there is no config.
+  - `/autodeliver:design-review <doc> [--lens …] [--drift]` runs the four fresh-eyes lenses on any plan, spec or RFC, and writes a merged report beside it.
+- **Loop metrics** (#3): `/autodeliver:report` and `scripts/loop_report.py`: tokens per loop, role, round and model from the token log, plus rounds to PASS, findings per round and design-review yield from the ledgers.
+- **Stop guards** (#2): the local loop stops on no progress (the same finding open a third time, or no fall in open findings across two rounds) and at an optional `loop.token_budget`. In the cloud, the Worker re-plans or splits a phase whose ledger hasn't moved for three ticks or that passes `loop.phase_tick_cap` (default 12).
+- **Optional second opinion** (#1): `second_opinion.command` runs another vendor's CLI on the diff; the gate verifies every item itself, and a failure never blocks a verdict. `doctor` checks it.
+- **CI:** compiles and smoke-tests the report script.
+
 ## 0.6.0 (2026-11-07)
 
 - **Design review before building**, adapted from Google's [Elephant-Goldfish Model](https://github.com/google/elephant-goldfish-model) (Apache 2.0): the Worker, with full context, writes each phase plan as a design doc; fresh `design-reviewer` agents that never see its reasoning review it before anything is built.
