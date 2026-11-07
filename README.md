@@ -35,6 +35,10 @@ claude plugin marketplace add Mgabr90/autonomous-delivery
 claude plugin install autodeliver@autonomous-delivery
 ```
 
+## See it run
+
+[**autodeliver-demo**](https://github.com/Mgabr90/autodeliver-demo) is one real phase on a small Python service: the plan as a design doc, four fresh-eyes design reviewers, a test-first build and the independent gate, with every verdict committed as the agents wrote it. The design review caught all three defects planted in the starting code before any code was written, and the gate passed in round 1. It is one small phase, not a benchmark.
+
 ## Try it in one minute (no setup)
 
 In any repo, after installing:
