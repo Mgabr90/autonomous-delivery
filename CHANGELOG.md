@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.9.0 (2026-11-07)
+
+- **Superpowers and `/simplify` built into the steps** (HANDOFF "Skills", playbook section 5b). They are used when available, and each step falls back to the playbook's own text:
+  - `writing-plans` writes the phase plan, kept in our format, and answers its execution question itself;
+  - `test-driven-development` for each task, and `requesting-code-review` for the per-task review;
+  - Claude Code's `/simplify` is the one simplify pass per phase (and runs once before review round 1 in `/autodeliver:loop`);
+  - `verification-before-completion` before anything is called done;
+  - the Fixer uses `receiving-code-review`;
+  - `systematic-debugging` as before.
+- **Guardrails:** interactive skills (`brainstorming`, `using-superpowers`, `finishing-a-development-branch`, `using-git-worktrees`) are never used in unattended runs. `brainstorming` is offered only at `init`, where the owner is present. The Reviewer uses no skills, so the gate's rules can't drift. When a skill and HANDOFF disagree, HANDOFF wins.
+- **`init`** offers to copy the unattended-safe superpowers skills into `.claude/skills/` for cloud sessions, with their MIT licence. **`doctor`** checks the copies (licence present, no interactive skills, up to date).
+
 ## 0.8.0 (2026-11-07)
 
 - **Unattended runs never wait on a permission prompt:** every routine prompt now forbids shell heredocs and multi-line inline scripts, keeps Bash commands short and single-purpose, and sends JSON to `curl` as `-d @file`. Shell heredocs had raised a prompt nobody could answer, which stalled runs. The Reviewer, usage inspector and security sweep now have Write, for request bodies and report files only. The Azure DevOps host doc states the `-d @file` convention once, for every call. CI checks that every prompt carries the rule.

@@ -42,10 +42,11 @@ Hourly resume tick for {{PROJECT}} (repo {{REPO}}). Each tick is a FRESH session
    - write one line under 'Hard-limit gates' in `{{DECISIONS}}`: `READY FOR GATE: <gate> — <evidence links>`;
    - push it and STOP. Never perform the gated action yourself.
 4. Otherwise work the phase from the ledger, per the phase workflow in `{{HANDOFF}}`:
+   - use the skills in `{{HANDOFF}}` "Skills" at each step when they are available (`writing-plans`, `test-driven-development`, `requesting-code-review`, `/simplify`, `verification-before-completion`, `systematic-debugging`), and never the ones it lists as interactive;
    - write the plan as a design doc with every section `{{HANDOFF}}` lists (goal, context from `{{SYSTEM}}`, design, alternatives, risks and fail-safe, decisions, file boundary, tasks, test plan);
    - **design review before any building:** dispatch the `design-reviewer` agent once per lens, in parallel (`zoom-out`, `comprehension`, `critic`, `readiness`, unless `design_review.lenses` in `.autodeliver/config.json` says otherwise). Each brief holds ONLY the lens, the plan path, the research brief path, the paths of `{{HANDOFF}}`, `{{ROADMAP}}` and `{{SYSTEM}}`, and the round: never your reasoning or a summary of why the plan is right. Resolve every Blocking and Should-fix by changing the plan or by a ruling with its cost if wrong; re-dispatch only the lenses that had findings. After `design_review.rounds` rounds (default 2), turn what is still open into rulings and start building, except an open Blocking that crosses a hard limit or fails unsafe: change the plan or split the phase instead. Push ONE ledger commit per round as soon as the lenses return (verdicts, findings, plan changes, rulings);
    - then run each task with test-first work, guard skills and a per-task review, staying inside the plan's file boundary (extend it only by a ledger ruling);
-   - one simplify pass (only files the phase already changed), the `{{SYSTEM}}` update if the phase changed the system's shape, the full proof (`{{PROOF_FULL}}`) and the final review;
+   - one simplify pass (`/simplify` on the phase diff; only files the phase already changed), the `{{SYSTEM}}` update if the phase changed the system's shape, the full proof (`{{PROOF_FULL}}`) and the final review;
    - staging ship, verify and log scan, if the project has staging;
    - commit the evidence under `{{EVIDENCE}}`;
    - the write-up, then the PR.

@@ -121,7 +121,7 @@ flowchart TD
     E --> F[Per-task review subagent]
     F --> G[Commit + ledger line + push]
     G --> D
-    D -- all done --> H[ONE simplify pass over the whole phase<br/>own commit]
+    D -- all done --> H[ONE simplify pass over the whole phase<br/>/simplify, own commit]
     H --> SY[Update the system doc<br/>if the system's shape changed]
     SY --> I[Full proof]
     I --> J[Final whole-phase review]
@@ -163,6 +163,22 @@ EGM's other ideas are folded in like this:
 **Not adopted:** EGM's human approval step (replaced by rulings), its chat checkpoints (nobody is watching), and its brainstorm swarm (roadmap-level ideation stays with the owner at init). EGM's `/egm-bootstrap` is a good way to write the first `SYSTEM.md` for an existing codebase, if that plugin is installed locally.
 
 **Measure it.** As with the loop itself (section 8), compare a few phases with and without the design review: Should-fix findings at round 1 of the gate, rounds to PASS, and total tokens. Keep it if it pays for itself.
+
+## 5b. Skills: superpowers and /simplify
+
+The loop's steps match well-tested skills, and the Worker, Fixer and local loop use them when they are available. `templates/docs/HANDOFF.md`, section "Skills", has the full map:
+- `writing-plans` for the phase plan, saved in our format;
+- `test-driven-development` for each task, with `requesting-code-review` for the per-task review;
+- Claude Code's `/simplify` for the one simplify pass per phase;
+- `verification-before-completion` before anything is called done;
+- `receiving-code-review` for the Fixer, and `systematic-debugging` when something is stuck.
+
+Three rules keep this safe:
+- **The playbook wins.** A skill makes a step more reliable but never overrides a rule in HANDOFF.md. Every step has a fallback, so a project without the skills still works.
+- **No interactive skills in unattended runs.** `brainstorming`, `using-superpowers`, `finishing-a-development-branch` and `using-git-worktrees` stop to ask the user. In a routine nobody answers, and the run stalls. `brainstorming` fits `/autodeliver:init`, where the owner is present.
+- **The Reviewer stays plain.** The gate uses none of these skills, so its rules can't drift with a skill update.
+
+Cloud sessions don't load plugins, so `/autodeliver:init` offers to copy the unattended-safe superpowers skills into `.claude/skills/`, with their MIT licence. `/simplify` ships with Claude Code. The superpowers skills are by Jesse Vincent ([obra/superpowers](https://github.com/obra/superpowers), MIT).
 
 ## 6. The closed review/fix loop
 

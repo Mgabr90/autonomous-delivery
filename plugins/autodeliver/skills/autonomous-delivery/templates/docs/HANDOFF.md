@@ -87,13 +87,33 @@ Then the remaining owner action is just the go-ahead in chat.
    - a per-task review;
    - a commit with its ledger line.
 4. **End of phase:**
-   - ONE simplify pass over the whole phase diff (its own `refactor(simplify)` commit), then the full proof: `{{PROOF_FULL}}`;
+   - ONE simplify pass over the whole phase diff (its own `refactor(simplify)` commit), limited to files the phase already changed, then the full proof: `{{PROOF_FULL}}`;
    - the final whole-phase review.
+
+   Each step above uses the matching skill from "Skills" below when it is available.
 5. **Staging** (if the project has it): ship; run the phase checks; then run the **log scan**, where any error the phase caused is a Should-fix. Record the results.
 6. **Evidence and write-up:**
    - commit the evidence;
    - update the roadmap;
    - open the PR (cloud) or run `/autodeliver:loop` (local).
+
+## Skills (use them when available)
+
+Skills make the steps above more reliable. They never replace the rules in this file: when a skill and this file disagree, this file wins. A skill is available when the Skill tool lists it. In cloud sessions that means `.claude/skills/<name>/` is committed, because plugins don't load there. Locally, the plugin names (`superpowers:<name>`) work too.
+
+| Step | Skill | Without it |
+|---|---|---|
+| Write the phase plan | `writing-plans`: save the plan to `{{PLANS}}<phase>-plan.md`, keep every section of step 1, and answer its "how to execute" question yourself (subagent-driven if subagents are available, inline otherwise) | the sections in step 1 |
+| Each task | `test-driven-development` | test-first by hand |
+| Per-task review | `requesting-code-review` | a review subagent with a narrow brief |
+| Simplify pass | Claude Code's `/simplify` on the phase diff (four cleanup reviewers, then the fixes) in one `refactor(simplify)` commit, limited to files the phase already changed | review the diff yourself for reuse, simplification, efficiency and altitude |
+| Before any "done", "green" or PR | `verification-before-completion` | run the proof and quote its output before claiming anything |
+| Answering review findings (Fixer) | `receiving-code-review`, then `test-driven-development` | verify each finding, then fix it test-first |
+| Stuck PR, repeated finding, failing proof | `systematic-debugging` | root cause before any fix |
+
+**Never in unattended runs:** skills that stop to ask the user, or that change the workspace's shape. These are `brainstorming`, `using-superpowers`, `finishing-a-development-branch` and `using-git-worktrees`. Nobody is there to answer, and the run would stall. Use them only in interactive sessions, for example `brainstorming` while setting the goal at `/autodeliver:init`.
+
+The Reviewer uses none of these skills: the gate keeps its own fixed rules.
 
 ## Review gate
 
