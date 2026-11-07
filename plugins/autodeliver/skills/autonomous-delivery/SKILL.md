@@ -50,6 +50,10 @@ This skill holds the method behind the `autodeliver` plugin. Read the parts you 
 6. **State lives in files.** Update the ledger after every task, so any session can resume.
 7. **Fail safe.** Never act as if an absent service succeeded.
 
+## Other skills the loop uses
+
+Where available, the Worker, Fixer and local loop use the superpowers skills (`writing-plans`, `test-driven-development`, `requesting-code-review`, `receiving-code-review`, `verification-before-completion`, `systematic-debugging`) and Claude Code's `/simplify`, each with a fallback. They never use the skills that would bypass the loop or need a person (`templates/docs/HANDOFF.md` → "Skills", playbook section 5b).
+
 ## Plugins don't load in cloud sessions
 
 Claude Code on the web loads a repo's committed `.claude/` folder, but not plugins. That is why `/autodeliver:init` copies the plugin's agents into `.claude/agents/`, and the routine prompts point to them there.

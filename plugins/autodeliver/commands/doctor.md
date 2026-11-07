@@ -24,5 +24,6 @@ Check each item below. Report ✅, ⚠️ or ❌ with a one-line reason. With `-
 | 13 | No unfilled `{{…}}` placeholders in `docs/delivery/`, `.claude/agents/` or `CLAUDE.md` (`grep -rn "{{"`) |
 | 14 | If `second_opinion.command` is set: its executable is on the PATH (locally), and a one-line dry call returns within `timeout_s`. Otherwise ⚠️ (it never blocks a verdict) |
 | 15 | No open loop PR has sat at a PASS head longer than `merge.pending_after_min` (default 20). With `merge.by: pipeline`, also check that the merge pipeline's last run succeeded |
+| 16 | Skills: if `.claude/skills/` holds superpowers copies, `SUPERPOWERS-LICENSE.txt` is there, and none of the excluded skills is (`subagent-driven-development`, `executing-plans`, `finishing-a-development-branch`, `using-git-worktrees`, `brainstorming`, `using-superpowers`). If superpowers is installed locally, compare its version with `.claude/skills/SUPERPOWERS-VERSION` and warn if the copies are older. If it can't compare (no plugin or no version file), say ⚠️ "not checked". Missing skills are ⚠️ only: every step has a fallback |
 
 End with the counts of ✅, ⚠️ and ❌, plus the exact next actions for anything left ❌.

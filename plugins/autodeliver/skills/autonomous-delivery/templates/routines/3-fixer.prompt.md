@@ -19,7 +19,7 @@ You are the PR FIXER for {{REPO}}. You were started because the gate failed a PR
    - a repeated finding: use systematic-debugging for the root cause, and add a regression test of the reviewer's exact scenario;
    - a finding you disputed that is raised again: implement the requested behaviour, if it is safe;
    - after {{FAIL_REVIEW_CAP}} FAIL reviews: comment `{{PFX}}-FIXER: cap reached; Worker takes over` with what keeps failing and what you tried, and stop.
-5. **FIX:** check out the branch and read `{{HANDOFF}}` and the ledger. For each finding:
+5. **FIX:** check out the branch and read `{{HANDOFF}}` (including "Skills") and the ledger. Use `receiving-code-review`, `test-driven-development` and `verification-before-completion` when they are available. For each finding:
    - verify it, then fix it test-first;
    - or, before escalation only, pin the correct behaviour with a test and explain why it isn't a defect.
 

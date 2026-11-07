@@ -87,13 +87,42 @@ Then the remaining owner action is just the go-ahead in chat.
    - a per-task review;
    - a commit with its ledger line.
 4. **End of phase:**
-   - ONE simplify pass over the whole phase diff (its own `refactor(simplify)` commit), then the full proof: `{{PROOF_FULL}}`;
+   - ONE simplify pass over the whole phase diff (its own `refactor(simplify)` commit), limited to files the phase already changed, then the full proof: `{{PROOF_FULL}}`;
    - the final whole-phase review.
+
+   Each step above uses the matching skill from "Skills" below when it is available.
 5. **Staging** (if the project has it): ship; run the phase checks; then run the **log scan**, where any error the phase caused is a Should-fix. Record the results.
 6. **Evidence and write-up:**
    - commit the evidence;
    - update the roadmap;
    - open the PR (cloud) or run `/autodeliver:loop` (local).
+
+## Skills (use them when available)
+
+Skills make the steps above more reliable. They never replace the rules in this file: when a skill and this file disagree, this file wins. A skill is available when the Skill tool lists it. In cloud sessions that means `.claude/skills/<name>/` is committed, because plugins don't load there; a skill's reference to `superpowers:<name>` then means the bare `<name>`. Locally, the plugin names work too.
+
+- **Where a skill says to ask, wait for, discuss with or get permission from "your human partner"**, write a ledger ruling with its cost if wrong, and continue.
+- **The design review (step 2) replaces any human plan review a skill asks for.**
+- **Report the way the routine prompt says, not the way a skill says.** That means marker comments in the ledger, never review-thread replies.
+- **Severity:** a skill's Critical, Important and Minor map to Blocking, Should-fix and Nit. Minor items go into the ledger, never just "for later".
+
+| Step | Skill | Without it |
+|---|---|---|
+| Write the phase plan | `writing-plans`, with three changes: save the plan to `{{PLANS}}<phase>-plan.md` with every section of step 1; leave out its "REQUIRED SUB-SKILL" header line; and **skip its Execution Handoff**, so you don't ask for a plan review and don't start `subagent-driven-development` or `executing-plans`. Go on to step 2 (design review), then step 3 | the sections in step 1 |
+| Each task | `test-driven-development` | test-first by hand |
+| Per-task review | `requesting-code-review` | a review subagent with a narrow brief |
+| Simplify pass | Claude Code's `/simplify origin/{{MAIN}}...HEAD` (four cleanup reviewers, then the fixes; always pass the range, because the default diff can be empty on a pushed branch), committed as one `refactor(simplify)`, limited to files the phase already changed | review the diff yourself for reuse, simplification, efficiency and altitude |
+| Before any "done", "green" or PR | `verification-before-completion` | run the proof and quote its output before claiming anything |
+| Answering review findings (Fixer) | `receiving-code-review`, then `test-driven-development` | verify each finding, then fix it test-first |
+| Stuck PR, repeated finding, failing proof | `systematic-debugging` | root cause before any fix |
+
+**Never, in any run:**
+- `subagent-driven-development` and `executing-plans`: they replace the playbook's build with their own. They keep their own uncommitted ledger, run their own reviews, and skip the design review;
+- `finishing-a-development-branch` and `using-git-worktrees`: they merge or move the work outside the gate, and they stop to ask.
+
+**Only with a person present:** `brainstorming` has a hard gate that needs the user's approval, and `using-superpowers` sends you to brainstorming first. Use them at `/autodeliver:init`, where the owner is present, never for phase work. If the superpowers session hook loads them in a local session, still don't use them for autodeliver work.
+
+The Reviewer uses none of these skills: the gate keeps its own fixed rules.
 
 ## Review gate
 

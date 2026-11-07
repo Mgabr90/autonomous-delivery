@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.9.0 (2026-11-07)
+
+- **Superpowers and `/simplify` built into the steps** (HANDOFF "Skills", playbook section 5b). They are used when available, and each step falls back to the playbook's own text:
+  - `writing-plans` writes the phase plan, kept in our format, and answers its execution question itself;
+  - `test-driven-development` for each task, and `requesting-code-review` for the per-task review;
+  - Claude Code's `/simplify` is the one simplify pass per phase (and runs once before review round 1 in `/autodeliver:loop`);
+  - `verification-before-completion` before anything is called done;
+  - the Fixer uses `receiving-code-review`;
+  - `systematic-debugging` as before.
+- **Guardrails:**
+  - Never used: `subagent-driven-development` and `executing-plans`, which bypass the build, ledger and design review, and `finishing-a-development-branch` and `using-git-worktrees`, which merge or move work outside the gate.
+  - `brainstorming` and `using-superpowers` are used only at `init`, where the owner is present.
+  - `writing-plans` runs without its execution handoff.
+  - "Ask your human partner" becomes a ledger ruling, and the design review replaces a skill's human plan review.
+  - Skill severities map to Blocking, Should-fix and Nit.
+  - The Reviewer uses none of these skills.
+  - When a skill and HANDOFF disagree, HANDOFF wins.
+- **`init`** offers to copy the unattended-safe superpowers skills into `.claude/skills/` for cloud sessions, with their MIT licence and a `SUPERPOWERS-VERSION` file. **`doctor`** checks the copies: licence present, no excluded skills, and version up to date when it can compare.
+- **`/simplify` always gets an explicit range**, because its default diff can be empty on a pushed branch. In `/autodeliver:loop` it runs only on work built in that loop, after the build is committed.
+
 ## 0.8.0 (2026-11-07)
 
 - **Unattended runs never wait on a permission prompt:** every routine prompt now forbids shell heredocs and multi-line inline scripts, keeps Bash commands short and single-purpose, and sends JSON to `curl` as `-d @file`. Shell heredocs had raised a prompt nobody could answer, which stalled runs. The Reviewer, usage inspector and security sweep now have Write, for request bodies and report files only. The Azure DevOps host doc states the `-d @file` convention once, for every call. CI checks that every prompt carries the rule.
