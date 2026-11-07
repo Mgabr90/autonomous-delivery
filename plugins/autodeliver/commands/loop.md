@@ -11,7 +11,7 @@ Read `.autodeliver/config.json`. If it is missing, use defaults: the profile inf
 
 ## Round 0: build
 
-Before anything else (including for `--baseline`), write `.autodeliver/loop_state.json` as `{"loop_id": "<short slug of the task>", "round": 0}`. The token log labels each row with it, so the plan, the design review and the build count towards this loop and its budget. When the loop ends, after the final report, set `"ended": true` in the file instead of deleting it: the main session's own tokens are logged when its turn stops, and the token-log hook labels that row with this loop and then removes the file. If `token_log` is false, delete the file yourself.
+Before anything else (including for `--baseline`), write `.autodeliver/loop_state.json` as `{"loop_id": "<short slug of the task>", "round": 0}`. The token log labels each row with it, so the plan, the design review and the build count towards this loop and its budget. When the loop ends, after the final report, set `"ended": true` in the file instead of deleting it: the main session's own tokens are logged when its turn stops, and the token-log hook labels that row with this loop and then removes the file. If there is no `.autodeliver/config.json`, or `token_log` is false, the hook doesn't run: delete the file yourself.
 
 If the task depends on external facts (library or API behaviour, versions, standards, laws, prior art), first dispatch the `researcher` agent in `brief` mode, and build from its sourced findings. Use `autodeliver:researcher` if `.claude/agents/` doesn't have it.
 

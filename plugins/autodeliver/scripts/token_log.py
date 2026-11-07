@@ -81,14 +81,19 @@ def main():
     tot, model, turns, dur, end = summarize(Path(transcript), int(state.get(transcript, 0)))
     state[transcript] = end
     state_path.write_text(json.dumps(state), encoding="utf-8")
-    if turns == 0:
-        return
     loop = {}
     loop_path = root / ".autodeliver" / "loop_state.json"
     try:
         loop = json.loads(loop_path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         pass
+    if turns == 0:
+        if name == "Stop" and loop.get("ended"):  # nothing to label: still clean up an ended loop
+            try:
+                loop_path.unlink()
+            except OSError:
+                pass
+        return
     out = root / cfg.get("token_log_path", ".autodeliver/token_log.csv")
     new = not out.exists()
     out.parent.mkdir(parents=True, exist_ok=True)
