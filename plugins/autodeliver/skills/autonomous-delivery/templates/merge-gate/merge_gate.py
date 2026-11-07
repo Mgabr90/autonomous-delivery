@@ -282,7 +282,7 @@ def run(host, cfg, log=print):
             merged += done
             host.note(pr, f"{NOTE_PREFIX} {pr['head']} {host.done_words[0 if done else 1]}: {reason}")
             log(f"  {host.done_words[0 if done else 1]} at {pr['head']}")
-        except RuntimeError as e:  # a refused merge or a failed call: report it, then carry on with the next PR
+        except (RuntimeError, OSError) as e:  # a refused merge, a failed call or a network error: report it, carry on
             errors += 1
             log(f"  error on PR #{pr['id']}: {e}")
     log(f"done: {merged} merged, {errors} errors{' (dry run)' if cfg['dry_run'] else ''}")

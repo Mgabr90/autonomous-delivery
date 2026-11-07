@@ -16,7 +16,7 @@ This skill holds the method behind the `autodeliver` plugin. Read the parts you 
 | Repo docs (HANDOFF charter, decisions log, roadmap, ledger, living system doc) | `templates/docs/*` |
 | Host operations per code host (GitHub, Azure DevOps) | `templates/docs/HOST-github.md`, `templates/docs/HOST-ado.md` |
 | Staging access from the cloud (ops gate, client, rehearsal) | `templates/staging/*` |
-| Optional merge gate, for when cloud permission checks refuse the Reviewer's merge | `templates/merge-gate/*` |
+| Optional merge pipeline, for when cloud permission checks refuse the Reviewer's merge | `templates/merge-gate/*` |
 
 ## Commands
 
