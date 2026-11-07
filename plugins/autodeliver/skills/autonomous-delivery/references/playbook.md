@@ -316,7 +316,7 @@ See `templates/staging/`.
 | Cloud sessions can't be messaged from other sessions. | Talk to them through files (ledger, HANDOFF) and issues. |
 | Plugins don't load in cloud sessions. | `/autodeliver:init` copies the agents into the repo's `.claude/` folder, which cloud sessions do load. |
 | Reviewers that scoped the *proof* to the delta passed broken heads. | Scope the **analysis** per round; always run the **full proof** before PASS. |
-| A reviewer passed with plan items undelivered (15 of 21). | A plan-completeness section is mandatory; a missing item is a Should-fix. |
+| A reviewer passed a phase with only 15 of 21 plan items done (2 partial, 4 not done; the PR merged before the final task ran). | A plan-completeness section is mandatory; a missing item is a Should-fix. |
 | The Fixer pushed a fix and a formatting commit a minute apart, which triggered two full reviews. | One commit per round; never push formatting-only commits. |
 | Long sessions re-read 700K+ contexts every turn. | One phase per session run; state in files; narrow subagent briefs. |
 | A persistent Worker session carried four phases in one growing context, and while it was busy its hourly cleanup never ran (merged branches stayed for hours). | Run every routine with `persist_session: false`. State lives in the pushed ledger (push at least every 30 minutes), and the 'another session is active' check prevents overlap. |
