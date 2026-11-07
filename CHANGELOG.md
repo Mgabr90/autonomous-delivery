@@ -9,7 +9,8 @@
 - **Stop guards** (#2): the local loop stops on no progress (the same finding open a third time, or no fall in open findings across two rounds) and at an optional `loop.token_budget`. In the cloud, the Worker re-plans or splits a phase whose ledger hasn't moved for three ticks or that passes `loop.phase_tick_cap` (default 12).
 - **Optional second opinion** (#1): `second_opinion.command` runs another vendor's CLI on the diff; the gate verifies every item itself, and a failure never blocks a verdict. `doctor` checks it.
 - **CI:** compiles and smoke-tests the report script.
-- **Review fixes before release:** the report script never crashes (BOM, non-UTF-8, non-finite numbers, a folder path); the loop labels its tokens from round 0 so the budget and report include the plan, design review and build; the Worker's no-progress check moved to the resume step with a "Ticks" row in the ledger; ad-hoc reviews skip plan-based checks and include untracked files; the second-opinion tool is time-limited and checked for file changes.
+- **Review fixes before release:** the report script never crashes (BOM, non-UTF-8, non-finite numbers, a folder path); the loop labels its tokens from round 0 so the budget and report include the plan, design review and build; the Worker's no-progress check moved to the resume step with a "Ticks" row in the ledger; ad-hoc reviews skip plan-based checks and include untracked files; the second-opinion tool is time-limited and checked for file changes (an edit is a Blocking safety finding). The loop marks its state file ended instead of deleting it, and the token-log hook labels the main session's last row before removing it, so `--baseline` and per-loop totals include the main session.
+- **Repo:** `.github/assets/social-preview.png`, the source of the repository's social preview card.
 
 ## 0.6.0 (2026-11-07)
 

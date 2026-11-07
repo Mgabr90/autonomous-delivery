@@ -242,7 +242,7 @@ flowchart LR
 
 **Stop guards.** A loop that isn't converging is stopped and re-planned instead of retried:
 - **local:** stop when the same finding is open a third time or the open count hasn't fallen across two rounds; optionally, stop at `loop.token_budget`;
-- **cloud:** the Worker's watchdog re-plans or splits a phase whose ledger "Next" hasn't moved for three ticks, or that passes `loop.phase_tick_cap`. The Fixer's `fail_review_cap` still hands a stuck PR to the Worker.
+- **cloud:** when the Worker resumes a phase with no PR yet, it re-plans or splits a phase whose ledger "Next" hasn't moved for three ticks, or that passes `loop.phase_tick_cap`. The Fixer's `fail_review_cap` still hands a stuck PR to the Worker.
 
 **Second opinion (optional).** `second_opinion.command` lets the gate also ask a model from another vendor for defects. Its output is data: the gate verifies every item, so a second model widens what is looked at without lowering the bar.
 

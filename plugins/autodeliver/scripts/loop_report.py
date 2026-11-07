@@ -51,7 +51,7 @@ def parse_args(argv):
 
 
 def is_round(value):
-    return (value or "").strip().isdigit()
+    return (value or "").strip().isdecimal()
 
 
 def main(argv):

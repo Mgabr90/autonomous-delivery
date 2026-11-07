@@ -11,7 +11,7 @@ Read `.autodeliver/config.json`. If it is missing, use defaults: the profile inf
 
 ## Round 0: build
 
-Before anything else (including for `--baseline`), write `.autodeliver/loop_state.json` as `{"loop_id": "<short slug of the task>", "round": 0}`. The token log labels each row with it, so the plan, the design review and the build count towards this loop and its budget. Keep the file until the final report is written, then delete it.
+Before anything else (including for `--baseline`), write `.autodeliver/loop_state.json` as `{"loop_id": "<short slug of the task>", "round": 0}`. The token log labels each row with it, so the plan, the design review and the build count towards this loop and its budget. When the loop ends, after the final report, set `"ended": true` in the file instead of deleting it: the main session's own tokens are logged when its turn stops, and the token-log hook labels that row with this loop and then removes the file. If `token_log` is false, delete the file yourself.
 
 If the task depends on external facts (library or API behaviour, versions, standards, laws, prior art), first dispatch the `researcher` agent in `brief` mode, and build from its sourced findings. Use `autodeliver:researcher` if `.claude/agents/` doesn't have it.
 
@@ -23,7 +23,7 @@ If the task depends on external facts (library or API behaviour, versions, stand
 
 ## Rounds 1…cap
 
-At the start of each round, update `round` in `.autodeliver/loop_state.json` to N (same `loop_id`). Delete the file only after the final report.
+At the start of each round, update `round` in `.autodeliver/loop_state.json` to N (same `loop_id`). Mark it ended only after the final report (see round 0).
 
 Agent names: use `delivery-reviewer` and `delivery-fixer` if `.claude/agents/` has them (as `init` sets up). Otherwise use the plugin-scoped names, `autodeliver:delivery-reviewer` and `autodeliver:delivery-fixer`.
 

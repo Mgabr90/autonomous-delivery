@@ -84,8 +84,9 @@ def main():
     if turns == 0:
         return
     loop = {}
+    loop_path = root / ".autodeliver" / "loop_state.json"
     try:
-        loop = json.loads((root / ".autodeliver" / "loop_state.json").read_text(encoding="utf-8"))
+        loop = json.loads(loop_path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         pass
     out = root / cfg.get("token_log_path", ".autodeliver/token_log.csv")
@@ -98,6 +99,13 @@ def main():
         w.writerow({"utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "session_id": event.get("session_id", ""),
                     "loop_id": loop.get("loop_id", ""), "round": loop.get("round", ""), "role": role, "model": model,
                     **tot, "assistant_turns": turns, "duration_s": dur, "event": name})
+    # The loop marks its state "ended" instead of deleting it, so the main session's own row (written here,
+    # when its turn stops) is still labelled with the loop. Clean up after that last row.
+    if name == "Stop" and loop.get("ended"):
+        try:
+            loop_path.unlink()
+        except OSError:
+            pass
 
 
 if __name__ == "__main__":
