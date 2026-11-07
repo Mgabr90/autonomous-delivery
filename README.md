@@ -119,6 +119,8 @@ You can mix profiles or define your own in `.autodeliver/config.json`.
 
 Plugins don't load in cloud sessions, so `init` copies the agents into your repo's `.claude/agents/`.
 
+Unattended cloud runs have two known traps: permission prompts that nobody answers, and a refused self-merge. The routine prompts avoid the first. For the second, the default is a one-click merge by you, and there is an optional external [merge pipeline](plugins/autodeliver/skills/autonomous-delivery/templates/merge-gate/README.md). See [cloud setup](plugins/autodeliver/skills/autonomous-delivery/references/cloud-setup.md).
+
 **Context cost:** about 1K tokens of always-on context per session (skill and agent descriptions). The full instructions load only when a command or agent runs.
 
 ## Community
