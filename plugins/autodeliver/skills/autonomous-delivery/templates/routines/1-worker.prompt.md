@@ -16,7 +16,6 @@ Hourly resume tick for {{PROJECT}} (repo {{REPO}}). Each tick is a FRESH session
      - run the touched checks, push (this re-fires the review), and record it in the ledger.
      Once per sha.
    - **MERGE PENDING:** a `{{PFX}}-REVIEW <head sha> VERDICT: PASS` is over 20 minutes old and the PR is still open, which means the gate's merge was refused or blocked. Never merge it yourself. Post `{{PFX}}-MERGE-PENDING <head sha>` if it isn't there, send one push notification per sha asking the owner to merge, don't re-request the review, and stop the tick.
-   - **PHASE NOT PROGRESSING** (no PR open yet): the active ledger's "Resume here → Next" has stayed the same across three pushed ticks, or the phase has run longer than `loop.phase_tick_cap` ticks (default 12) without opening its PR. Don't try the same step a fourth time: use systematic-debugging, then re-plan the step or split the phase (a ruling with its cost if wrong, plus a roadmap row for the split-off part). Record it in the ledger.
    - Also run the host's watchdog extras (`{{HOST_DOC}}` section 3).
    - One retry of each kind per sha. Never review or merge in this step.
 0b. BRANCH CLEANUP (cheap). `git fetch -q --prune origin`. Delete a remote `{{BRANCH_PREFIX}}*` branch only if all of these hold:
@@ -28,7 +27,7 @@ Hourly resume tick for {{PROJECT}} (repo {{REPO}}). Each tick is a FRESH session
    - If it is under 90 minutes old, another session is working: reply in one line and STOP.
    - If the newest branch has an OPEN PR, it is in the review loop: STOP.
    - If `{{DECISIONS}}` contains 'READY FOR GATE' for the final gate: STOP.
-2. Check out that branch, or start the next phase from `origin/{{MAIN}}` as `{{BRANCH_PREFIX}}pNN-<slug>`. On your first tick, after compaction, or when starting a NEW phase:
+2. Check out that branch, or start the next phase from `origin/{{MAIN}}` as `{{BRANCH_PREFIX}}pNN-<slug>`. **When resuming a phase that has no PR yet,** add 1 to "Ticks" in the ledger's "Resume here" table (and note whether "Next" changed since the last tick). **Phase not progressing:** if "Next" is unchanged for three ticks in a row, or "Ticks" passes `loop.phase_tick_cap` in `.autodeliver/config.json` (default 12), don't try the same step again: use systematic-debugging, then re-plan the step or split the phase (a ruling with its cost if wrong, plus a roadmap row for the split-off part), and record it in the ledger. On your first tick, after compaction, or when starting a NEW phase:
    - read `{{HANDOFF}}` (autonomy charter, 'No dependency on the user', hard limits), the active ledger under `{{LEDGERS}}`, and `{{ROADMAP}}`;
    - read the latest `{{PFX}}-SECURITY` comment and any `{{PFX}}-SECURITY-NOTE` in the security sweep reports (`{{HOST_DOC}}` section 4), and route every confirmed finding into this phase or the roadmap follow-ups. Route each `## Drift` item the same way: fix the code, or correct `{{SYSTEM}}` with a ruling that the doc was stale.
    - **Research brief (new phase):** dispatch the `researcher` agent in `brief` mode on the phase's external facts (current library and API docs, breaking changes, prior art, owner facts, policy context). Save it to `{{PLANS}}<phase>-research.md`, and plan from it. Rulings on external facts cite its sources.

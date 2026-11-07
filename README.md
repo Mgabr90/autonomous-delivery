@@ -54,7 +54,7 @@ When you want the whole loop, run `/autodeliver:init`.
 | `/autodeliver:loop <task>` | Runs the local loop on one task (build, review, fix) until PASS or the round cap. |
 | `/autodeliver:status` | Reports phases, PRs and verdicts, open items, gates waiting for you, and routine runs. |
 | `/autodeliver:doctor [--fix]` | Checks the setup and repairs what it safely can. |
-| `/autodeliver:review [scope] [--fix]` | One-shot independent gate on your changes, a branch, a PR or files. No setup needed. |
+| `/autodeliver:review [scope] [--fix] [--comment]` | One-shot independent gate on your changes, a branch, a PR or files. No setup needed. |
 | `/autodeliver:design-review <doc>` | Fresh-eyes review of any plan, spec or RFC by four isolated reviewers. No setup needed. |
 | `/autodeliver:report` | Tokens per role and round, rounds to PASS, findings per round. |
 

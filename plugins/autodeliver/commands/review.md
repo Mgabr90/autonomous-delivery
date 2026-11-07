@@ -11,7 +11,7 @@ The fastest way to try autodeliver: an independent reviewer that did not write t
 
 ## 1. Find the scope (no questions unless it is ambiguous)
 
-- **No argument:** everything on this branch that isn't on the main branch, plus uncommitted changes: `git diff $(git merge-base HEAD origin/<main>)` together with `git diff HEAD`. Find `<main>` with `git symbolic-ref refs/remotes/origin/HEAD`, or use `main`. If there is no remote, use the uncommitted changes, or the last commit if the tree is clean.
+- **No argument:** everything on this branch that isn't on the main branch, plus uncommitted and new files: `git diff $(git merge-base HEAD <base>)` (this includes uncommitted changes to tracked files) plus the untracked files from `git ls-files --others --exclude-standard`. `<base>` is `origin/<main>`, where `<main>` comes from `git symbolic-ref refs/remotes/origin/HEAD`; with no remote, it is the local `main` or `master` branch if one exists and differs from the current branch. Otherwise, use the uncommitted changes and untracked files, or the last commit if the tree is clean.
 - **A number:** a pull request. Read it with `gh pr view <n>` and `gh pr diff <n>` (on Azure DevOps, the REST call in the host doc if the repo has one).
 - **A range** (`a..b`, `a...b`) or **files:** use them as given.
 - If the scope is empty, say so and stop.
@@ -26,7 +26,7 @@ Say the scope in one line (files and line counts) before dispatching.
 
 ## 3. Review
 
-Dispatch the `delivery-reviewer` agent (`autodeliver:delivery-reviewer` if `.claude/agents/` doesn't have it) with the scope, the intent, the proof commands, the profile and round 1. **Don't review the work yourself, and don't send your opinion of it.** The reviewer runs the proof itself.
+Dispatch the `delivery-reviewer` agent (`autodeliver:delivery-reviewer` if `.claude/agents/` doesn't have it) with the scope (including the untracked files by path), the intent, the proof commands and the profile (state them explicitly when there is no config), round 1, and "no plan" unless a plan covers these changes. **Don't review the work yourself, and don't send your opinion of it.** The reviewer runs the proof itself.
 
 ## 4. Report
 

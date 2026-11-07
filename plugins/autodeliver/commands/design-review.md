@@ -28,7 +28,8 @@ Use the `design-reviewer` agent (`autodeliver:design-reviewer` if `.claude/agent
 
 ## 3. Report
 
-Write the replies, merged, to `<document folder>/<document name>.design-review.md`:
+Write the replies, merged, to a file beside the document named after it without its extension: `docs/plan.md` gives `docs/plan.design-review.md`.
+It contains:
 - a header with the date, the lenses and their verdicts (CLEAR or FINDINGS);
 - the comprehension paraphrase, so the author can check it against the intent (a wrong paraphrase is itself a finding);
 - the findings grouped as Blocking, Should-fix and Nit, each with its lens and location, with duplicates across lenses merged;

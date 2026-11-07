@@ -7,6 +7,7 @@ Per loop: rounds, rows, tokens by role (input, output, cache read, cache write),
 then totals by role and by model. Only the standard library; never writes anything.
 """
 import csv
+import math
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -16,9 +17,10 @@ TOKEN_FIELDS = ["input_tokens", "output_tokens", "cache_read_tokens", "cache_wri
 
 def num(value):
     try:
-        return float(value or 0)
-    except ValueError:
+        n = float(value or 0)
+    except (TypeError, ValueError):
         return 0.0
+    return n if math.isfinite(n) else 0.0
 
 
 def fmt(n):
@@ -48,17 +50,29 @@ def parse_args(argv):
     return path, loop, since
 
 
+def is_round(value):
+    return (value or "").strip().isdigit()
+
+
 def main(argv):
+    try:
+        return run(argv)
+    except Exception as exc:  # a report must never crash the caller
+        print(f"Could not read the token log: {type(exc).__name__}: {exc}")
+        return 0
+
+
+def run(argv):
     try:
         sys.stdout.reconfigure(encoding="utf-8")
     except (AttributeError, ValueError):
         pass
     path, only_loop, since = parse_args(argv)
-    if not path.exists():
+    if not path.is_file():
         print(f"No token log at {path}. The log is on by default in projects with .autodeliver/config.json "
               f"(\"token_log\": true); it fills as sessions and subagents finish.")
         return 0
-    with path.open(newline="", encoding="utf-8") as f:
+    with path.open(newline="", encoding="utf-8-sig", errors="replace") as f:
         rows = [r for r in csv.DictReader(f)
                 if (not only_loop or r.get("loop_id") == only_loop)
                 and (not since or (r.get("utc") or "") >= since)]
@@ -71,14 +85,14 @@ def main(argv):
         loops[r.get("loop_id") or "(no loop)"].append(r)
 
     print(f"# Loop report\n\nSource: `{path}`, {len(rows)} rows, "
-          f"{min(r['utc'] for r in rows)} to {max(r['utc'] for r in rows)}\n")
+          f"{min(r.get('utc') or '' for r in rows)} to {max(r.get('utc') or '' for r in rows)}\n")
     print("Total = input + output + cache write; cache reads are listed apart because they are billed far lower.\n")
 
     print("## Per loop\n")
     print("| Loop | Rounds | Role | Runs | Input | Output | Cache read | Cache write | Total | Time (min) |")
     print("|---|---|---|---|---|---|---|---|---|---|")
-    for loop_id, lrows in sorted(loops.items(), key=lambda kv: min(r["utc"] for r in kv[1])):
-        rounds = sorted({r.get("round") for r in lrows if r.get("round")}, key=lambda x: int(x) if x.isdigit() else 0)
+    for loop_id, lrows in sorted(loops.items(), key=lambda kv: min(r.get("utc") or "" for r in kv[1])):
+        rounds = sorted({r["round"].strip() for r in lrows if is_round(r.get("round"))}, key=int)
         by_role = defaultdict(lambda: defaultdict(float))
         for r in lrows:
             d = by_role[r.get("role") or "?"]
