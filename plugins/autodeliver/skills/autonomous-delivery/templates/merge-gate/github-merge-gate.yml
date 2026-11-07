@@ -1,0 +1,35 @@
+# autodeliver merge gate on GitHub (optional; see README.md).
+# Put this file at .github/workflows/merge-gate.yml in a SEPARATE repo the routines never write to,
+# together with merge_gate.py and test_merge_gate.py at that repo's root.
+# Secrets:   MERGE_GATE_TOKEN (fine-grained PAT on the target repo: Pull requests read & write, Contents read & write)
+# Variables: MERGE_GATE_DRY_RUN (leave unset or "true" until the dry runs look right, then "false")
+name: merge gate
+
+on:
+  schedule:
+    - cron: "55 * * * *"        # hourly, offset from the routines' own minutes
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: merge-gate
+  cancel-in-progress: false
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m pip install -q pytest && python3 -m pytest -q
+      - run: python3 merge_gate.py
+        env:
+          MERGE_GATE_HOST: github
+          MERGE_GATE_REPO: OWNER/REPO                 # edit: the repo the routines work in
+          MERGE_GATE_TARGET: main                     # edit: the one branch the gate may merge into
+          MERGE_GATE_RULES: work/=ACME-REVIEW         # edit: <branch_prefix>=<marker_prefix>-REVIEW
+          MERGE_GATE_TRUSTED: claude[bot]             # edit: the login the Reviewer routine posts as
+          MERGE_GATE_DRY_RUN: ${{ vars.MERGE_GATE_DRY_RUN }}
+          MERGE_GATE_TOKEN: ${{ secrets.MERGE_GATE_TOKEN }}

@@ -96,6 +96,22 @@ Keep the event, branch and marker checks in the prompts anyway, as defence in de
    - the Worker deletes the branch at its next tick.
 3. If any step stalls, read `get_run_log` for that routine. The most common causes are the wrong signed-in account, a missing GitHub app permission, or a prompt that skipped the event.
 
+## Unattended runs: permission prompts and refused merges
+
+Two failures seen on unattended cloud routines (November 2026, two Azure DevOps Workers; re-check the docs, because platform behaviour changes):
+
+1. **A run hangs on a permission prompt.** Shell heredocs (`cat > f <<'EOF'`, `python3 - <<'EOF'`) and some inline scripts raise a parser prompt ("Contains brace with quote character (expansion obfuscation)"). Nobody answers it, so the session sits in `requires_action`, the run lock goes stale, and later runs redo the same work.
+   - **Rule, in every routine prompt:** create and change files only with Write and Edit; keep each Bash command short and single-purpose; pass JSON bodies to `curl` as `-d @file`, with the file written by Write. Cloud sessions pre-approve file edits, so Write and Edit never prompt. Runs after this rule went in had no prompts.
+2. **The Reviewer's own merge is refused** ("Merge Without Review", "Self-Approval"; a force-push gets "Git Destructive"), even after an independent review posted PASS.
+   - Routine runs start in auto mode, and bypass mode isn't available in cloud sessions.
+   - Text in a routine prompt doesn't count as approval.
+   - There is no per-routine or per-environment permission field, and `~/.claude/settings.json` isn't read in cloud sessions.
+   - **The official fix:** server-managed settings (an `autoMode` allowance) set by an organisation Owner.
+   - **The default without one:** the Reviewer posts `<PFX>-MERGE-PENDING`, the Worker notifies the owner, and the owner merges.
+   - **Optional workaround:** the merge gate in `templates/merge-gate/`. A scheduled pipeline in a repo the routines never write to completes only the PRs whose current head has a trusted PASS. Turn it on with `"merge": {"by": "gate"}`.
+
+When you update a trigger's `job_config` through the API, send it whole: `environment_id`, `session_context` and `events`. Fields the API doesn't support (an `auto_mode_allow` in `session_context`, for example) are dropped silently, so read the trigger back after every update.
+
 ## Plugins don't load in cloud sessions
 
 Cloud sessions load the repo's committed `.claude/` folder (agents, skills, commands, and `settings.json` hooks), but not plugins. `/autodeliver:init` therefore copies the plugin's agents into `.claude/agents/`. Copy any skills your prompts rely on into `.claude/skills/` too, keeping their licence files.

@@ -23,5 +23,6 @@ Check each item below. Report ✅, ⚠️ or ❌ with a one-line reason. With `-
 | 12 | Token log (on unless `token_log` is false): `.autodeliver/token_log.csv` gets rows after a subagent run, and Python 3 is available for the hook |
 | 13 | No unfilled `{{…}}` placeholders in `docs/delivery/`, `.claude/agents/` or `CLAUDE.md` (`grep -rn "{{"`) |
 | 14 | If `second_opinion.command` is set: its executable is on the PATH (locally), and a one-line dry call returns within `timeout_s`. Otherwise ⚠️ (it never blocks a verdict) |
+| 15 | Only if `merge.by` is `gate`: every open loop PR at a PASS head is under 3 hours old (older means the gate pipeline may be down), and the Reviewer template's verdict line uses the full 40-character sha |
 
 End with the counts of ✅, ⚠️ and ❌, plus the exact next actions for anything left ❌.

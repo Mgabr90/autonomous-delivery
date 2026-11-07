@@ -18,7 +18,7 @@ The routine has the repo as a `sources` entry; the platform clones it. The trigg
 | Read comments | `gh api repos/{{REPO}}/issues/<n>/comments` |
 | Post a marker comment | `gh api -X POST repos/{{REPO}}/issues/<n>/comments -f body=…` |
 | Label | add `gh api -X POST repos/{{REPO}}/issues/<n>/labels -f "labels[]={{LABEL}}"`; remove `gh api -X DELETE repos/{{REPO}}/issues/<n>/labels/{{LABEL}}`. **Adding the label fires the Fixer.** |
-| Merge pinned to the sha | `gh api -X PUT repos/{{REPO}}/pulls/<n>/merge -f merge_method=merge -f sha=<reviewed sha> -f commit_title="Merge <title> (#<n>)"` |
+| Merge pinned to the sha | `gh api -X PUT repos/{{REPO}}/pulls/<n>/merge -f merge_method=merge -f sha=<reviewed sha> -f commit_title="Merge <title> (#<n>)"`. With the optional merge gate (`"merge": {"by": "gate"}`), the Reviewer skips this, and a scheduled workflow in a separate repo merges PASS heads (`templates/merge-gate/README.md`). |
 | Re-request a review | push an empty commit (fires `pull_request.synchronize`) |
 
 ## 2. Firing the next routine

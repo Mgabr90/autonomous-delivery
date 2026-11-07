@@ -48,6 +48,7 @@
   ],
   "loop": { "cap": 5, "fail_review_cap": 10, "token_budget": null, "phase_tick_cap": 12 },
   "second_opinion": null,
+  "merge": { "by": "reviewer" },
   "design_review": { "lenses": ["zoom-out", "comprehension", "critic", "readiness"], "rounds": 2 },
   "models": { "strong": "claude-opus-5-5", "mid": "claude-sonnet-5-5" },
   "token_log": true,
@@ -78,6 +79,7 @@
 | `loop.cap` | Local loop rounds before it stops and reports (default 5) |
 | `loop.token_budget` | Optional. Local loop: stop and report when this loop's tokens (input + output + cache write, from the token log) reach it. Unset by default. It stops the loop; it never makes a review shallower |
 | `loop.phase_tick_cap` | Cloud: Worker ticks a phase may take before opening its PR; past it, or when the ledger's "Next" hasn't moved for three ticks, the Worker re-plans or splits the phase (default 12) |
+| `merge.by` | `reviewer` (default): the Reviewer merges on PASS, pinned to the sha, and posts `<PFX>-MERGE-PENDING` if the merge is refused. `gate`: an **optional workaround** for when cloud permission checks keep refusing that merge. The Reviewer only posts PASS, and an external scheduled pipeline (`templates/merge-gate/`) completes PASS heads |
 | `second_opinion` | Optional reviewer from another model vendor: `{"command": "<CLI that reads a prompt on stdin and prints findings>", "timeout_s": 600}`, for example a read-only, non-interactive Codex or Gemini CLI call. The gate verifies each item itself; a failure never blocks a verdict. In cloud mode the CLI and its key must be installed in the environment |
 | `loop.fail_review_cap` | Cloud FAIL reviews per PR before the Worker takes over (default 10) |
 | `token_log` | **On by default.** The plugin hook appends token usage per role and round to `token_log_path` (CSV, git-ignored). Set it to `false` to turn it off. It only runs in projects that have this config. |

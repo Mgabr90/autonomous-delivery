@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.8.0 (2026-11-07)
+
+- **Unattended runs never wait on a permission prompt:** every routine prompt now creates and changes files only with Write and Edit, keeps Bash commands short and single-purpose, and sends JSON to `curl` as `-d @file`. The Azure DevOps host doc follows the same rule. Shell heredocs had raised a prompt nobody could answer, which stalled runs.
+- **Optional merge gate** (`templates/merge-gate/`, off by default, `"merge": {"by": "gate"}`): a workaround for when cloud permission checks keep refusing the Reviewer's own merge. A scheduled Azure Pipeline or GitHub Actions workflow, in a repo the routines never write to, completes only PRs whose current head has a trusted `<PFX>-REVIEW <sha> VERDICT: PASS`, pinned to that sha. It has a dry-run default, stdlib-only code, and 38 tests. The default stays as it was: the Reviewer merges, or posts MERGE-PENDING for the owner.
+- **Reviewer template:** the verdict line carries the full 40-character head sha.
+- **cloud-setup.md:** a section on unattended runs (permission prompts, refused merges, the official org-managed fix, and the API dropping unknown `job_config` fields). Playbook: two lessons. `init` mentions the option, and `doctor` checks it when it is on. CI runs the gate tests.
+- **Playbook:** the plan-completeness lesson now says "15 of 21 done (2 partial, 4 not done)".
+
 ## 0.7.0 (2026-11-07)
 
 - **Try it without setup:**

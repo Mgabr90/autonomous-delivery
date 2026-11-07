@@ -64,8 +64,9 @@ In cloud mode, also ask for the claude.ai/code `environment_id`, and whether the
    - check the connectors the server attached: remove any the routines don't need (for example a mail connector) with `clear_mcp_connections` or an explicit list.
 
    Save the trigger ids into `config.routines`.
-3. **Commit and push** the setup files on a branch `<branch_prefix>setup`, and open a PR. That PR is the **deliberate loop test**: the Reviewer must review and merge it.
-4. **Trigger the usage inspector and the security sweep once by hand** after the first merge, and read their first reports.
+3. **Merging (default: the Reviewer merges).** Keep `"merge": {"by": "reviewer"}`. Mention in one line that if cloud permission checks later keep refusing the Reviewer's merge, `templates/merge-gate/README.md` describes an optional external merge gate. Don't set it up unless the owner asks.
+4. **Commit and push** the setup files on a branch `<branch_prefix>setup`, and open a PR. That PR is the **deliberate loop test**: the Reviewer must review and merge it.
+5. **Trigger the usage inspector and the security sweep once by hand** after the first merge, and read their first reports.
 
 ## 5. Local mode
 

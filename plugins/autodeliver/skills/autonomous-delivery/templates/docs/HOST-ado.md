@@ -9,7 +9,7 @@ Every routine prompt says *what* to do on the host ("post the marker", "add the 
 ## 0. Start of every run (no repo is attached to the routine)
 
 ```bash
-for v in ADO_PAT; do [ -n "${!v}" ] || echo "missing: $v"; done   # names only, never values
+test -n "$ADO_PAT" || echo "missing: ADO_PAT"   # the name only, never the value
 git clone "https://pat:${ADO_PAT}@$(echo '{{ADO_ORG}}' | sed 's#^https://##')/{{ADO_PROJECT}}/_git/{{ADO_REPO}}" repo && cd repo
 git config user.name "{{GIT_NAME}}"; git config user.email "{{GIT_EMAIL}}"
 ```
@@ -29,7 +29,7 @@ The routine has **no `sources`**: the platform's own clone is GitHub-only, but a
 | Post a marker comment | `POST $API/pullRequests/<id>/threads` `{"comments":[{"parentCommentId":0,"content":"<marker line>\n…","commentType":1}],"status":"closed"}`. **Closed** so marker threads never count as open discussion. |
 | Delete own claim | `DELETE $API/pullRequests/<id>/threads/<threadId>/comments/<commentId>` |
 | Label (state marker only) | add `POST $API/pullRequests/<id>/labels` `{"name":"{{LABEL}}"}`; remove `DELETE $API/pullRequests/<id>/labels/{{LABEL}}`; read `GET …/labels`. **A label change fires nothing on Azure DevOps.** |
-| Merge pinned to the sha | `PATCH $API/pullrequests/<id>` `{"status":"completed","lastMergeSourceCommit":{"commitId":"<reviewed sha>"},"completionOptions":{"mergeStrategy":"noFastForward","deleteSourceBranch":false,"mergeCommitMessage":"Merge <title> (#<id>)"}}`. Azure DevOps refuses it when the source head moved. Read the PR back: `status == completed` and `mergeStatus == succeeded`; anything else is a refused merge (`{{PFX}}-MERGE-PENDING`). |
+| Merge pinned to the sha | `PATCH $API/pullrequests/<id>` with the body `{"status":"completed","lastMergeSourceCommit":{"commitId":"<reviewed sha>"},"completionOptions":{"mergeStrategy":"noFastForward","deleteSourceBranch":false,"mergeCommitMessage":"Merge <title> (#<id>)"}}`, written to `complete.json` with Write and sent as `-d @complete.json`. With the optional merge gate (`"merge": {"by": "gate"}`), the Reviewer skips this, and an Azure Pipeline in a separate repo completes PASS heads (`templates/merge-gate/README.md`). Azure DevOps refuses it when the source head moved. Read the PR back: `status == completed` and `mergeStatus == succeeded`; anything else is a refused merge (`{{PFX}}-MERGE-PENDING`). |
 | Branch policies | `GET {{ADO_ORG}}/{{ADO_PROJECT}}/_apis/policy/configurations` once at setup. A minimum-reviewer or "creator can't approve" policy blocks the gate's own merge: never bypass policies; post `{{PFX}}-MERGE-PENDING` instead. |
 | Re-request a review | push an empty commit (fires `git.pullrequest.updated` · `PushNotification`). |
 | Delete a merged branch | `git push origin --delete <branch>` (only under the cleanup rule). |
@@ -39,7 +39,7 @@ The routine has **no `sources`**: the platform's own clone is GitHub-only, but a
 | From → to | How |
 |---|---|
 | PR created / pushed → Reviewer | service hook `git.pullrequest.created` and `git.pullrequest.updated` (`notificationType = PushNotification`), filtered to repo `{{ADO_REPO}}` and target branch `{{MAIN}}`. |
-| Reviewer FAIL → Fixer | **the Reviewer fires the Fixer itself**, after posting FAIL and adding the label: `curl -s -X POST "https://api.anthropic.com/v1/claude_code/routines/$FIXER_ROUTINE_ID/fire" -H "Authorization: Bearer $FIXER_FIRE_TOKEN" -H "anthropic-version: $ANTHROPIC_VERSION" -H "content-type: application/json" -d '{"text":"PR <id> sha <sha> FAIL"}'`. Expect `routine_fire`; on any other answer, write `{{PFX}}-FIXER-FIRE-FAILED <sha>` on the PR (the Worker's watchdog re-fires). |
+| Reviewer FAIL → Fixer | **the Reviewer fires the Fixer itself**, after posting FAIL and adding the label: write `{"text":"PR <id> sha <sha> FAIL"}` to `fire.json` with Write, then `curl -s -X POST "https://api.anthropic.com/v1/claude_code/routines/$FIXER_ROUTINE_ID/fire" -H "Authorization: Bearer $FIXER_FIRE_TOKEN" -H "anthropic-version: $ANTHROPIC_VERSION" -H "content-type: application/json" -d @fire.json`. Expect `routine_fire`; on any other answer, write `{{PFX}}-FIXER-FIRE-FAILED <sha>` on the PR (the Worker's watchdog re-fires). |
 | Watchdog → Fixer | the same call from the Worker (`FIXER STALLED`). Removing and re-adding the label does nothing on Azure DevOps. |
 | PR merged → Worker | service hook `git.pullrequest.merged` (`mergeResult = Succeeded`), target branch `{{MAIN}}`. |
 | Hourly | the Worker's cron. |

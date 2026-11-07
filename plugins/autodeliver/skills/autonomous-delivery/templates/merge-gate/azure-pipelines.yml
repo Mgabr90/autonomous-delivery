@@ -1,0 +1,33 @@
+# autodeliver merge gate on Azure DevOps (optional; see README.md).
+# Put this folder in a repo the routines NEVER write to, and create the pipeline from this file.
+# Pipeline variables:  MERGE_GATE_PAT (secret: the PAT owner's token, Code: Read & write)
+#                      MERGE_GATE_DRY_RUN (leave unset or "true" until the dry runs look right, then "false")
+trigger: none
+pr: none
+
+schedules:
+  - cron: "55 * * * *"          # hourly, offset from the routines' own minutes
+    displayName: merge gate
+    branches:
+      include: [main]
+    always: true                # run even when this repo has no new commits
+
+pool:
+  vmImage: ubuntu-latest        # Microsoft-hosted; a self-hosted pool needs a pool admin to permit it
+
+steps:
+  - checkout: self
+  - script: python3 -m pip install -q pytest && python3 -m pytest -q
+    displayName: gate tests
+  - script: python3 merge_gate.py
+    displayName: merge gate
+    env:
+      MERGE_GATE_HOST: ado
+      MERGE_GATE_ADO_ORG: https://dev.azure.com/YOUR_ORG          # edit
+      MERGE_GATE_ADO_PROJECT: YOUR_PROJECT                        # edit
+      MERGE_GATE_ADO_REPO: YOUR_REPO                              # edit: the repo the routines work in
+      MERGE_GATE_TARGET: main                                     # edit: the one branch the gate may merge into
+      MERGE_GATE_RULES: work/=ACME-REVIEW                         # edit: <branch_prefix>=<marker_prefix>-REVIEW
+      MERGE_GATE_TRUSTED: delivery-bot@example.com                # edit: uniqueName (or id) of the PAT owner the routines post as
+      MERGE_GATE_DRY_RUN: $(MERGE_GATE_DRY_RUN)
+      MERGE_GATE_TOKEN: $(MERGE_GATE_PAT)                         # secrets must be mapped into env explicitly
