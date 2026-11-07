@@ -103,7 +103,7 @@ Skills make the steps above more reliable. They never replace the rules in this 
 
 - **Where a skill says to ask, wait for, discuss with or get permission from "your human partner"**, write a ledger ruling with its cost if wrong, and continue.
 - **The design review (step 2) replaces any human plan review a skill asks for.**
-- **Report the way the routine prompt says, not the way a skill says.** That means marker comments in the ledger, never review-thread replies.
+- **Report the way the routine prompt says, not the way a skill says.** That means marker comments on the PR and lines in the ledger, never review-thread replies.
 - **Severity:** a skill's Critical, Important and Minor map to Blocking, Should-fix and Nit. Minor items go into the ledger, never just "for later".
 
 | Step | Skill | Without it |
