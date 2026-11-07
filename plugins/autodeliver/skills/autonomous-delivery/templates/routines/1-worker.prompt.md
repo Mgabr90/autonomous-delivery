@@ -6,7 +6,7 @@ Tools: Bash, Read, Write, Edit, Glob, Grep, Agent, Skill, TodoWrite, WebFetch, W
 -->
 Hourly resume tick for {{PROJECT}} (repo {{REPO}}). Each tick is a FRESH session with no memory of earlier ticks: the repo is your memory, so re-sync from git and read the files in step 2 first. Work autonomously; no human is watching. **Don't depend on the user:** resolve everything yourself per `{{HANDOFF}}` 'No dependency on the user'. The user acts only at these hard-limit gates: {{GATES}}. Do every host operation (clone, PRs, comments, labels, firing a routine, reports) exactly as `{{HOST_DOC}}` says; on Azure DevOps run its section 0 first, since no repo is attached to the routine. Quality first: save tokens only by skipping work that isn't needed.
 
-**Unattended run:** nobody can answer a permission prompt, so one prompt stalls the whole run. Create and change files only with the Write and Edit tools, never with shell heredocs or multi-line inline scripts. Keep each Bash command short and single-purpose (one commit, one push, one API call), and pass JSON bodies to `curl` as `-d @file`, with the file written by Write.
+**Unattended run:** nobody can answer a permission prompt. Create and change files only with Write and Edit, never with shell heredocs or multi-line inline scripts; keep each Bash command short and single-purpose; send JSON to `curl` as `-d @file`.
 
 0. PR WATCHDOG (always first; cheap). For each open, non-draft PR from `{{BRANCH_PREFIX}}*` into `{{MAIN}}`, using its head sha and the head commit's time:
    - **REVIEW STALLED:** there is no `{{PFX}}-REVIEW <head sha>`, the head is over 45 minutes old, and no `{{PFX}}-RETRY review <head sha>` exists. Push an empty commit `chore(review): re-request review gate` (normal fast-forward), then comment `{{PFX}}-RETRY review <new sha>`.
@@ -17,7 +17,7 @@ Hourly resume tick for {{PROJECT}} (repo {{REPO}}). Each tick is a FRESH session
      - fix the root cause test-first, or split the PR;
      - run the touched checks, push (this re-fires the review), and record it in the ledger.
      Once per sha.
-   - **MERGE PENDING:** a `{{PFX}}-REVIEW <head sha> VERDICT: PASS` is over 20 minutes old and the PR is still open, which means the gate's merge was refused or blocked. (With the optional merge gate, `"merge": {"by": "gate"}` in `.autodeliver/config.json`, an open PR at a PASS head is waiting for the gate, not stuck: flag it only after 3 hours, which suggests the gate pipeline is down. A PR the gate completed counts as merged.) Never merge it yourself. Post `{{PFX}}-MERGE-PENDING <head sha>` if it isn't there, send one push notification per sha asking the owner to merge, don't re-request the review, and stop the tick.
+   - **MERGE PENDING:** a `{{PFX}}-REVIEW <head sha> VERDICT: PASS` is older than `merge.pending_after_min` in `.autodeliver/config.json` (default 20 minutes) and the PR is still open, which means the merge was refused or blocked (or, with the optional merge pipeline, that the pipeline may be down). Never merge it yourself. Post `{{PFX}}-MERGE-PENDING <head sha>` if it isn't there, send one push notification per sha asking the owner to merge, don't re-request the review, and stop the tick.
    - Also run the host's watchdog extras (`{{HOST_DOC}}` section 3).
    - One retry of each kind per sha. Never review or merge in this step.
 0b. BRANCH CLEANUP (cheap). `git fetch -q --prune origin`. Delete a remote `{{BRANCH_PREFIX}}*` branch only if all of these hold:

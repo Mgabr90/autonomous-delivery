@@ -26,7 +26,7 @@ Most of this page is host-neutral. The GitHub-only parts are marked; Azure DevOp
     "session_context": {
       "model": "claude-opus-5-5",
       "sources": [ { "git_repository": { "url": "https://github.com/<owner>/<repo>" } } ],
-      "allowed_tools": ["Bash", "Read", "Glob", "Grep", "Agent", "Skill", "TodoWrite"]
+      "allowed_tools": ["Bash", "Read", "Write", "Glob", "Grep", "Agent", "Skill", "TodoWrite"]
     },
     "events": [ { "data": {
       "uuid": "<fresh uuid4>", "session_id": "", "type": "user", "parent_tool_use_id": null,
@@ -42,13 +42,15 @@ Most of this page is host-neutral. The GitHub-only parts are marked; Azure DevOp
 - **Updates:** first `action: "get"` the routine and edit its **live** prompt. Never rebuild it from an older copy: another session may have changed it since, and an update replaces the whole prompt. Then `action: "update"` with `trigger_id` and the same `job_config` shape. Use a **new uuid** in `events[0].data.uuid` whenever the prompt changes. The change takes effect at the next run.
 - **Testing:** `action: "run"` triggers it once by hand. Do this for every new routine. Then read `list_runs` and `get_run_log`.
 
+The read-only routines (Reviewer, usage inspector, security sweep) get Write only for request bodies and report files, so that they can follow the no-heredoc rule below. Their prompts forbid using it on the work.
+
 | Routine | Model | Trigger | persist_session | Tools |
 |---|---|---|---|---|
 | 1 Worker | strong | cron `12 * * * *` + webhook `pull_request.closed` | false | Bash, Read, Write, Edit, Glob, Grep, Agent, Skill, TodoWrite, WebFetch, WebSearch |
-| 2 Reviewer | strong | webhook `pull_request.opened`, `.reopened`, `.synchronize`, `.ready_for_review` | false | Bash, Read, Glob, Grep, Agent, Skill, TodoWrite, WebSearch, WebFetch |
+| 2 Reviewer | strong | webhook `pull_request.opened`, `.reopened`, `.synchronize`, `.ready_for_review` | false | Bash, Read, Write, Glob, Grep, Agent, Skill, TodoWrite, WebSearch, WebFetch |
 | 3 Fixer | strong | webhook `pull_request.labeled` | false | Bash, Read, Write, Edit, Glob, Grep, Agent, Skill, TodoWrite, WebSearch, WebFetch |
-| 4 Usage inspector | mid | cron `0 5 * * *` | false | Bash, Read, Glob, Grep, TodoWrite |
-| 5 Security sweep | strong | cron `0 3 * * 1` | false | Bash, Read, Glob, Grep, Agent, Skill, TodoWrite, WebSearch, WebFetch |
+| 4 Usage inspector | mid | cron `0 5 * * *` | false | Bash, Read, Write, Glob, Grep, TodoWrite |
+| 5 Security sweep | strong | cron `0 3 * * 1` | false | Bash, Read, Write, Glob, Grep, Agent, Skill, TodoWrite, WebSearch, WebFetch |
 
 The web tools are needed because the routines dispatch the `researcher` agent, and a subagent can only use tools its session allows.
 
@@ -108,7 +110,7 @@ Two failures seen on unattended cloud routines (November 2026, two Azure DevOps 
    - There is no per-routine or per-environment permission field, and `~/.claude/settings.json` isn't read in cloud sessions.
    - **The official fix:** server-managed settings (an `autoMode` allowance) set by an organisation Owner.
    - **The default without one:** the Reviewer posts `<PFX>-MERGE-PENDING`, the Worker notifies the owner, and the owner merges.
-   - **Optional workaround:** the merge gate in `templates/merge-gate/`. A scheduled pipeline in a repo the routines never write to completes only the PRs whose current head has a trusted PASS. Turn it on with `"merge": {"by": "gate"}`.
+   - **Optional workaround:** the merge pipeline in `templates/merge-gate/`. A scheduled pipeline in a repo the routines never write to completes only the PRs whose current head has a trusted PASS and no trusted FAIL. Turn it on with `"merge": {"by": "pipeline", "pending_after_min": 180}`.
 
 When you update a trigger's `job_config` through the API, send it whole: `environment_id`, `session_context` and `events`. Fields the API doesn't support (an `auto_mode_allow` in `session_context`, for example) are dropped silently, so read the trigger back after every update.
 

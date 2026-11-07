@@ -8,6 +8,8 @@ name: merge gate
 on:
   schedule:
     - cron: "55 * * * *"        # hourly, offset from the routines' own minutes
+  push:
+    branches: [main]            # run the tests when the gate itself changes
   workflow_dispatch: {}
 
 permissions:
@@ -23,7 +25,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - run: python3 -m pip install -q pytest && python3 -m pytest -q
+      - if: github.event_name != 'schedule'   # only when the code changed, not every hour
+        run: python3 -m pip install -q pytest && python3 -m pytest -q
       - run: python3 merge_gate.py
         env:
           MERGE_GATE_HOST: github

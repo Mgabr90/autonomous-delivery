@@ -28,7 +28,6 @@ jobs:
           python3 -m py_compile plugins/autodeliver/scripts/token_log.py
           python3 -m py_compile plugins/autodeliver/scripts/loop_report.py
           python3 -m py_compile plugins/autodeliver/skills/autonomous-delivery/templates/staging/ops.py
-          python3 -m py_compile plugins/autodeliver/skills/autonomous-delivery/templates/merge-gate/merge_gate.py
           bash -n plugins/autodeliver/skills/autonomous-delivery/templates/staging/gate.sh
           bash -n plugins/autodeliver/skills/autonomous-delivery/templates/staging/stg.sh
           bash -n plugins/autodeliver/skills/autonomous-delivery/templates/owner/ado-service-hooks.sh
@@ -36,6 +35,9 @@ jobs:
         run: |
           python3 -m pip install -q pytest
           cd plugins/autodeliver/skills/autonomous-delivery/templates/merge-gate && python3 -m pytest -q -p no:cacheprovider
+      - name: Every routine prompt carries the unattended-run rule
+        run: |
+          for f in plugins/autodeliver/skills/autonomous-delivery/templates/routines/*.prompt.md; do grep -q '^\*\*Unattended run:\*\*' "$f" || { echo "missing in $f"; exit 1; }; done
       - name: JSON files parse
         run: |
           for f in $(git ls-files '*.json'); do python3 -m json.tool "$f" > /dev/null || { echo "bad JSON: $f"; exit 1; }; done

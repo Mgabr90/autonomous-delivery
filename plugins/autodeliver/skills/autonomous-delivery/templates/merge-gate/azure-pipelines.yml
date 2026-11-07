@@ -2,7 +2,9 @@
 # Put this folder in a repo the routines NEVER write to, and create the pipeline from this file.
 # Pipeline variables:  MERGE_GATE_PAT (secret: the PAT owner's token, Code: Read & write)
 #                      MERGE_GATE_DRY_RUN (leave unset or "true" until the dry runs look right, then "false")
-trigger: none
+trigger:
+  branches:
+    include: [main]           # run the tests when the gate itself changes
 pr: none
 
 schedules:
@@ -19,6 +21,7 @@ steps:
   - checkout: self
   - script: python3 -m pip install -q pytest && python3 -m pytest -q
     displayName: gate tests
+    condition: ne(variables['Build.Reason'], 'Schedule')   # only when the code changed, not every hour
   - script: python3 merge_gate.py
     displayName: merge gate
     env:
