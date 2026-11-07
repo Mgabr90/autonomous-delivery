@@ -175,7 +175,8 @@ The loop's steps match well-tested skills, and the Worker, Fixer and local loop 
 
 Three rules keep this safe:
 - **The playbook wins.** A skill makes a step more reliable but never overrides a rule in HANDOFF.md. Every step has a fallback, so a project without the skills still works.
-- **No interactive skills in unattended runs.** `brainstorming`, `using-superpowers`, `finishing-a-development-branch` and `using-git-worktrees` stop to ask the user. In a routine nobody answers, and the run stalls. `brainstorming` fits `/autodeliver:init`, where the owner is present.
+- **Some skills are never used.** `subagent-driven-development` and `executing-plans` would replace the playbook's build, ledger and design review with their own. `finishing-a-development-branch` and `using-git-worktrees` would merge or move the work outside the gate. `brainstorming`, and `using-superpowers`, which routes to it, need a person to approve, so they belong only to `/autodeliver:init`.
+- **Skills that say "ask your human partner" get a ruling instead.** The run writes a ledger ruling with its cost if wrong and continues. The design review replaces a skill's human plan review.
 - **The Reviewer stays plain.** The gate uses none of these skills, so its rules can't drift with a skill update.
 
 Cloud sessions don't load plugins, so `/autodeliver:init` offers to copy the unattended-safe superpowers skills into `.claude/skills/`, with their MIT licence. `/simplify` ships with Claude Code. The superpowers skills are by Jesse Vincent ([obra/superpowers](https://github.com/obra/superpowers), MIT).

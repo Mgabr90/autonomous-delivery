@@ -15,13 +15,13 @@ Before anything else (including for `--baseline`), write `.autodeliver/loop_stat
 
 If the task depends on external facts (library or API behaviour, versions, standards, laws, prior art), first dispatch the `researcher` agent in `brief` mode, and build from its sourced findings. Use `autodeliver:researcher` if `.claude/agents/` doesn't have it.
 
-- Use the skills in `HANDOFF.md` "Skills" when they are available, and none of the interactive ones listed there when the user isn't present.
+- Use the skills in `HANDOFF.md` "Skills" when they are available, with the overrides listed there. Never use the skills it excludes, even with the user present: `subagent-driven-development`, `executing-plans`, `finishing-a-development-branch` and `using-git-worktrees` would bypass this loop's design review and gate.
 - If the task describes new work, first write a short plan (with `writing-plans` if available) with the sections in `HANDOFF.md` → "Phase workflow" step 1 (scaled to the task: design, decisions, file boundary, tasks, test plan), into `paths.plans` or `.autodeliver/plan.md` if there is no plans folder.
 - **Design review before building** (skip it only for a task the user describes as trivial, and say so): dispatch the `design-reviewer` agent once per lens in `design_review.lenses` (default `zoom-out`, `comprehension`, `critic`, `readiness`), in parallel. Each brief holds only the lens, the plan path, the research brief path if any, and the round. Never send your reasoning. Resolve each Blocking and Should-fix by changing the plan or by a ruling with its cost if wrong; re-run only the lenses with findings, up to `design_review.rounds` (default 2). An open Blocking that crosses a hard limit or fails unsafe must be fixed in the plan, never ruled away. Log each round in the ledger. Use `autodeliver:design-reviewer` if `.claude/agents/` doesn't have it.
 - Then build it in this session: test-first or check-first (`test-driven-development` if available), following the profile, inside the plan's file boundary.
-- **Simplify once, before review round 1:** run `/simplify` on the scope (where it isn't available, review the diff yourself for reuse, simplification, efficiency and altitude), and commit its fixes as one `refactor(simplify)` change inside the file boundary. Don't simplify again in later rounds: fixes stay minimal.
+- **Commit the build**, then **simplify once** (only for work built here, never for existing work you were pointed at). Run `/simplify <base>...HEAD` on the build's range; where it isn't available, review that diff yourself for reuse, simplification, efficiency and altitude. Commit its fixes as one `refactor(simplify)` commit, limited to files the build already changed. Don't simplify again in later rounds: fixes stay minimal.
 - If it names existing work (files, a branch or a diff range), skip building.
-- Record the scope precisely: the files, the range and the brief. The reviewer gets exactly this.
+- Record the scope precisely, after any simplify commit: the files, the range and the brief. The reviewer gets exactly this.
 
 ## Rounds 1…cap
 

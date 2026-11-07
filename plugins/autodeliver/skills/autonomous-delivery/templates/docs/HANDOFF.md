@@ -99,19 +99,28 @@ Then the remaining owner action is just the go-ahead in chat.
 
 ## Skills (use them when available)
 
-Skills make the steps above more reliable. They never replace the rules in this file: when a skill and this file disagree, this file wins. A skill is available when the Skill tool lists it. In cloud sessions that means `.claude/skills/<name>/` is committed, because plugins don't load there. Locally, the plugin names (`superpowers:<name>`) work too.
+Skills make the steps above more reliable. They never replace the rules in this file: when a skill and this file disagree, this file wins. A skill is available when the Skill tool lists it. In cloud sessions that means `.claude/skills/<name>/` is committed, because plugins don't load there; a skill's reference to `superpowers:<name>` then means the bare `<name>`. Locally, the plugin names work too.
+
+- **Where a skill says to ask, wait for, discuss with or get permission from "your human partner"**, write a ledger ruling with its cost if wrong, and continue.
+- **The design review (step 2) replaces any human plan review a skill asks for.**
+- **Report the way the routine prompt says, not the way a skill says.** That means marker comments in the ledger, never review-thread replies.
+- **Severity:** a skill's Critical, Important and Minor map to Blocking, Should-fix and Nit. Minor items go into the ledger, never just "for later".
 
 | Step | Skill | Without it |
 |---|---|---|
-| Write the phase plan | `writing-plans`: save the plan to `{{PLANS}}<phase>-plan.md`, keep every section of step 1, and answer its "how to execute" question yourself (subagent-driven if subagents are available, inline otherwise) | the sections in step 1 |
+| Write the phase plan | `writing-plans`, with three changes: save the plan to `{{PLANS}}<phase>-plan.md` with every section of step 1; leave out its "REQUIRED SUB-SKILL" header line; and **skip its Execution Handoff**, so you don't ask for a plan review and don't start `subagent-driven-development` or `executing-plans`. Go on to step 2 (design review), then step 3 | the sections in step 1 |
 | Each task | `test-driven-development` | test-first by hand |
 | Per-task review | `requesting-code-review` | a review subagent with a narrow brief |
-| Simplify pass | Claude Code's `/simplify` on the phase diff (four cleanup reviewers, then the fixes) in one `refactor(simplify)` commit, limited to files the phase already changed | review the diff yourself for reuse, simplification, efficiency and altitude |
+| Simplify pass | Claude Code's `/simplify origin/{{MAIN}}...HEAD` (four cleanup reviewers, then the fixes; always pass the range, because the default diff can be empty on a pushed branch), committed as one `refactor(simplify)`, limited to files the phase already changed | review the diff yourself for reuse, simplification, efficiency and altitude |
 | Before any "done", "green" or PR | `verification-before-completion` | run the proof and quote its output before claiming anything |
 | Answering review findings (Fixer) | `receiving-code-review`, then `test-driven-development` | verify each finding, then fix it test-first |
 | Stuck PR, repeated finding, failing proof | `systematic-debugging` | root cause before any fix |
 
-**Never in unattended runs:** skills that stop to ask the user, or that change the workspace's shape. These are `brainstorming`, `using-superpowers`, `finishing-a-development-branch` and `using-git-worktrees`. Nobody is there to answer, and the run would stall. Use them only in interactive sessions, for example `brainstorming` while setting the goal at `/autodeliver:init`.
+**Never, in any run:**
+- `subagent-driven-development` and `executing-plans`: they replace the playbook's build with their own. They keep their own uncommitted ledger, run their own reviews, and skip the design review;
+- `finishing-a-development-branch` and `using-git-worktrees`: they merge or move the work outside the gate, and they stop to ask.
+
+**Only with a person present:** `brainstorming` has a hard gate that needs the user's approval, and `using-superpowers` sends you to brainstorming first. Use them at `/autodeliver:init`, where the owner is present, never for phase work. If the superpowers session hook loads them in a local session, still don't use them for autodeliver work.
 
 The Reviewer uses none of these skills: the gate keeps its own fixed rules.
 

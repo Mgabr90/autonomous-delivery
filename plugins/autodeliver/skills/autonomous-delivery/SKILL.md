@@ -52,7 +52,7 @@ This skill holds the method behind the `autodeliver` plugin. Read the parts you 
 
 ## Other skills the loop uses
 
-Where available, the Worker, Fixer and local loop use the superpowers skills (`writing-plans`, `test-driven-development`, `requesting-code-review`, `receiving-code-review`, `verification-before-completion`, `systematic-debugging`) and Claude Code's `/simplify`, each with a fallback. They never use interactive skills in unattended runs (`templates/docs/HANDOFF.md` → "Skills", playbook section 5b).
+Where available, the Worker, Fixer and local loop use the superpowers skills (`writing-plans`, `test-driven-development`, `requesting-code-review`, `receiving-code-review`, `verification-before-completion`, `systematic-debugging`) and Claude Code's `/simplify`, each with a fallback. They never use the skills that would bypass the loop or need a person (`templates/docs/HANDOFF.md` → "Skills", playbook section 5b).
 
 ## Plugins don't load in cloud sessions
 

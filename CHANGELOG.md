@@ -9,8 +9,16 @@
   - `verification-before-completion` before anything is called done;
   - the Fixer uses `receiving-code-review`;
   - `systematic-debugging` as before.
-- **Guardrails:** interactive skills (`brainstorming`, `using-superpowers`, `finishing-a-development-branch`, `using-git-worktrees`) are never used in unattended runs. `brainstorming` is offered only at `init`, where the owner is present. The Reviewer uses no skills, so the gate's rules can't drift. When a skill and HANDOFF disagree, HANDOFF wins.
-- **`init`** offers to copy the unattended-safe superpowers skills into `.claude/skills/` for cloud sessions, with their MIT licence. **`doctor`** checks the copies (licence present, no interactive skills, up to date).
+- **Guardrails:**
+  - Never used: `subagent-driven-development` and `executing-plans`, which bypass the build, ledger and design review, and `finishing-a-development-branch` and `using-git-worktrees`, which merge or move work outside the gate.
+  - `brainstorming` and `using-superpowers` are used only at `init`, where the owner is present.
+  - `writing-plans` runs without its execution handoff.
+  - "Ask your human partner" becomes a ledger ruling, and the design review replaces a skill's human plan review.
+  - Skill severities map to Blocking, Should-fix and Nit.
+  - The Reviewer uses none of these skills.
+  - When a skill and HANDOFF disagree, HANDOFF wins.
+- **`init`** offers to copy the unattended-safe superpowers skills into `.claude/skills/` for cloud sessions, with their MIT licence and a `SUPERPOWERS-VERSION` file. **`doctor`** checks the copies: licence present, no excluded skills, and version up to date when it can compare.
+- **`/simplify` always gets an explicit range**, because its default diff can be empty on a pushed branch. In `/autodeliver:loop` it runs only on work built in that loop, after the build is committed.
 
 ## 0.8.0 (2026-11-07)
 
