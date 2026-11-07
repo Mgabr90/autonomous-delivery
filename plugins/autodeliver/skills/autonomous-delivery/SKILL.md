@@ -23,6 +23,9 @@ This skill holds the method behind the `autodeliver` plugin. Read the parts you 
 - `/autodeliver:loop <task>` runs the local build, review and fix loop on one task until PASS or the cap.
 - `/autodeliver:status` reports progress: phases, PRs, verdicts, open items, gates, routine runs.
 - `/autodeliver:doctor` checks that the setup is healthy and fixes what it can.
+- `/autodeliver:review [scope]` runs the independent gate once on the current changes, a branch, a PR or files. It needs no setup.
+- `/autodeliver:design-review <doc>` runs the four fresh-eyes lenses on any plan, spec or RFC. It needs no setup.
+- `/autodeliver:report` shows tokens per role and round, rounds to PASS and findings per round.
 
 ## Agents
 

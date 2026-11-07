@@ -11,6 +11,8 @@ Read `.autodeliver/config.json`. If it is missing, use defaults: the profile inf
 
 ## Round 0: build
 
+Before anything else (including for `--baseline`), write `.autodeliver/loop_state.json` as `{"loop_id": "<short slug of the task>", "round": 0}`. The token log labels each row with it, so the plan, the design review and the build count towards this loop and its budget. When the loop ends, after the final report, set `"ended": true` in the file instead of deleting it: the main session's own tokens are logged when its turn stops, and the token-log hook labels that row with this loop and then removes the file. If there is no `.autodeliver/config.json`, or `token_log` is false, the hook doesn't run: delete the file yourself.
+
 If the task depends on external facts (library or API behaviour, versions, standards, laws, prior art), first dispatch the `researcher` agent in `brief` mode, and build from its sourced findings. Use `autodeliver:researcher` if `.claude/agents/` doesn't have it.
 
 - If the task describes new work, first write a short plan with the sections in `HANDOFF.md` → "Phase workflow" step 1 (scaled to the task: design, decisions, file boundary, tasks, test plan), into `paths.plans` or `.autodeliver/plan.md` if there is no plans folder.
@@ -21,7 +23,7 @@ If the task depends on external facts (library or API behaviour, versions, stand
 
 ## Rounds 1…cap
 
-At the start of each round, write `.autodeliver/loop_state.json` as `{"loop_id": "<short slug of the task>", "round": N}`. The opt-in token log uses it to label rows. Delete the file when the loop ends.
+At the start of each round, update `round` in `.autodeliver/loop_state.json` to N (same `loop_id`). Mark it ended only after the final report (see round 0).
 
 Agent names: use `delivery-reviewer` and `delivery-fixer` if `.claude/agents/` has them (as `init` sets up). Otherwise use the plugin-scoped names, `autodeliver:delivery-reviewer` and `autodeliver:delivery-fixer`.
 
@@ -37,10 +39,13 @@ Agent names: use `delivery-reviewer` and `delivery-fixer` if `.claude/agents/` h
    - **FAIL:** fix exactly the Blocking and Should-fix items, either in this session (it already holds the context) or by dispatching the `delivery-fixer` agent if the config sets `"fixer": "agent"`. Then run `proof_touched`.
 3. **Log the round** in the active ledger (`paths.ledgers`), or in `.autodeliver/loop-log.md` if there is no ledger: round, verdict, counts, files changed.
 4. **Loop.** If a finding comes back unchanged, use systematic debugging for the root cause before the next fix.
+5. **Stop guards**, checked before each new round:
+   - **No progress:** stop when the same finding (same location and problem) is open for a third round, or when the number of open Blocking plus Should-fix findings hasn't fallen across two rounds in a row. More rounds of the same fix rarely converge: report it as below and propose a re-plan or a split.
+   - **Budget:** if `loop.token_budget` is set, sum `input_tokens + output_tokens + cache_write_tokens` for this `loop_id` in the token log (rows from round 0 on, so the plan, design review and build count). The main session's own row is written when its turn ends, so in a single-turn loop the sum covers subagents only until then; say so when you report a budget stop. At or over the budget, stop and report. At 80%, say so in the round log. No budget is set by default; quality comes first, so a budget stops the loop and never makes the review shallower.
 
-## At the cap
+## At the cap, or when a stop guard fires
 
-Stop. Report:
+Stop. Report which limit stopped the loop (round cap, no progress or budget), and:
 - what still fails;
 - what was tried;
 - the most promising next approach (re-plan, split, or a different design).

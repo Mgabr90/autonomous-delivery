@@ -46,7 +46,8 @@
     "Test accounts and test data only outside production",
     "Never commit or print secrets"
   ],
-  "loop": { "cap": 5, "fail_review_cap": 10 },
+  "loop": { "cap": 5, "fail_review_cap": 10, "token_budget": null, "phase_tick_cap": 12 },
+  "second_opinion": null,
   "design_review": { "lenses": ["zoom-out", "comprehension", "critic", "readiness"], "rounds": 2 },
   "models": { "strong": "claude-opus-5-5", "mid": "claude-sonnet-5-5" },
   "token_log": true,
@@ -75,6 +76,9 @@
 | `paths.system` | The living system doc (`templates/docs/SYSTEM.md`): what is built now. Default `docs/delivery/SYSTEM.md` when an older config lacks it. Phases that change the system's shape update it; the weekly sweep checks it for drift |
 | `design_review` | The fresh-eyes review of each phase plan before building (`design-reviewer` agent). `lenses`: which lenses run (default all four; `drift` is for the sweep, not here). `rounds`: re-review rounds before open findings become rulings (default 2). Missing block = these defaults. Read by the Worker and `/autodeliver:loop` from this file, so it needs no placeholder |
 | `loop.cap` | Local loop rounds before it stops and reports (default 5) |
+| `loop.token_budget` | Optional. Local loop: stop and report when this loop's tokens (input + output + cache write, from the token log) reach it. Unset by default. It stops the loop; it never makes a review shallower |
+| `loop.phase_tick_cap` | Cloud: Worker ticks a phase may take before opening its PR; past it, or when the ledger's "Next" hasn't moved for three ticks, the Worker re-plans or splits the phase (default 12) |
+| `second_opinion` | Optional reviewer from another model vendor: `{"command": "<CLI that reads a prompt on stdin and prints findings>", "timeout_s": 600}`, for example a read-only, non-interactive Codex or Gemini CLI call. The gate verifies each item itself; a failure never blocks a verdict. In cloud mode the CLI and its key must be installed in the environment |
 | `loop.fail_review_cap` | Cloud FAIL reviews per PR before the Worker takes over (default 10) |
 | `token_log` | **On by default.** The plugin hook appends token usage per role and round to `token_log_path` (CSV, git-ignored). Set it to `false` to turn it off. It only runs in projects that have this config. |
 | `routines` | Filled in by init in cloud mode; used by `status` and `doctor`. On Azure DevOps the routine ids are also needed by the service-hook script and the `FIXER_ROUTINE_ID` environment variable |

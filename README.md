@@ -35,6 +35,17 @@ claude plugin marketplace add Mgabr90/autonomous-delivery
 claude plugin install autodeliver@autonomous-delivery
 ```
 
+## Try it in one minute (no setup)
+
+In any repo, after installing:
+
+```
+/autodeliver:review                     # an independent gate on your current changes: runs your tests itself, PASS or FAIL
+/autodeliver:design-review docs/plan.md # four fresh-eyes reviewers on a plan or spec, before you build
+```
+
+When you want the whole loop, run `/autodeliver:init`.
+
 ## Use
 
 | Command | What it does |
@@ -43,6 +54,9 @@ claude plugin install autodeliver@autonomous-delivery
 | `/autodeliver:loop <task>` | Runs the local loop on one task (build, review, fix) until PASS or the round cap. |
 | `/autodeliver:status` | Reports phases, PRs and verdicts, open items, gates waiting for you, and routine runs. |
 | `/autodeliver:doctor [--fix]` | Checks the setup and repairs what it safely can. |
+| `/autodeliver:review [scope] [--fix] [--comment]` | One-shot independent gate on your changes, a branch, a PR or files. No setup needed. |
+| `/autodeliver:design-review <doc>` | Fresh-eyes review of any plan, spec or RFC by four isolated reviewers. No setup needed. |
+| `/autodeliver:report` | Tokens per role and round, rounds to PASS, findings per round. |
 
 **Quick start (local, 2 minutes):**
 
@@ -70,6 +84,8 @@ claude plugin install autodeliver@autonomous-delivery
   You act only at hard-limit gates, each prepared as a single action.
 - **A researcher agent** that writes a sourced brief before each phase and fact-checks docs and PRs. Every claim carries a URL, date and quote, or is marked unverified.
 - **A weekly security sweep** of the whole main branch. Serious findings are confirmed at runtime. The same sweep checks a living system doc against the code and reports drift.
+- **Stop guards.** A loop that stops making progress (the same finding three times, or no fewer open findings across two rounds) stops and re-plans instead of burning tokens. An optional token budget caps a local loop.
+- **An optional second opinion** from another vendor's model, with every item verified by the gate.
 - **A daily usage inspector.** It ranks waste with evidence and proposes exact edits under a quality-first rule.
 - **A staging gate template** for safe cloud access to staging: HTTPS, per-client token hashes, allow-listed verbs, read-only SQL, and isolated rehearsals of irreversible steps.
 

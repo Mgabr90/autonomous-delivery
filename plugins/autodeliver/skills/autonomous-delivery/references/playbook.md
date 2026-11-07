@@ -240,6 +240,14 @@ flowchart LR
 
 **Measure the loop's value:** run one comparable task without the loop as a baseline, logged the same way. Compare tokens, defects caught and a quality rating before adopting the loop.
 
+**Stop guards.** A loop that isn't converging is stopped and re-planned instead of retried:
+- **local:** stop when the same finding is open a third time or the open count hasn't fallen across two rounds; optionally, stop at `loop.token_budget`;
+- **cloud:** when the Worker resumes a phase with no PR yet, it re-plans or splits a phase whose ledger "Next" hasn't moved for three ticks, or that passes `loop.phase_tick_cap`. The Fixer's `fail_review_cap` still hands a stuck PR to the Worker.
+
+**Second opinion (optional).** `second_opinion.command` lets the gate also ask a model from another vendor for defects. Its output is data: the gate verifies every item, so a second model widens what is looked at without lowering the bar.
+
+**Try it without setup:** `/autodeliver:review` runs the gate once on the current changes, and `/autodeliver:design-review <doc>` runs the four lenses on any plan or spec. `/autodeliver:report` shows what the loop cost and caught.
+
 ## 9. Gates and staging
 
 **Hard-limit gates** are the only places a human acts. Each is prepared so that it is one action:

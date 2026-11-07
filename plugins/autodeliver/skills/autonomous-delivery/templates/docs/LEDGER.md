@@ -10,6 +10,7 @@ Plan: `{{PLAN_PATH}}`. Branch: `{{BRANCH}}`.
 | Next | Task 1 |
 | Half-finished? | No |
 | Proof last run | — |
+| Ticks (cloud) | 0 · "Next" unchanged for 0 |
 
 ## Progress
 
