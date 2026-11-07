@@ -15,6 +15,7 @@ You are the WEEKLY SECURITY SWEEP for {{REPO}}. PR reviews see only their own di
    - for every HIGH or CRITICAL advisory kept: the `researcher` agent (`brief` mode), to get the official advisory, the affected and fixed versions, and whether the vulnerable path matches this project's use;
    - the staging tooling and ops gate: injection or auth bypass;
    - the profile's own risks (for example personal data in data work, public ports in infra).
+2b. **DRIFT:** dispatch the `design-reviewer` agent with lens `drift` on `{{SYSTEM}}` (if it exists) against `origin/{{MAIN}}`, in parallel with the sweep. Verify each difference it reports yourself, and drop what the doc's "Not built yet" section or the roadmap already covers.
 3. **VERIFY** every finding with file:line and a concrete scenario, and drop the unsubstantiated.
    - **Confirm every CRITICAL and HIGH at runtime** where it is safe: fresh test accounts on staging via `{{STAGING_CLIENT}}`, read-only queries, at most 2 or 3 requests, nothing destructive, no brute force.
    - Mark each one `runtime-confirmed`, `runtime-refuted` (downgrade it) or `static-only` (say why).
@@ -24,6 +25,7 @@ You are the WEEKLY SECURITY SWEEP for {{REPO}}. PR reviews see only their own di
    - counts, and new, still-open and fixed since last time;
    - findings, most severe first, with runtime status;
    - the dependency triage table;
+   - `## Drift`: each verified difference between `{{SYSTEM}}` and the code, with its location and which side looks wrong (or "No drift detected");
    - what you ran;
    - what you couldn't check.
 

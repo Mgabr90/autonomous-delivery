@@ -29,7 +29,7 @@ Hourly resume tick for {{PROJECT}} (repo {{REPO}}). Each tick is a FRESH session
    - If `{{DECISIONS}}` contains 'READY FOR GATE' for the final gate: STOP.
 2. Check out that branch, or start the next phase from `origin/{{MAIN}}` as `{{BRANCH_PREFIX}}pNN-<slug>`. On your first tick, after compaction, or when starting a NEW phase:
    - read `{{HANDOFF}}` (autonomy charter, 'No dependency on the user', hard limits), the active ledger under `{{LEDGERS}}`, and `{{ROADMAP}}`;
-   - read the latest `{{PFX}}-SECURITY` comment and any `{{PFX}}-SECURITY-NOTE` in the security sweep reports (`{{HOST_DOC}}` section 4), and route every confirmed finding into this phase or the roadmap follow-ups.
+   - read the latest `{{PFX}}-SECURITY` comment and any `{{PFX}}-SECURITY-NOTE` in the security sweep reports (`{{HOST_DOC}}` section 4), and route every confirmed finding into this phase or the roadmap follow-ups. Route each `## Drift` item the same way: fix the code, or correct `{{SYSTEM}}` with a ruling that the doc was stale.
    - **Research brief (new phase):** dispatch the `researcher` agent in `brief` mode on the phase's external facts (current library and API docs, breaking changes, prior art, owner facts, policy context). Save it to `{{PLANS}}<phase>-research.md`, and plan from it. Rulings on external facts cite its sources.
    - **New phase only:**
      - **nits intake:** copy every `## Nits` item from the last merged PR's PASS review into this phase's ledger. Do each, or route it to a roadmap row with a ruling;
@@ -40,8 +40,10 @@ Hourly resume tick for {{PROJECT}} (repo {{REPO}}). Each tick is a FRESH session
    - write one line under 'Hard-limit gates' in `{{DECISIONS}}`: `READY FOR GATE: <gate> — <evidence links>`;
    - push it and STOP. Never perform the gated action yourself.
 4. Otherwise work the phase from the ledger, per the phase workflow in `{{HANDOFF}}`:
-   - write the plan, then run each task with test-first work, guard skills and a per-task review;
-   - one simplify pass, the full proof (`{{PROOF_FULL}}`) and the final review;
+   - write the plan as a design doc with every section `{{HANDOFF}}` lists (goal, context from `{{SYSTEM}}`, design, alternatives, risks and fail-safe, decisions, file boundary, tasks, test plan);
+   - **design review before any building:** dispatch the `design-reviewer` agent once per lens, in parallel (`zoom-out`, `comprehension`, `critic`, `readiness`, unless `design_review.lenses` in `.autodeliver/config.json` says otherwise). Each brief holds ONLY the lens, the plan path, the research brief path, the paths of `{{HANDOFF}}`, `{{ROADMAP}}` and `{{SYSTEM}}`, and the round: never your reasoning or a summary of why the plan is right. Resolve every Blocking and Should-fix by changing the plan or by a ruling with its cost if wrong; re-dispatch only the lenses that had findings. After `design_review.rounds` rounds (default 2), turn what is still open into rulings and start building, except an open Blocking that crosses a hard limit or fails unsafe: change the plan or split the phase instead. Push ONE ledger commit per round as soon as the lenses return (verdicts, findings, plan changes, rulings);
+   - then run each task with test-first work, guard skills and a per-task review, staying inside the plan's file boundary (extend it only by a ledger ruling);
+   - one simplify pass (only files the phase already changed), the `{{SYSTEM}}` update if the phase changed the system's shape, the full proof (`{{PROOF_FULL}}`) and the final review;
    - staging ship, verify and log scan, if the project has staging;
    - commit the evidence under `{{EVIDENCE}}`;
    - the write-up, then the PR.
@@ -54,4 +56,4 @@ Hourly resume tick for {{PROJECT}} (repo {{REPO}}). Each tick is a FRESH session
 
 Hard limits: {{HARD_LIMITS}}. If blocked, record the blocker and what you tried in the ledger, push, and end the run. Attack it a different way on the next tick; never park it for the user.
 
-End each tick with: watchdog actions and take-overs, branches deleted, branch worked on, tasks done, open items resolved, rulings, staging and log scan, security findings routed, next step.
+End each tick with: watchdog actions and take-overs, branches deleted, branch worked on, design review (rounds, lens verdicts, rulings), tasks done, open items resolved, rulings, staging and log scan, security findings routed, next step.

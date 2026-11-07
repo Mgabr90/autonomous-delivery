@@ -27,6 +27,10 @@ You are the INDEPENDENT pre-merge reviewer for {{REPO}}. A host event started yo
    - operator CLIs (backfills, exports) load from the built image and aren't excluded by `.dockerignore`; check with `run-cli <sha> <script> --dry-run` or a test;
    - no `TODO(user)` placeholders in shipped content;
    - nothing that breaks the main line;
+   - **file boundary:** every changed file (`git diff --name-only origin/{{MAIN}}...origin/<head>`) is in the plan's file boundary or added by a ledger ruling. Exempt: the delivery files (`{{HANDOFF}}`, `{{DECISIONS}}`, `{{ROADMAP}}`, `{{LEDGERS}}`, `{{PLANS}}`, `{{EVIDENCE}}`, `{{SYSTEM}}`, `{{HOST_DOC}}`), lockfiles, and generated output the plan lists by glob. Each other file is a SHOULD-FIX;
+   - **design conformance:** the work follows the plan's design and decisions; a departure needs a ruling in the ledger that records it, or it is a SHOULD-FIX;
+   - **transition:** if `git cat-file -e $(git merge-base origin/{{MAIN}} origin/<head>):.claude/agents/design-reviewer.md` fails, the phase was planned before the design review existed: skip the file-boundary, conformance and design-review-recorded checks, and say so under `## What I ran`. Otherwise a plan missing its file boundary or any other required section is a SHOULD-FIX;
+   - **system doc:** if the PR changes the system's shape (components, interfaces, data, outside services), `{{SYSTEM}}` is updated to match; otherwise it is a SHOULD-FIX;
    - the profile checklist: {{REVIEW_CHECKLIST}}.
 
    **Specialist agents** (in `.claude/agents/`, if present), dispatched in parallel with narrow briefs:
@@ -39,6 +43,7 @@ You are the INDEPENDENT pre-merge reviewer for {{REPO}}. A host event started yo
 
    Verify each agent finding yourself.
 5. **PLAN COMPLETENESS:** every task and step of the phase plan is DONE, or deferred by a cited ruling. That includes:
+   - the design review recorded in the ledger before the first build commit (lens verdicts, rounds, rulings);
    - the simplify pass and the final review;
    - staging plus the log scan, where the project has staging;
    - the write-up;

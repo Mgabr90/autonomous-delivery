@@ -31,7 +31,8 @@ Derive the rest without asking:
 - `label` as `<slug>-review-fail`;
 - `branch_prefix` as `work/`;
 - `locales` from detection;
-- `loop.cap` 5 and `fail_review_cap` 10.
+- `loop.cap` 5 and `fail_review_cap` 10;
+- `paths.system` as `docs/delivery/SYSTEM.md`, and `design_review` as `{"lenses": ["zoom-out", "comprehension", "critic", "readiness"], "rounds": 2}`.
 
 In cloud mode, also ask for the claude.ai/code `environment_id`, and whether there is a staging host (if so, its URL). On Azure DevOps, also confirm the git identity commits are made as (`ado.git_name`, `ado.git_email`) and the reports branch (default `delivery-reports`).
 
@@ -42,13 +43,14 @@ In cloud mode, also ask for the claude.ai/code `environment_id`, and whether the
   - `docs/delivery/HANDOFF.md`;
   - `docs/delivery/DECISIONS_LOG.md` (today's date);
   - `docs/delivery/ROADMAP.md`;
+  - `docs/delivery/SYSTEM.md` (the living system doc). For an existing codebase, fill it from what you detected, and say it is a draft. If the Elephant-Goldfish Model plugin is installed, offer `/egm:egm-bootstrap` for a fuller first draft. For a new project, leave the template; the first phase fills it;
   - `docs/delivery/ledgers/` and `docs/delivery/plans/`;
   - `docs/delivery/evidence/` (with a `.gitkeep`);
   - in cloud mode, `docs/delivery/HOST.md` from `templates/docs/HOST-<host>.md` (the host operations every routine reads).
 
   Ask in one line for the goal and the first phase, or derive a draft from the README and say it is a draft.
 - `CLAUDE.md`: add or append a short section "Ongoing work: read `docs/delivery/HANDOFF.md` first; work autonomously within its hard limits."
-- `.claude/agents/`: copy this plugin's agents (`delivery-reviewer`, `delivery-fixer`, `researcher`, `visual-checker`, `translation-reviewer`, `usage-inspector`), so cloud sessions get them. Optionally, if the official `pr-review-toolkit` plugin is installed locally, offer to copy `silent-failure-hunter`, `pr-test-analyzer`, `type-design-analyzer` and `comment-analyzer` too, with its LICENSE as `.claude/agents/PR-REVIEW-TOOLKIT-LICENSE.txt`.
+- `.claude/agents/`: copy this plugin's agents (`delivery-reviewer`, `delivery-fixer`, `design-reviewer`, `researcher`, `visual-checker`, `translation-reviewer`, `usage-inspector`), so cloud sessions get them. `design-reviewer` is adapted from Google's Elephant-Goldfish Model (Apache 2.0): also copy `licenses/EGM-LICENSE.txt` to `.claude/agents/EGM-LICENSE.txt`. Optionally, if the official `pr-review-toolkit` plugin is installed locally, offer to copy `silent-failure-hunter`, `pr-test-analyzer`, `type-design-analyzer` and `comment-analyzer` too, with its LICENSE as `.claude/agents/PR-REVIEW-TOOLKIT-LICENSE.txt`.
 - Staging (if any): copy `templates/staging/stg.sh` to `tools/stg.sh`, and point the user to `templates/staging/README.md` for the server side. Never ask for or store a token.
 - `.gitignore`: add `.autodeliver/token_log*`, `.autodeliver/*.state.json` and `.autodeliver/loop_state.json`.
 

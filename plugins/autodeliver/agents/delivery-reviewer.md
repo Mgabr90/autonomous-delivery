@@ -33,9 +33,13 @@ Read `.autodeliver/config.json` for `profiles`, `proof_full`, `e2e`, `review_che
    - **fail safe** when an outside service (mail, storage, payments, an API) is absent: never treat an unsent notice as sent, or take an irreversible step that relies on it;
    - every locale present for new user-facing text;
    - no `TODO(user)` in shipped content;
-   - nothing that breaks the main line.
+   - nothing that breaks the main line;
+   - **file boundary:** every changed file is in the plan's file boundary or added by a ledger ruling. Exempt: the files under `paths` (handoff, decisions, roadmap, ledgers, plans, evidence, system, host doc), lockfiles, and generated output the plan lists by glob. Each other file is a Should-fix. Skip this and the next two checks for a plan written before the design review existed (no `design-reviewer` agent in the repo at the start of the work), and say so;
+   - **design conformance:** the work follows the plan's design and decisions, or a ruling records the change;
+   - **system doc:** when the system's shape changed (components, interfaces, data, outside services), `paths.system` is updated to match.
 4. **Plan completeness.**
    - Every task in the plan is done, or deferred by a cited ruling.
+   - The design review is recorded in the ledger (lens verdicts, rounds, rulings).
    - Evidence is committed under `paths.evidence` for visual or rendered claims.
    - Nothing is parked for the user that a session could do.
    - Report it as "N of M done".

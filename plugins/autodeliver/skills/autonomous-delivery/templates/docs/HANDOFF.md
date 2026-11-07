@@ -12,6 +12,7 @@ Every session reads this file before doing anything else. It is the charter: wha
 - Roadmap: `{{ROADMAP}}` (phases, dependencies, done-when). Gate rows are marked **GATE**.
 - Phase plans: `{{PLANS}}`. Ledgers: `{{LEDGERS}}<phase>.md` (tasks done, rulings, evidence).
 - Decisions: `{{DECISIONS}}`. Evidence: `{{EVIDENCE}}<phase>/`.
+- System (living doc, what is built now): `{{SYSTEM}}`.
 
 ## Autonomy charter
 
@@ -64,17 +65,32 @@ Then the remaining owner action is just the go-ahead in chat.
 
 ## Phase workflow (fixed order)
 
-1. **Research, then plan.** Get a sourced brief from the `researcher` agent into `{{PLANS}}<phase>-research.md`. Then write the phase plan in `{{PLANS}}`, with tasks that each have a done-when.
-2. **Each task:**
+1. **Research, then plan.** Get a sourced brief from the `researcher` agent into `{{PLANS}}<phase>-research.md`. Then write the phase plan in `{{PLANS}}<phase>-plan.md`. The plan is a design document as well as a task list, with these sections:
+   - **Goal and why:** the roadmap row, the problem it solves, and what done looks like.
+   - **Context:** the parts of `{{SYSTEM}}` this phase touches, and links to the research brief and the rulings it relies on. If `{{SYSTEM}}` is still the empty template, the plan's first task fills it from the code as it stands.
+   - **Design:** components, interfaces and data flow, at that level only.
+   - **Alternatives considered:** each with the reason it was rejected.
+   - **Risks and fail-safe:** failure modes, absent services, security and privacy, rollback.
+   - **Decisions:** every choice a builder would otherwise have to make (schemas, API shapes, file locations, dependencies, error handling, edge cases), each as a ruling with its cost if wrong.
+   - **File boundary:** the exact repository-relative paths to create, change or delete. Use globs only for generated output. The delivery files listed under "Where things live", lockfiles and the evidence folder are exempt and need no listing.
+   - **Tasks:** each with steps and a done-when. Include the end-of-phase steps below and the `{{SYSTEM}}` update when the phase changes the system's shape.
+   - **Test plan:** named cases, happy path and edge cases (for non-software profiles, the profile's checks).
+2. **Design review (goldfish), before any building.** Dispatch the `design-reviewer` agent once per lens, in parallel: `zoom-out`, `comprehension`, `critic` and `readiness` (or the lenses set in `design_review.lenses` in `.autodeliver/config.json`).
+   - **Isolation is the point.** Each brief contains only the lens, the plan path, the research brief path, the paths of this file, the roadmap and `{{SYSTEM}}`, and the round number. Never send a summary of your reasoning, the alternatives you liked, or why you think the plan is right.
+   - Resolve every Blocking and Should-fix finding yourself: change the plan, or write a ruling with its cost if wrong. Re-dispatch only the lenses that had findings, with their previous findings.
+   - Stop after `design_review.rounds` rounds (default 2). Anything still open becomes a ruling with its cost if wrong, and building starts. The design review never waits for the user.
+   - **Except:** an open Blocking that crosses a hard limit or makes the design fail unsafe can't be accepted by ruling. Change the plan or split the phase, even past the round cap.
+   - Record each round in the ledger as ONE commit, pushed as soon as the lenses return: each lens's verdict and findings, what changed in the plan, and the rulings made.
+3. **Each task:**
    - test-first or check-first work;
    - guard skills if available (clean-code, test, docs);
    - a per-task review;
    - a commit with its ledger line.
-3. **End of phase:**
+4. **End of phase:**
    - ONE simplify pass over the whole phase diff (its own `refactor(simplify)` commit), then the full proof: `{{PROOF_FULL}}`;
    - the final whole-phase review.
-4. **Staging** (if the project has it): ship; run the phase checks; then run the **log scan**, where any error the phase caused is a Should-fix. Record the results.
-5. **Evidence and write-up:**
+5. **Staging** (if the project has it): ship; run the phase checks; then run the **log scan**, where any error the phase caused is a Should-fix. Record the results.
+6. **Evidence and write-up:**
    - commit the evidence;
    - update the roadmap;
    - open the PR (cloud) or run `/autodeliver:loop` (local).
@@ -89,14 +105,20 @@ Then the remaining owner action is just the go-ahead in chat.
   - a missing translation;
   - a `TODO(user)`;
   - a parked item;
-  - an undelivered plan item.
+  - an undelivered plan item;
+  - a missing design-review record in the ledger;
+  - a file changed outside the plan's file boundary with no ruling that extends it (delivery files, lockfiles and the evidence folder are exempt);
+  - an implementation that departs from the plan's design or decisions with no ruling recording the change;
+  - a change to the system's shape (components, interfaces, data, outside services) without the matching `{{SYSTEM}}` update.
 - Accepted decisions (cite them) and later-phase items (cite the roadmap row) are not findings.
+- **The boundary grows by ruling, not by accident.** When a task needs a file outside the boundary, add it with a ruling in the ledger (why, and the cost if wrong) before changing it. The simplify pass stays within files the phase already changed.
 - **Fail safe:** never treat an unsent notice as sent, and never take an irreversible step that relies on a call that didn't happen.
 
 ## Security sweep intake
 
 At the start of each phase, and whenever a new `{{PFX}}-SECURITY` report or `{{PFX}}-SECURITY-NOTE` lands:
 - route every confirmed finding into the current phase (if it touches its area) or into the roadmap follow-ups, with a ruling;
+- route each item in the report's `## Drift` section the same way: fix the code, or correct `{{SYSTEM}}` with a ruling saying the doc was stale;
 - never drop one.
 
 ## Environment

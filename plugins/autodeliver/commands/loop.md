@@ -13,7 +13,9 @@ Read `.autodeliver/config.json`. If it is missing, use defaults: the profile inf
 
 If the task depends on external facts (library or API behaviour, versions, standards, laws, prior art), first dispatch the `researcher` agent in `brief` mode, and build from its sourced findings. Use `autodeliver:researcher` if `.claude/agents/` doesn't have it.
 
-- If the task describes new work, build it in this session: test-first or check-first, following the profile.
+- If the task describes new work, first write a short plan with the sections in `HANDOFF.md` → "Phase workflow" step 1 (scaled to the task: design, decisions, file boundary, tasks, test plan), into `paths.plans` or `.autodeliver/plan.md` if there is no plans folder.
+- **Design review before building** (skip it only for a task the user describes as trivial, and say so): dispatch the `design-reviewer` agent once per lens in `design_review.lenses` (default `zoom-out`, `comprehension`, `critic`, `readiness`), in parallel. Each brief holds only the lens, the plan path, the research brief path if any, and the round. Never send your reasoning. Resolve each Blocking and Should-fix by changing the plan or by a ruling with its cost if wrong; re-run only the lenses with findings, up to `design_review.rounds` (default 2). An open Blocking that crosses a hard limit or fails unsafe must be fixed in the plan, never ruled away. Log each round in the ledger. Use `autodeliver:design-reviewer` if `.claude/agents/` doesn't have it.
+- Then build it in this session: test-first or check-first, following the profile, inside the plan's file boundary.
 - If it names existing work (files, a branch or a diff range), skip building.
 - Record the scope precisely: the files, the range and the brief. The reviewer gets exactly this.
 
@@ -25,7 +27,7 @@ Agent names: use `delivery-reviewer` and `delivery-fixer` if `.claude/agents/` h
 
 1. **Review.** Dispatch the `delivery-reviewer` agent with:
    - the scope;
-   - the brief or plan;
+   - the brief or plan (with its file boundary and the design-review record);
    - the round number;
    - for later rounds, the previous verdict's Blocking and Should-fix items.
 

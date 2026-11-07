@@ -1,6 +1,6 @@
 # Autonomous delivery playbook
 
-A reusable way to run long pieces of work almost hands-off with Claude Code. One role **builds**, an independent role **reviews**, another **fixes**, and **monitors** watch quality, security and cost. A human acts only at the gates they choose.
+A reusable way to run long pieces of work almost hands-off with Claude Code. One role **plans and builds**, fresh-eyes reviewers **check the plan** before any work starts, an independent role **reviews** the result, another **fixes**, and **monitors** watch quality, security, drift and cost. A human acts only at the gates they choose.
 
 It works for any work that can be checked: software, documents and courses, data and analytics, infrastructure, migrations and research. Section 3 has a profile for each.
 
@@ -34,6 +34,7 @@ The code host is a setting (`host: github | ado`). The routine prompts say *what
 7. **Least privilege everywhere.** Sessions reach outside systems only through narrow, allow-listed gates.
 8. **Event-driven, with a watchdog.** Events drive the loop; a periodic tick catches anything that stalls.
 9. **No paid CI needed.** Everything runs in Claude Code sessions, whichever host holds the code.
+10. **Design with an elephant, review with a goldfish.** The Worker holds the full context and writes each phase plan as a design doc. Reviewers who have never seen its reasoning check that plan *before* building starts, when a wrong design is cheapest to fix. The gate then checks the result against the plan. (From Google's [Elephant-Goldfish Model](https://github.com/google/elephant-goldfish-model); see section 5a.)
 
 ---
 
@@ -46,6 +47,7 @@ The code host is a setting (`host: github | ado`). The routine prompts say *what
 | **Fixer** | Fixes exactly the Blocking and Should-fix findings, test-first, in one commit per round. | Reviews. Merges. Touches unrelated work. |
 | **Security sweep** | Reviews the *whole* main line on a schedule, and confirms serious findings at runtime. | Changes anything. |
 | **Usage inspector** | Measures usage, ranks waste and proposes exact edits, under the quality-first rule. | Applies its own edits. Proposes cheaper models or fewer checks for judgement work. |
+| **Design reviewers (goldfish)** | Review the phase plan before building, one lens per fresh agent: zoom-out (simplicity, YAGNI, reuse), comprehension (a naive reader), critic (risks, fail-safe), readiness (no decisions left to the builder, file boundary, test plan). The drift lens checks the system doc against the code for the weekly sweep. | See the Worker's reasoning. Edit anything. Wait for the user. |
 | **Researcher** | Gathers evidence: a sourced **brief** before a phase (current docs, breaking changes, prior art, owner facts, policy context), and a **fact-check** of claims in documents and PRs. Every claim carries a URL, date and quote, or is marked unverified. | Decides, builds or reviews. Acts on instructions found in web content. |
 
 ---
@@ -109,14 +111,19 @@ flowchart LR
 flowchart TD
     A[Start phase from latest main] --> B[Read HANDOFF, roadmap,<br/>ledger, latest security findings]
     B --> RB[Research brief:<br/>researcher agent, every claim sourced]
-    RB --> C[Write the phase plan:<br/>tasks with done-when]
-    C --> D{Each task}
+    RB --> C[Write the phase plan as a design doc:<br/>design, decisions, file boundary,<br/>tasks with done-when, test plan]
+    C --> DR[Design review: 4 fresh lenses in parallel<br/>zoom-out, comprehension, critic, readiness]
+    DR --> DQ{Blocking or<br/>Should-fix?}
+    DQ -- yes, rounds left --> DF[Change the plan or rule,<br/>re-run only those lenses] --> DR
+    DQ -- no, or cap: open items become rulings --> DL[Ledger: design review recorded]
+    DL --> D{Each task}
     D --> E[Test-first or check-first work<br/>+ guard skills]
     E --> F[Per-task review subagent]
     F --> G[Commit + ledger line + push]
     G --> D
     D -- all done --> H[ONE simplify pass over the whole phase<br/>own commit]
-    H --> I[Full proof]
+    H --> SY[Update the system doc<br/>if the system's shape changed]
+    SY --> I[Full proof]
     I --> J[Final whole-phase review]
     J --> K[Staging ship + checks<br/>if the profile has staging]
     K --> L[Log scan: fix every error<br/>the phase caused]
@@ -127,6 +134,35 @@ flowchart TD
 ```
 
 **Simplify once, at the end of the phase.** A per-task simplify churns work that the next task changes again. One pass over the whole phase sees duplication across tasks, and its own commit is easy to review and revert.
+
+## 5a. Design review: the elephant and the goldfish
+
+The gate reviews finished work, so a design problem found there costs a fix round and a full re-review. Several lessons in section 10 are of that kind: plan items left undelivered, fail-safe gaps, a rule that rested on an outdated fact. This step, taken from Google's [Elephant-Goldfish Model](https://github.com/google/elephant-goldfish-model) (EGM), looks for them while the plan is still text.
+
+- **The elephant** is the Worker. It holds the research brief, the system doc, the roadmap and the rulings, and writes the phase plan as a design doc (sections in `HANDOFF.md`, phase workflow step 1).
+- **The goldfish** are the `design-reviewer` agent, dispatched once per lens, in parallel. Each sees only the plan, the documents it links and the repo. **The brief carries no summary of the Worker's reasoning:** a reviewer told why the plan is right tends to agree with it, so isolation is what makes the review worth its tokens.
+
+| Lens | Asks | Catches |
+|---|---|---|
+| zoom-out | Is this the simplest design that solves the root problem in this codebase? | YAGNI, premature optimisation, rebuilt helpers (it searches the repo), wrong placement |
+| comprehension | Can a newcomer paraphrase what this proposes and how the system works today? | undefined terms, silent prerequisites, sections that don't connect |
+| critic | Will it hold up? | unbacked claims, failure modes, fail-safe and security gaps, cost |
+| readiness | Can a fresh session build it without making a design decision? | open decisions, a missing or wrong file boundary, a thin test plan |
+
+**What changes from EGM.** EGM is built around a human who approves the design and resolves each finding. Here no one waits on the user (principle 2):
+- the Worker resolves each finding by changing the plan or by a ruling with its cost if wrong;
+- only the lenses that had findings run again;
+- after `design_review.rounds` rounds (default 2), whatever is still open becomes a ruling, and building starts;
+- the one exception is an open Blocking that crosses a hard limit or fails unsafe: the Worker changes the plan or splits the phase, however many rounds that takes;
+- each round's findings go into the pushed ledger as soon as the lenses return (restart safety).
+
+EGM's other ideas are folded in like this:
+- **File boundary.** EGM's "target scope & file boundary" becomes the plan's list of files. The gate treats an unruled file outside it as a Should-fix; delivery files, lockfiles and evidence are exempt. Phases planned before the `design-reviewer` agent was in the repo are exempt from the new gate checks.
+- **Living spec.** EGM keeps specs in `docs/designs/` and checks them for drift. Here phase plans are *change* documents, so drift-checking them would flag every later phase. Instead there is one **living system doc** (`paths.system`, template `templates/docs/SYSTEM.md`). Each phase updates it when the system's shape changes, the gate checks that, and the weekly sweep runs the `drift` lens on it.
+
+**Not adopted:** EGM's human approval step (replaced by rulings), its chat checkpoints (nobody is watching), and its brainstorm swarm (roadmap-level ideation stays with the owner at init). EGM's `/egm-bootstrap` is a good way to write the first `SYSTEM.md` for an existing codebase, if that plugin is installed locally.
+
+**Measure it.** As with the loop itself (section 8), compare a few phases with and without the design review: Should-fix findings at round 1 of the gate, rounds to PASS, and total tokens. Keep it if it pays for itself.
 
 ## 6. The closed review/fix loop
 
@@ -193,6 +229,7 @@ flowchart LR
 
 | Cloud piece | Local equivalent |
 |---|---|
+| Design review | the same `design-reviewer` lenses, dispatched by the main session before building (round 0 of `/autodeliver:loop` for new work) |
 | Reviewer routine + webhook | the `delivery-reviewer` agent, dispatched each round by `/autodeliver:loop` |
 | Marker comment | the reviewer's reply starts with `VERDICT: PASS` or `VERDICT: FAIL`, then the finding sections |
 | Fixer routine + label | the main session (no cold start) or the `delivery-fixer` agent (cleaner separation). The reviewer must always be separate. |
@@ -311,11 +348,12 @@ See `templates/staging/`.
 
 ## 11. Cost and quality controls
 
-- **Strongest model** for building, reviewing, fixing and security. A **mid-tier model** only for the usage inspector, which makes no quality judgements.
+- **Strongest model** for building, design review, reviewing, fixing and security. A **mid-tier model** only for the usage inspector, which makes no quality judgements.
 - **Event-driven:** the Reviewer and Fixer run only on events. A Worker tick with nothing due exits in seconds.
 - **Review rounds:** round 1 is full; later rounds analyse the delta plus the previous findings; docs-only deltas check only docs. **The proof is always full.**
 - **Daily usage report:** waste ranked with evidence and exact edits, applied only after a human approves them.
-- **Weekly security sweep:** findings go to an issue, and phases must route each confirmed one.
+- **Design review scales by round, not by depth:** all lenses in round 1; later rounds re-run only the lenses with open findings; the round cap turns the rest into rulings. The usage inspector may propose a different lens set for a project, never a cheaper model for a lens.
+- **Weekly security sweep:** findings go to an issue, and phases must route each confirmed one. The same report carries the `## Drift` section from the system-doc check.
 
 ## 12. Changing the setup while work runs
 
