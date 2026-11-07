@@ -10,7 +10,22 @@ The generic review checklist applies to every profile:
 - **no secrets**;
 - **no `TODO(user)`**;
 - **evidence committed**;
-- **stable findings** (each defect reported once, with a fix).
+- **stable findings** (each defect reported once, with a fix);
+- **file boundary** kept, or extended by a ruling;
+- **design conformance** with the plan, and the system doc updated when the system's shape changed.
+
+## Design review (before building, every profile)
+
+The phase plan is a design doc, and the `design-reviewer` agent reviews it with fresh eyes before any work starts (`references/playbook.md` section 5a). The four lenses are the same for every profile; what they look for depends on the profile:
+
+| Profile | "Zero decisions left" means the plan fixes… | The file boundary lists… | The critic also checks… |
+|---|---|---|---|
+| software | schemas, API shapes, error handling, dependencies, edge cases | source, test and migration files | migrations on real-shaped data, races, fail-safe |
+| docs | the outline, audience, sources per section, terms and style | the pages or chapters, assets, config | claims each have a planned source; accessibility |
+| data | datasets and versions, method, metrics, seeds, privacy rules | notebooks, pipeline steps, tests, outputs | leakage, sampling, units, no row-level personal data |
+| infra | the change set, ordering, rollback, access | IaC files, configs, scripts | blast radius, least privilege, neighbours on shared hosts |
+| migration | parity rows covered, conflict rulings, data mapping | ported files, golden tests, parity matrix | nothing dropped; rehearsal before the gate |
+| research | the questions, the source policy, the decision criteria | the document and its source list | alternatives, evidence quality, cost if wrong |
 
 ---
 

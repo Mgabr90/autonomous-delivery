@@ -1,12 +1,15 @@
 # Autonomous Delivery for Claude Code
 
-**Run long work almost hands-off.** One role builds, an independent gate reviews, a fixer fixes, and monitors watch security, quality and cost. You act only at the gates you choose, such as a production deploy.
+**Run long work almost hands-off.** One role plans and builds, fresh-eyes reviewers check each plan before anything is built, an independent gate reviews the result, a fixer fixes, and monitors watch security, drift, quality and cost. You act only at the gates you choose, such as a production deploy.
 
-It works for software, docs and courses, data and analytics, infrastructure, migrations and research. It runs on your machine, or around the clock as Claude Code cloud routines fired by GitHub.
+It works for software, docs and courses, data and analytics, infrastructure, migrations and research. It runs on your machine, or around the clock as Claude Code cloud routines fired by GitHub or Azure DevOps.
 
 ```mermaid
 flowchart LR
-    B[Builder] --> R[Independent reviewer<br/>full proof + checklist]
+    P[Plan as a design doc] --> D[Design review<br/>4 fresh lenses]
+    D -- findings --> P
+    D -- clear --> B[Builder]
+    B --> R[Independent reviewer<br/>full proof + checklist]
     R -- PASS --> M([Merged / done])
     R -- FAIL: findings --> F[Fixer<br/>only the listed findings]
     F --> R
@@ -50,12 +53,13 @@ claude plugin install autodeliver@autonomous-delivery
 
 **Quick start (cloud):**
 1. Connect the repo at [claude.ai/code](https://claude.ai/code) and create an environment.
-2. Run `/autodeliver:init cloud`. It creates five routines and their webhooks, then opens a setup PR as the loop test.
+2. Run `/autodeliver:init cloud`. It creates five routines and their webhooks (or, on Azure DevOps, prepares the service hooks), then opens a setup PR as the loop test.
 3. From then on, phases run on their own. `/autodeliver:status` shows where things are.
 
 ## What you get
 
-- **An independent review gate.** It runs the full proof itself before any PASS. It classifies findings as Blocking, Should-fix or Nit, and PASS requires zero Blocking and zero Should-fix. It also checks plan completeness, fail-safe behaviour when services are absent, flaky tests, missing translations and missing evidence.
+- **A design review before anything is built.** Each phase plan is a design doc: design, decisions, the exact files it will touch, and a test plan. Four fresh reviewers check it in parallel without ever seeing the planner's reasoning: is it the simplest design that fits the codebase, can a newcomer follow it, will it hold up, and can it be built without guessing? The planner resolves their findings itself, so nothing waits for you. The idea comes from Google's [Elephant-Goldfish Model](https://github.com/google/elephant-goldfish-model): design with an elephant, review with a goldfish.
+- **An independent review gate.** It runs the full proof itself before any PASS. It classifies findings as Blocking, Should-fix or Nit, and PASS requires zero Blocking and zero Should-fix. It also checks plan completeness, that the work stays inside the plan's file boundary and follows its design, fail-safe behaviour when services are absent, flaky tests, missing translations and missing evidence.
 - **A closed fix loop.** A label fires the fixer, the fixer's push re-fires the review, and the gate merges on PASS. A watchdog catches stalls and takes over stuck PRs.
 - **No dependency on you:**
   - visual checks: Playwright screenshots plus a visual-review agent;
@@ -65,7 +69,7 @@ claude plugin install autodeliver@autonomous-delivery
 
   You act only at hard-limit gates, each prepared as a single action.
 - **A researcher agent** that writes a sourced brief before each phase and fact-checks docs and PRs. Every claim carries a URL, date and quote, or is marked unverified.
-- **A weekly security sweep** of the whole main branch. Serious findings are confirmed at runtime.
+- **A weekly security sweep** of the whole main branch. Serious findings are confirmed at runtime. The same sweep checks a living system doc against the code and reports drift.
 - **A daily usage inspector.** It ranks waste with evidence and proposes exact edits under a quality-first rule.
 - **A staging gate template** for safe cloud access to staging: HTTPS, per-client token hashes, allow-listed verbs, read-only SQL, and isolated rehearsals of irreversible steps.
 
@@ -90,7 +94,7 @@ You can mix profiles or define your own in `.autodeliver/config.json`.
 ## Requirements
 
 - Claude Code 2.1 or later.
-- Cloud mode also needs a GitHub repo with the Claude GitHub app, a claude.ai/code environment, and the `gh` CLI.
+- Cloud mode also needs a claude.ai/code environment, and either a GitHub repo with the Claude GitHub app and the `gh` CLI, or an Azure DevOps repo with a PAT (see [cloud setup](plugins/autodeliver/skills/autonomous-delivery/references/cloud-setup.md)).
 - The token log (on by default; `"token_log": false` turns it off) needs Python 3.
 
 Plugins don't load in cloud sessions, so `init` copies the agents into your repo's `.claude/agents/`.
@@ -107,6 +111,10 @@ Plugins don't load in cloud sessions, so `init` copies the agents into your repo
 
 [@Mgabr90](https://github.com/Mgabr90) and [@Ahmed0623](https://github.com/Ahmed0623). Contributions are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## Credits
+
+The design review is adapted from Google's [Elephant-Goldfish Model](https://github.com/google/elephant-goldfish-model) by Jim Quinn, Elise Ewing and Dave Rensin (Apache 2.0; licence in `plugins/autodeliver/licenses/EGM-LICENSE.txt`), after Dave Rensin's essay [Elephants, Goldfish, and the New Golden Age of Software Engineering](https://medium.com/@drensin/elephants-goldfish-and-the-new-golden-age-of-software-engineering-c33641a48874).
+
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE). `plugins/autodeliver/agents/design-reviewer.md` is a modified work under Apache 2.0.

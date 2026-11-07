@@ -28,6 +28,7 @@ You are the PR FIXER for {{REPO}}. You were started because the gate failed a PR
    - fact-check findings corrected to the cited sources.
 
    A missing **staging** step: comment `{{PFX}}-FIXER: blocked: staging step needed` and stop; the Worker does it.
+   - **File boundary:** stay inside the phase plan's file boundary (the delivery files under `{{HANDOFF}}`'s "Where things live", lockfiles and `{{EVIDENCE}}` are exempt). If a fix truly needs another file, add a ruling to the ledger (why, and the cost if wrong) in the same commit.
    - **Formatting:** only on lines you change. Run `git diff --stat` before committing, and never push a formatting-only commit.
    - **Verification:** `{{PROOF_TOUCHED}}`; all must pass.
 6. **PUSH:** ONE commit per round, with the ledger line in the same commit, and never two pushes in a round.

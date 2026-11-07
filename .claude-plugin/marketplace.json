@@ -10,8 +10,8 @@
     {
       "name": "autodeliver",
       "source": "./plugins/autodeliver",
-      "description": "Set up and run an autonomous delivery loop: independent review gate, automatic fixer, watchdog, security sweep and usage inspector, for software, docs, data, infra, migrations and research.",
-      "version": "0.5.0",
+      "description": "Set up and run an autonomous delivery loop: fresh-eyes design review before building, independent review gate, automatic fixer, watchdog, security and drift sweep, and usage inspector, for software, docs, data, infra, migrations and research.",
+      "version": "0.6.0",
       "author": {
         "name": "Mahmoud Gabr",
         "url": "https://github.com/Mgabr90"
@@ -23,7 +23,8 @@
         "workflow",
         "routines",
         "quality",
-        "agents"
+        "agents",
+        "design-review"
       ]
     }
   ]
