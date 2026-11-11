@@ -40,6 +40,39 @@ It merges pinned to that head (Azure DevOps `lastMergeSourceCommit`, no fast-for
 4. **Dry run first.** The pipeline only logs what it would do until `MERGE_GATE_DRY_RUN` is exactly `false`. Before going live, check its decisions against PRs you already merged by hand: every PASS head should say "merge", and nothing else should.
 5. **Switch the routines over:** set `"merge": {"by": "pipeline", "pending_after_min": 180}` in `.autodeliver/config.json`. The 0.8.0 Reviewer and Worker prompts read that setting. Routines created from older templates need their live prompts updated once (edit the live prompt; never rebuild it from an old copy).
 
+## Run it on a server you control (no pipeline minutes)
+
+If you already run a Linux server (staging, for example), a systemd timer can run the same script there, with no CI minutes used. The files are in `server/`. This takes an operator who can log in as root; sessions can't install them, and the owner places the token.
+
+1. **Install as root:**
+   - `useradd --system --no-create-home --shell /usr/sbin/nologin merge-gate`
+   - `install -d -m 755 /opt/merge-gate /etc/merge-gate`
+   - copy `merge_gate.py` to `/opt/merge-gate/` (644);
+   - copy `server/install-token.sh` to `/opt/merge-gate/` (700);
+   - copy `server/config.env` to `/etc/merge-gate/config.env` and fill it in (644; it holds no secret);
+   - copy `server/merge-gate.service` and `server/merge-gate.timer` to `/etc/systemd/system/`;
+   - then run `systemctl daemon-reload && systemctl enable --now merge-gate.timer`.
+2. **What the units do:**
+   - the timer runs every 10 minutes;
+   - the service runs as the unprivileged `merge-gate` user, with `MemoryMax=96M`, no capabilities and a read-only system;
+   - it does nothing until `/etc/merge-gate/token.env` exists.
+
+   If the server hosts other projects, this adds no ports and no containers, and it reads nothing of theirs.
+3. **The owner places the token** from their own machine. Create a fine-grained token for the target repo only, with Pull requests and Contents set to Read and write. Then pipe it in:
+   - **bash:** `read -rs T && printf 'MERGE_GATE_TOKEN=%s
+' "$T" | ssh <server> /opt/merge-gate/install-token.sh; unset T`
+   - **PowerShell:** read it with `Read-Host -AsSecureString`, then pipe `"MERGE_GATE_TOKEN=$token"` into `ssh <server> /opt/merge-gate/install-token.sh`. The script strips the CR that PowerShell adds.
+
+   `install-token.sh` stores the token root-only, runs one dry run, and switches to live only if that run reports `0 errors`.
+4. **Check it:**
+   - `journalctl -u merge-gate -n 50` shows its decisions;
+   - `systemctl start merge-gate.service` runs it at once.
+
+   Before going live, feed a merged PR's real comments to `decide()` the way the tests do: its PASS head must say "merge", and an earlier FAIL head must say "skip".
+5. **Set `merge.pending_after_min` to about 30.** That covers the 10-minute timer with a margin.
+
+A scheduled task on the owner's PC can run the same script, but it only merges while that PC is on. Use it as a backup, not as the gate.
+
 The tests run on every push to the pipeline's repo (`python -m pytest -q` in this folder), not on the hourly schedule. Standard library only; pytest only for the tests.
 
 The pipeline's rules come from a team that ran it with two unattended Azure DevOps cloud Workers in November 2026.

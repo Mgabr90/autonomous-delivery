@@ -110,7 +110,7 @@ Two failures seen on unattended cloud routines (November 2026, two Azure DevOps 
    - There is no per-routine or per-environment permission field, and `~/.claude/settings.json` isn't read in cloud sessions.
    - **The official fix:** server-managed settings (an `autoMode` allowance) set by an organisation Owner.
    - **The default without one:** the Reviewer posts `<PFX>-MERGE-PENDING`, the Worker notifies the owner, and the owner merges.
-   - **Optional workaround:** the merge pipeline in `templates/merge-gate/`. A scheduled pipeline in a repo the routines never write to completes only the PRs whose current head has a trusted PASS and no trusted FAIL. Turn it on with `"merge": {"by": "pipeline", "pending_after_min": 180}`.
+   - **Optional workaround:** the merge pipeline in `templates/merge-gate/`. A scheduled pipeline in a repo the routines never write to, or a systemd timer on a server you already run (`templates/merge-gate/server/`, no CI minutes), completes only the PRs whose current head has a trusted PASS and no trusted FAIL. Turn it on with `"merge": {"by": "pipeline", "pending_after_min": 180}`.
 
 When you update a trigger's `job_config` through the API, send it whole: `environment_id`, `session_context` and `events`. Fields the API doesn't support (an `auto_mode_allow` in `session_context`, for example) are dropped silently, so read the trigger back after every update.
 
