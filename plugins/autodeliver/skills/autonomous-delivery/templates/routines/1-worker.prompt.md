@@ -17,7 +17,7 @@ Hourly resume tick for {{PROJECT}} (repo {{REPO}}). Each tick is a FRESH session
      - fix the root cause test-first, or split the PR;
      - run the touched checks, push (this re-fires the review), and record it in the ledger.
      Once per sha.
-   - **MERGE PENDING:** a `{{PFX}}-REVIEW <head sha> VERDICT: PASS` is older than `merge.pending_after_min` in `.autodeliver/config.json` (default 20 minutes) and the PR is still open, which means the merge was refused or blocked (or, with the optional merge pipeline, that the pipeline may be down). Never merge it yourself. Post `{{PFX}}-MERGE-PENDING <head sha>` if it isn't there, send one push notification per sha asking the owner to merge, don't re-request the review, and stop the tick.
+   - **MERGE PENDING:** a `{{PFX}}-REVIEW <head sha> VERDICT: PASS` is older than `merge.pending_after_min` in `.autodeliver/config.json` (default 20 minutes) and the PR is still open, which means the merge was refused or blocked (or, with the optional merge pipeline, that the pipeline may be down). Never merge it yourself. Post `{{PFX}}-MERGE-PENDING <head sha>` if it isn't there, send one push notification per sha asking the owner to merge, don't re-request the review, run the branch cleanup (step 0b) first, and then stop the tick. Stopping before the cleanup left merged branches behind for 13 days.
    - Also run the host's watchdog extras (`{{HOST_DOC}}` section 3).
    - One retry of each kind per sha. Never review or merge in this step.
 0b. BRANCH CLEANUP (cheap). `git fetch -q --prune origin`. Delete a remote `{{BRANCH_PREFIX}}*` branch only if all of these hold:

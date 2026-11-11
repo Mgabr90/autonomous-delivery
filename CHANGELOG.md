@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.9.1 (2026-11-11)
+
+- **Merge gate on a server you control:** `templates/merge-gate/server/` adds a systemd timer and service for `merge_gate.py`. They run every 10 minutes as an unprivileged user with a memory cap, and add no ports, no containers and no CI minutes.
+  - `install-token.sh` takes the owner's token over SSH on stdin, stores it root-only, dry-runs once, and goes live only on a clean run.
+  - The README has the install steps and a check against real PR history.
+- **Worker template:** the MERGE PENDING stop now runs the branch cleanup first.
+- **Playbook:** three lessons (a PASS left unmerged for 13 days on a missed notice; cleanup skipped by the early stop; an idle hourly Worker while the loop waits on the owner).
+- **cloud-setup.md and config.md:** the server option, and `merge.pending_after_min` of about 30 for it.
+
 ## 0.9.0 (2026-11-07)
 
 - **Superpowers and `/simplify` built into the steps** (HANDOFF "Skills", playbook section 5b). They are used when available, and each step falls back to the playbook's own text:
