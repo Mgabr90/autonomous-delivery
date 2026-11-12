@@ -50,7 +50,7 @@
   "second_opinion": null,
   "merge": { "by": "reviewer", "pending_after_min": 20 },
   "design_review": { "lenses": ["zoom-out", "comprehension", "critic", "readiness"], "rounds": 2 },
-  "models": { "strong": "claude-opus-5-5", "mid": "claude-sonnet-5-5" },
+  "models": { "strong": "claude-opus-5-5", "mid": "claude-sonnet-5-5", "plan": ["fable", "mythos"] },
   "token_log": true,
   "token_log_path": ".autodeliver/token_log.csv",
   "routines": {
@@ -83,6 +83,7 @@
 | `merge.pending_after_min` | Minutes a PASS head may stay open before the Worker and `doctor` flag it (default 20; about 180 with the hourly merge pipeline, about 30 with the 10-minute server timer) |
 | `second_opinion` | Optional reviewer from another model vendor: `{"command": "<CLI that reads a prompt on stdin and prints findings>", "timeout_s": 600}`, for example a read-only, non-interactive Codex or Gemini CLI call. The gate verifies each item itself; a failure never blocks a verdict. In cloud mode the CLI and its key must be installed in the environment |
 | `loop.fail_review_cap` | Cloud FAIL reviews per PR before the Worker takes over (default 10) |
+| `models` | `strong`: the model for building, reviewing, fixing and security, and the lowest tier that work is handed to (Opus when unset). `mid`: the usage inspector only. `plan` (optional, `models.plan`): name fragments of planning-tier models (default `["fable", "mythos"]`). A local session whose model id contains one of them plans and checks, and hands the build and the fixes to the strong tier (playbook section 11); if `strong` itself matches `plan`, hand-overs use Opus. Cloud routines use `strong` and `mid` only |
 | `token_log` | **On by default.** The plugin hook appends token usage per role and round to `token_log_path` (CSV, git-ignored). Set it to `false` to turn it off. It only runs in projects that have this config. |
 | `routines` | Filled in by init in cloud mode; used by `status` and `doctor`. On Azure DevOps the routine ids are also needed by the service-hook script and the `FIXER_ROUTINE_ID` environment variable |
 

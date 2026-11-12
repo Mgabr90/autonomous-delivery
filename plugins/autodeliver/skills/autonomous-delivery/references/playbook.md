@@ -249,13 +249,16 @@ flowchart LR
 | Cloud piece | Local equivalent |
 |---|---|
 | Design review | the same `design-reviewer` lenses, dispatched by the main session before building (round 0 of `/autodeliver:loop` for new work) |
+| Worker routine (build) | the main session; on a planning-tier session, a strong-tier subagent with a fixed brief (`/autodeliver:loop`, round 0) |
 | Reviewer routine + webhook | the `delivery-reviewer` agent, dispatched each round by `/autodeliver:loop` |
 | Marker comment | the reviewer's reply starts with `VERDICT: PASS` or `VERDICT: FAIL`, then the finding sections |
-| Fixer routine + label | the main session (no cold start) or the `delivery-fixer` agent (cleaner separation). The reviewer must always be separate. |
+| Fixer routine + label | the main session (no cold start) or the `delivery-fixer` agent (cleaner separation); always the agent on a planning-tier session. The reviewer must always be separate. |
 | Full proof | the profile's deterministic checks, run by the reviewer itself |
 | Usage inspector | the token-log hook (on by default; `token_log: false` turns it off), plus the `usage-inspector` agent on demand |
 | Ledger / HANDOFF | `docs/delivery/` (the same files as cloud mode) |
 | Deliberate loop test | a sample with **seeded defects**; the reviewer must catch them all first |
+
+On a planning-tier session, the Builder and Fixer boxes in the diagram are strong-tier subagents.
 
 **Measure the loop's value:** run one comparable task without the loop as a baseline, logged the same way. Compare tokens, defects caught and a quality rating before adopting the loop.
 
@@ -379,7 +382,8 @@ See `templates/staging/`.
 
 ## 11. Cost and quality controls
 
-- **Strongest model** for building, design review, reviewing, fixing and security. A **mid-tier model** only for the usage inspector, which makes no quality judgements.
+- **Strong model** (`models.strong`) for building, design review, reviewing, fixing and security: this work is never handed to a lower model. A **mid-tier model** only for the usage inspector, which makes no quality judgements.
+- **A planning-tier model plans; it does not build.** When a local session runs on a model named in `models.plan` (default: Fable and Mythos models), keep it for the work where a wrong decision costs most: understanding the task, research, the plan, resolving the design review, rulings and checking results. It hands the build, the simplify pass and every fix to strong-tier subagents with a fixed brief, checks what comes back, and never finishes the build itself. Handing work from a planning-tier model to the strong tier is not "a cheaper model" in the usage inspector's sense: the strong tier stays the floor. Cloud routines keep their tiers. HANDOFF "Models" has the rule; `/autodeliver:loop` has the steps.
 - **Event-driven:** the Reviewer and Fixer run only on events. A Worker tick with nothing due exits in seconds.
 - **Review rounds:** round 1 is full; later rounds analyse the delta plus the previous findings; docs-only deltas check only docs. **The proof is always full.**
 - **Daily usage report:** waste ranked with evidence and exact edits, applied only after a human approves them.

@@ -18,6 +18,6 @@ Show what the loop costs and what it catches, so the user can judge whether it p
 4. End with three lines:
    - the most expensive role, and whether that is expected (the reviewer running the full proof usually is);
    - the waste you can see (duplicate reviews, rounds without new findings, a lens that never finds anything);
-   - one concrete suggestion under the quality-first rule: never a cheaper model or fewer checks for judgement work.
+   - one concrete suggestion under the quality-first rule: never a cheaper model or fewer checks for judgement work. Handing building or fixing from a planning-tier model to the strong tier (HANDOFF "Models") is not a cheaper model in this sense, and you may suggest it when the token log's `model` column shows the main session on a planning-tier model and no strong-tier build row.
 
 Read-only. Never print secrets or row-level data from the project.

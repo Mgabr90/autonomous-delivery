@@ -18,6 +18,11 @@ If the task depends on external facts (library or API behaviour, versions, stand
 - Use the skills in `HANDOFF.md` "Skills" when they are available, with the overrides listed there. Never use the skills it excludes, even with the user present: `subagent-driven-development`, `executing-plans`, `finishing-a-development-branch` and `using-git-worktrees` would bypass this loop's design review and gate.
 - If the task describes new work, first write a short plan (with `writing-plans` if available) with the sections in `HANDOFF.md` → "Phase workflow" step 1 (scaled to the task: design, decisions, file boundary, tasks, test plan), into `paths.plans` or `.autodeliver/plan.md` if there is no plans folder.
 - **Design review before building** (skip it only for a task the user describes as trivial, and say so): dispatch the `design-reviewer` agent once per lens in `design_review.lenses` (default `zoom-out`, `comprehension`, `critic`, `readiness`), in parallel. Each brief holds only the lens, the plan path, the research brief path if any, and the round. Never send your reasoning. Resolve each Blocking and Should-fix by changing the plan or by a ruling with its cost if wrong; re-run only the lenses with findings, up to `design_review.rounds` (default 2). An open Blocking that crosses a hard limit or fails unsafe must be fixed in the plan, never ruled away. Log each round in the ledger. Use `autodeliver:design-reviewer` if `.claude/agents/` doesn't have it.
+- **Model tier** (`HANDOFF.md` "Models"). This session is on a planning-tier model if its own model id contains a name in `models.plan` (default `fable`, `mythos`); if it can't tell its model, it is not. Write `Model tier: planning` or `Model tier: strong`, with the model id or `unknown`, as the first line of this loop's entry in the ledger or `.autodeliver/loop-log.md`. On a planning-tier session one thing changes in the bullets below: who builds and who simplifies. Everything else in them applies on every session: skip building for existing work, the simplify limits, record the scope.
+  - **Hand the build** to one `general-purpose` subagent. Set its `model` to the family name in `models.strong` (`claude-opus-5-5` gives `opus`). Use `opus` when the field is unset, when no family name fits, or when the name is itself in `models.plan`. Never dispatch without an explicit `model`: the subagent would inherit this session's model.
+  - **The build brief** has these items and none of your reasoning: the goal; the plan path; the file boundary; the hard limits and gates (from `HANDOFF.md`, or from `hard_limits` and `gates` in the config when there is no HANDOFF); build test-first or check-first, following the profile; use the skills in HANDOFF "Skills" when they are available, and never `subagent-driven-development`, `executing-plans`, `finishing-a-development-branch` or `using-git-worktrees`; run `proof_touched` and quote its output; commit, don't push.
+  - **Hand the simplify pass** to a fresh subagent of the same kind and model. Its brief: the range `<base>...HEAD`; the simplify limits in the bullet below; the hard limits and gates; run `proof_touched` and quote its output; one `refactor(simplify)` commit; don't push.
+  - **Check each return** before going on: the commit exists, the changed files are inside the boundary (for the simplify pass: inside the files the build changed), and the quoted proof is green. The gate reruns the proof itself; this check only catches an unfinished hand-over. If a check fails, or the dispatch itself fails, send a fresh subagent the exact gap, at most twice. Then stop and report as at the cap, naming the limit as a failed hand-over. Never finish the build here.
 - Then build it in this session: test-first or check-first (`test-driven-development` if available), following the profile, inside the plan's file boundary.
 - **Commit the build**, then **simplify once** (only for work built here, never for existing work you were pointed at). Run `/simplify <base>...HEAD` on the build's range; where it isn't available, review that diff yourself for reuse, simplification, efficiency and altitude. Commit its fixes as one `refactor(simplify)` commit, limited to files the build already changed. Don't simplify again in later rounds: fixes stay minimal.
 - If it names existing work (files, a branch or a diff range), skip building.
@@ -38,7 +43,7 @@ Agent names: use `delivery-reviewer` and `delivery-fixer` if `.claude/agents/` h
    Don't review the work yourself.
 2. **Parse** the first line: `VERDICT: PASS` or `VERDICT: FAIL`.
    - **PASS:** stop.
-   - **FAIL:** fix exactly the Blocking and Should-fix items, either in this session (it already holds the context) or by dispatching the `delivery-fixer` agent if the config sets `"fixer": "agent"`. Then run `proof_touched`.
+   - **FAIL:** fix exactly the Blocking and Should-fix items, either in this session (it already holds the context) or by dispatching the `delivery-fixer` agent if the config sets `"fixer": "agent"` or this session is on a planning-tier model (then always the agent). Then run `proof_touched`. A planning-tier session runs it too: it is a check, not a fix.
 3. **Log the round** in the active ledger (`paths.ledgers`), or in `.autodeliver/loop-log.md` if there is no ledger: round, verdict, counts, files changed.
 4. **Loop.** If a finding comes back unchanged, use systematic debugging for the root cause before the next fix.
 5. **Stop guards**, checked before each new round:
@@ -47,7 +52,7 @@ Agent names: use `delivery-reviewer` and `delivery-fixer` if `.claude/agents/` h
 
 ## At the cap, or when a stop guard fires
 
-Stop. Report which limit stopped the loop (round cap, no progress or budget), and:
+Stop. Report which limit stopped the loop (round cap, no progress, budget or a failed hand-over), and:
 - what still fails;
 - what was tried;
 - the most promising next approach (re-plan, split, or a different design).
@@ -56,7 +61,7 @@ Do not mark the task done.
 
 ## `--baseline`
 
-Build the same task once **without** the loop (no reviewer rounds), logged the same way, so the user can compare tokens and defects later (the token log captures both runs).
+Build the same task once **without** the loop (no reviewer rounds), logged the same way, so the user can compare tokens and defects later (the token log captures both runs). On a planning-tier session, hand this build over the same way, with the same brief and checks.
 
 ## Final report
 
@@ -64,4 +69,4 @@ Build the same task once **without** the loop (no reviewer rounds), logged the s
 - findings fixed per round;
 - proof counts;
 - evidence paths;
-- tokens per role and round from `.autodeliver/token_log.csv` (on by default; skip this if the config sets `token_log` to false).
+- tokens per role and round from `.autodeliver/token_log.csv` (on by default; skip this if the config sets `token_log` to false) (a handed-over build shows as role `general-purpose`).

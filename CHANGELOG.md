@@ -9,6 +9,12 @@
 - **No other role uses it.** HANDOFF "Skills" says so for the Worker, Fixer and local loop, and the Reviewer prompt names it among the skills the gate never uses.
 - **`init`** (cloud mode) offers to copy the skill from the pinned commit `c1c8a8c1471069fb0e188eeaff69b8e8db6564a8`, with its licence and a `SECURITY-AUDIT-VERSION` file, and always adds `.autodeliver/security-audit/` to `.gitignore`. **`doctor`** checks the copy: ❌ when the live routine 5 predates these rules; ⚠️ for missing files, another version, the folder not ignored, or no sweep report for 8 days.
 - **Existing projects:** update routine 5 before adding the skill.
+- **A planning-tier model plans; the strong tier builds** (local sessions; HANDOFF "Models", playbook section 11, `/autodeliver:loop`):
+  - a session whose model id matches `models.plan` (new, optional; default `fable`, `mythos`) keeps planning, rulings and checks, and hands the build, the simplify pass and every fix to strong-tier subagents;
+  - a fixed brief that carries the hard limits, test-first working and the excluded skills, an explicit `model` on every dispatch, checks on return, and at most two re-dispatches before the loop stops;
+  - the strong tier is the floor, and the usage inspector and `/autodeliver:report` may suggest the hand-over;
+  - cloud routines keep their tiers;
+  - existing projects: copy the "Models" section from the HANDOFF template into your own HANDOFF.
 
 ## 0.9.1 (2026-11-11)
 

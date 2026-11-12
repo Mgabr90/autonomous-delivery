@@ -52,6 +52,8 @@ The read-only routines (Reviewer, usage inspector, security sweep) get Write onl
 | 4 Usage inspector | mid | cron `0 5 * * *` | false | Bash, Read, Write, Glob, Grep, TodoWrite |
 | 5 Security sweep | strong | cron `0 3 * * 1` | false | Bash, Read, Write, Glob, Grep, Agent, Skill, TodoWrite, WebSearch, WebFetch |
 
+Keep these tiers. Don't set a routine to a planning-tier model (`models.plan`): the Worker's ticks are frequent and mostly bookkeeping, and the planning-tier rule (HANDOFF "Models") is for local sessions.
+
 The web tools are needed because the routines dispatch the `researcher` agent, and a subagent can only use tools its session allows.
 
 ## Attach a GitHub webhook (GitHub host)
