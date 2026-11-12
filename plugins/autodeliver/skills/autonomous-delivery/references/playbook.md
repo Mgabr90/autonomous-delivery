@@ -379,6 +379,10 @@ See `templates/staging/`.
 | Shell quoting broke remote heredocs. | Copy files to servers with `scp`, not inline heredocs. |
 | `pipefail` with `head` aborted scripts. | Avoid `head` on pipes under `pipefail`. |
 | Free GitHub plans have no branch protection on private repos. | Only the gate merges; it is a hard limit in every prompt. |
+| A plan's check ("is this folder git-ignored?") passed on the author's machine in a repo with no ignore entry, because a machine-wide git ignore file matched it. The unattended session has no such file, so the health check would have passed while the run skipped the feature. | A check that decides what an unattended run does reads only the repo's own state (`git -c core.excludesFile= check-ignore …`). Run every new check both ways, pass and fail, before it goes into a plan. |
+| A plan to use a third-party skill unattended rested its safety claims on the skill's top file. The files that brief its subagents, and the programs it runs, had not been read. | Before a third-party skill runs unattended: read the files that drive its subagents, scan the programs it runs for network, process and write calls, and pin the commit that was read. The plan says what was read, scanned and not read. |
+| A skill copied into `.claude/skills/` for one routine was open to every role, and the Reviewer's prompt already allowed "vendored security skills". | When a skill is added for one role, say in the charter which roles never use it, and search every prompt for wording that already lets it in. |
+| Text added to a plan to settle the first design-review round caused most of the second round's findings, and rules given as a summary ("four short bullets") came back as "the builder would be writing the rule". | In a repo where wording is behaviour, the plan carries the exact text of each new rule from the first draft, and the steps live in one file with pointers from the others. |
 
 ## 11. Cost and quality controls
 

@@ -8,7 +8,8 @@
   - Still one `<PFX>-SECURITY` report, now saying whether the skill ran and how it ended.
 - **No other role uses it.** HANDOFF "Skills" says so for the Worker, Fixer and local loop, and the Reviewer prompt names it among the skills the gate never uses.
 - **`init`** (cloud mode) offers to copy the skill from the pinned commit `c1c8a8c1471069fb0e188eeaff69b8e8db6564a8`, with its licence and a `SECURITY-AUDIT-VERSION` file, and always adds `.autodeliver/security-audit/` to `.gitignore`. **`doctor`** checks the copy: ❌ when the live routine 5 predates these rules; ⚠️ for missing files, another version, the folder not ignored, or no sweep report for 8 days.
-- **Existing projects:** update routine 5 before adding the skill.
+- **Existing projects:** update routine 5 before adding the skill, and add `.autodeliver/security-audit/` to `.gitignore` (without that line the sweep does not run the skill).
+- **Playbook:** four lessons (a check that passed only because of a machine-wide git ignore file; safety claims about a third-party skill that rested on its top file; a skill copied for one role that every role could use; exact rule text in the plan from the first draft).
 - **A planning-tier model plans; the strong tier builds** (local sessions; HANDOFF "Models", playbook section 11, `/autodeliver:loop`):
   - a session whose model id matches `models.plan` (new, optional; default `fable`, `mythos`) keeps planning, rulings and checks, and hands the build, the simplify pass and every fix to strong-tier subagents;
   - a fixed brief that carries the hard limits, test-first working and the excluded skills, an explicit `model` on every dispatch, checks on return, and at most two re-dispatches before the loop stops;
