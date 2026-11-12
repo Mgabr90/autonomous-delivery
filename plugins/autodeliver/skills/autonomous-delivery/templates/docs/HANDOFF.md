@@ -97,6 +97,13 @@ Then the remaining owner action is just the go-ahead in chat.
    - update the roadmap;
    - open the PR (cloud) or run `/autodeliver:loop` (local).
 
+## Models
+
+- **The strong tier is the floor.** Building, reviewing, fixing and security work is never handed to a model below the strong tier: `models.strong` in the config, or Opus when it is not set (what the review and fix agents run on).
+- **A planning-tier model plans; it does not build.** A local session is on a planning-tier model when its own model id contains one of the names in `models.plan` (default: `fable`, `mythos`). It keeps that model for understanding the task, research, the plan and its decisions, resolving the design review, rulings, dispatching agents and checking what they return. It may write the plan, the ledger and notes, and make a one-line fix that is needed to hand work over. It hands the build, the simplify pass and every fix to strong-tier subagents, and never finishes the build itself. `/autodeliver:loop` has the steps: the brief, the checks on return and the retry limit.
+- **Cloud routines keep their tiers:** Worker, Reviewer, Fixer and security sweep on the strong model. Don't set a routine to a planning-tier model.
+- A session on the strong tier, or on a lower model the user chose, works as before.
+
 ## Skills (use them when available)
 
 Skills make the steps above more reliable. They never replace the rules in this file: when a skill and this file disagree, this file wins. A skill is available when the Skill tool lists it. In cloud sessions that means `.claude/skills/<name>/` is committed, because plugins don't load there; a skill's reference to `superpowers:<name>` then means the bare `<name>`. Locally, the plugin names work too.
@@ -122,7 +129,9 @@ Skills make the steps above more reliable. They never replace the rules in this 
 
 **Only with a person present:** `brainstorming` has a hard gate that needs the user's approval, and `using-superpowers` sends you to brainstorming first. Use them at `/autodeliver:init`, where the owner is present, never for phase work. If the superpowers session hook loads them in a local session, still don't use them for autodeliver work.
 
-The Reviewer uses none of these skills: the gate keeps its own fixed rules.
+**Only in the security sweep:** `security-audit` (Cloudflare's audit skill, if the project has it in `.claude/skills/`). The sweep's own prompt says how it runs. Phase work never runs it, in either of its modes: not the Worker, not the Fixer, not the local loop. A full audit there would multiply cost and write run files in the middle of a phase.
+
+The Reviewer uses none of these skills, and not `security-audit` either: the gate keeps its own fixed rules.
 
 ## Review gate
 

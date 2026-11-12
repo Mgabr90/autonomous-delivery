@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.10.0 (2026-11-12)
+
+- **The security sweep uses Cloudflare's `security-audit` skill** ([cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill), MIT) when the project has it in `.claude/skills/`. It covers the sweep's first two bullets (entry points and their guards; auth, crypto, secrets, injection, uploads, SSRF). Without it, or without Node.js, or when its output folder is not git-ignored, the sweep does those bullets by hand as before and says why.
+  - Fixed settings in routine 5, so the skill has nothing to ask: full audit, profile `quick`, a budget of 40 agent calls, source review only (no target code run, nothing installed), run files only under the git-ignored `.autodeliver/security-audit/`.
+  - Its records are leads. The sweep verifies them, checks them on staging and classifies them by its own scale. `needs_validation` records are never dropped for having no severity; at most 10 of them are checked on staging per sweep. A failed validator or an unfinished run falls back to work by hand for what the records do not cover.
+  - Still one `<PFX>-SECURITY` report, now saying whether the skill ran and how it ended.
+- **No other role uses it.** HANDOFF "Skills" says so for the Worker, Fixer and local loop, and the Reviewer prompt names it among the skills the gate never uses.
+- **`init`** (cloud mode) offers to copy the skill from the pinned commit `c1c8a8c1471069fb0e188eeaff69b8e8db6564a8`, with its licence and a `SECURITY-AUDIT-VERSION` file, and always adds `.autodeliver/security-audit/` to `.gitignore`. **`doctor`** checks the copy: ❌ when the live routine 5 predates these rules; ⚠️ for missing files, another version, the folder not ignored, or no sweep report for 8 days.
+- **Existing projects:** update routine 5 before adding the skill, and add `.autodeliver/security-audit/` to `.gitignore` (without that line the sweep does not run the skill).
+- **Playbook:** four lessons (a check that passed only because of a machine-wide git ignore file; safety claims about a third-party skill that rested on its top file; a skill copied for one role that every role could use; exact rule text in the plan from the first draft).
+- **A planning-tier model plans; the strong tier builds** (local sessions; HANDOFF "Models", playbook section 11, `/autodeliver:loop`):
+  - a session whose model id matches `models.plan` (new, optional; default `fable`, `mythos`) keeps planning, rulings and checks, and hands the build, the simplify pass and every fix to strong-tier subagents;
+  - a fixed brief that carries the hard limits, test-first working and the excluded skills, an explicit `model` on every dispatch, checks on return, and at most two re-dispatches before the loop stops;
+  - the strong tier is the floor, and the usage inspector and `/autodeliver:report` may suggest the hand-over;
+  - cloud routines keep their tiers;
+  - existing projects: copy the "Models" section from the HANDOFF template into your own HANDOFF.
+
 ## 0.9.1 (2026-11-11)
 
 - **Merge gate on a server you control:** `templates/merge-gate/server/` adds a systemd timer and service for `merge_gate.py`. They run every 10 minutes as an unprivileged user with a memory cap, and add no ports, no containers and no CI minutes.

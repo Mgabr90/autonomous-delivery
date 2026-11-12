@@ -42,7 +42,7 @@ Most of this page is host-neutral. The GitHub-only parts are marked; Azure DevOp
 - **Updates:** first `action: "get"` the routine and edit its **live** prompt. Never rebuild it from an older copy: another session may have changed it since, and an update replaces the whole prompt. Then `action: "update"` with `trigger_id` and the same `job_config` shape. Use a **new uuid** in `events[0].data.uuid` whenever the prompt changes. The change takes effect at the next run.
 - **Testing:** `action: "run"` triggers it once by hand. Do this for every new routine. Then read `list_runs` and `get_run_log`.
 
-The read-only routines (Reviewer, usage inspector, security sweep) get Write only for request bodies and report files, so that they can follow the no-heredoc rule below. Their prompts forbid using it on the work.
+The read-only routines (Reviewer, usage inspector, security sweep) get Write only for request bodies and report files, so that they can follow the no-heredoc rule below. Their prompts forbid using it on the work. The security sweep also writes the `security-audit` skill's run files, only under the git-ignored `.autodeliver/security-audit/` folder.
 
 | Routine | Model | Trigger | persist_session | Tools |
 |---|---|---|---|---|
@@ -51,6 +51,8 @@ The read-only routines (Reviewer, usage inspector, security sweep) get Write onl
 | 3 Fixer | strong | webhook `pull_request.labeled` | false | Bash, Read, Write, Edit, Glob, Grep, Agent, Skill, TodoWrite, WebSearch, WebFetch |
 | 4 Usage inspector | mid | cron `0 5 * * *` | false | Bash, Read, Write, Glob, Grep, TodoWrite |
 | 5 Security sweep | strong | cron `0 3 * * 1` | false | Bash, Read, Write, Glob, Grep, Agent, Skill, TodoWrite, WebSearch, WebFetch |
+
+Keep these tiers. Don't set a routine to a planning-tier model (`models.plan`): the Worker's ticks are frequent and mostly bookkeeping, and the planning-tier rule (HANDOFF "Models") is for local sessions.
 
 The web tools are needed because the routines dispatch the `researcher` agent, and a subagent can only use tools its session allows.
 
@@ -116,7 +118,7 @@ When you update a trigger's `job_config` through the API, send it whole: `enviro
 
 ## Plugins don't load in cloud sessions
 
-Cloud sessions load the repo's committed `.claude/` folder (agents, skills, commands, and `settings.json` hooks), but not plugins. `/autodeliver:init` therefore copies the plugin's agents into `.claude/agents/`. Copy any skills your prompts rely on into `.claude/skills/` too, keeping their licence files.
+Cloud sessions load the repo's committed `.claude/` folder (agents, skills, commands, and `settings.json` hooks), but not plugins. `/autodeliver:init` therefore copies the plugin's agents into `.claude/agents/`. Copy any skills your prompts rely on into `.claude/skills/` too, keeping their licence files. `init` offers `security-audit` for the security sweep the same way; its validators need Node.js in the sweep's environment.
 
 ## Azure DevOps host
 

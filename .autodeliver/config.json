@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "project": "autonomous-delivery",
+  "mode": "local",
+  "profiles": ["docs"],
+  "main_branch": "main",
+  "branch_prefix": "autodeliver-",
+  "loop": {"cap": 5},
+  "token_log": true,
+  "proof_full": [
+    "claude plugin validate . --strict",
+    "claude plugin validate plugins/autodeliver --strict",
+    "cd plugins/autodeliver/skills/autonomous-delivery/templates/merge-gate && python -m pytest -q -p no:cacheprovider",
+    "python -m py_compile plugins/autodeliver/scripts/token_log.py plugins/autodeliver/scripts/loop_report.py plugins/autodeliver/skills/autonomous-delivery/templates/staging/ops.py",
+    "bash -n plugins/autodeliver/skills/autonomous-delivery/templates/staging/gate.sh",
+    "bash -n plugins/autodeliver/skills/autonomous-delivery/templates/staging/stg.sh",
+    "bash -n plugins/autodeliver/skills/autonomous-delivery/templates/owner/ado-service-hooks.sh",
+    "every other check in .github/workflows/validate.yml, run by hand (unattended-run line in each routine prompt, tracked JSON parses, no placeholder outside the allowed folders, the two token-log smoke tests)"
+  ],
+  "proof_touched": [
+    "claude plugin validate . --strict",
+    "claude plugin validate plugins/autodeliver --strict"
+  ],
+  "review_checklist": [
+    "a rule change lands in every copy the repo CLAUDE.md names: the command or agent, the matching routine prompt, templates/docs/HANDOFF.md and references/playbook.md",
+    "the gate is never weakened: PASS needs zero Blocking, zero Should-fix and the full proof",
+    "generic wording: no project names, hosts, ids or secrets in templates or docs",
+    "routine prompts stay host-neutral and keep the unattended-run rule",
+    "plugin.json and marketplace.json versions match, with a dated CHANGELOG entry at the top",
+    "LF line endings"
+  ],
+  "gates": ["Pushing, opening a pull request and merging"]
+}

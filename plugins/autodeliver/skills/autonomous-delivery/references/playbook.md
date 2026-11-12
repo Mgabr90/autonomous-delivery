@@ -164,7 +164,7 @@ EGM's other ideas are folded in like this:
 
 **Measure it.** As with the loop itself (section 8), compare a few phases with and without the design review: Should-fix findings at round 1 of the gate, rounds to PASS, and total tokens. Keep it if it pays for itself.
 
-## 5b. Skills: superpowers and /simplify
+## 5b. Skills: superpowers, /simplify and security-audit
 
 The loop's steps match well-tested skills, and the Worker, Fixer and local loop use them when they are available. `templates/docs/HANDOFF.md`, section "Skills", has the full map:
 - `writing-plans` for the phase plan, saved in our format;
@@ -180,6 +180,8 @@ Three rules keep this safe:
 - **The Reviewer stays plain.** The gate uses none of these skills, so its rules can't drift with a skill update.
 
 Cloud sessions don't load plugins, so `/autodeliver:init` offers to copy the unattended-safe superpowers skills into `.claude/skills/`, with their MIT licence. `/simplify` ships with Claude Code. The superpowers skills are by Jesse Vincent ([obra/superpowers](https://github.com/obra/superpowers), MIT).
+
+**`security-audit` in the security sweep.** Cloudflare's `security-audit` skill ([cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill), MIT) is a full audit method: a coverage ledger, isolated hunters, a fresh verifier per candidate, and records checked by two validators. Only the weekly security sweep runs it, in a bounded `quick` pass on source only; no other role uses it. Its records are leads: the sweep verifies them, confirms them on staging and classifies them itself. `/autodeliver:init` copies one pinned commit. The pin moves only in a plugin release, after the skill is re-read against the sweep's rules. Without a sandbox, few leads end as `confirmed`; what the skill still adds is a coverage ledger that names what was and was not looked at, and a fresh verifier per candidate. **Measure it.** Compare a few sweeps with and without the skill: findings kept after verification, and tokens. On the first run, count the sweep session's own tokens too, since it writes every brief.
 
 ## 6. The closed review/fix loop
 
@@ -247,13 +249,16 @@ flowchart LR
 | Cloud piece | Local equivalent |
 |---|---|
 | Design review | the same `design-reviewer` lenses, dispatched by the main session before building (round 0 of `/autodeliver:loop` for new work) |
+| Worker routine (build) | the main session; on a planning-tier session, a strong-tier subagent with a fixed brief (`/autodeliver:loop`, round 0) |
 | Reviewer routine + webhook | the `delivery-reviewer` agent, dispatched each round by `/autodeliver:loop` |
 | Marker comment | the reviewer's reply starts with `VERDICT: PASS` or `VERDICT: FAIL`, then the finding sections |
-| Fixer routine + label | the main session (no cold start) or the `delivery-fixer` agent (cleaner separation). The reviewer must always be separate. |
+| Fixer routine + label | the main session (no cold start) or the `delivery-fixer` agent (cleaner separation); always the agent on a planning-tier session. The reviewer must always be separate. |
 | Full proof | the profile's deterministic checks, run by the reviewer itself |
 | Usage inspector | the token-log hook (on by default; `token_log: false` turns it off), plus the `usage-inspector` agent on demand |
 | Ledger / HANDOFF | `docs/delivery/` (the same files as cloud mode) |
 | Deliberate loop test | a sample with **seeded defects**; the reviewer must catch them all first |
+
+On a planning-tier session, the Builder and Fixer boxes in the diagram are strong-tier subagents.
 
 **Measure the loop's value:** run one comparable task without the loop as a baseline, logged the same way. Compare tokens, defects caught and a quality rating before adopting the loop.
 
@@ -374,15 +379,20 @@ See `templates/staging/`.
 | Shell quoting broke remote heredocs. | Copy files to servers with `scp`, not inline heredocs. |
 | `pipefail` with `head` aborted scripts. | Avoid `head` on pipes under `pipefail`. |
 | Free GitHub plans have no branch protection on private repos. | Only the gate merges; it is a hard limit in every prompt. |
+| A plan's check ("is this folder git-ignored?") passed on the author's machine in a repo with no ignore entry, because a machine-wide git ignore file matched it. The unattended session has no such file, so the health check would have passed while the run skipped the feature. | A check that decides what an unattended run does reads only the repo's own state (`git -c core.excludesFile= check-ignore …`). Run every new check both ways, pass and fail, before it goes into a plan. |
+| A plan to use a third-party skill unattended rested its safety claims on the skill's top file. The files that brief its subagents, and the programs it runs, had not been read. | Before a third-party skill runs unattended: read the files that drive its subagents, scan the programs it runs for network, process and write calls, and pin the commit that was read. The plan says what was read, scanned and not read. |
+| A skill copied into `.claude/skills/` for one routine was open to every role, and the Reviewer's prompt already allowed "vendored security skills". | When a skill is added for one role, say in the charter which roles never use it, and search every prompt for wording that already lets it in. |
+| Text added to a plan to settle the first design-review round caused most of the second round's findings, and rules given as a summary ("four short bullets") came back as "the builder would be writing the rule". | In a repo where wording is behaviour, the plan carries the exact text of each new rule from the first draft, and the steps live in one file with pointers from the others. |
 
 ## 11. Cost and quality controls
 
-- **Strongest model** for building, design review, reviewing, fixing and security. A **mid-tier model** only for the usage inspector, which makes no quality judgements.
+- **Strong model** (`models.strong`) for building, design review, reviewing, fixing and security: this work is never handed to a lower model. A **mid-tier model** only for the usage inspector, which makes no quality judgements.
+- **A planning-tier model plans; it does not build.** When a local session runs on a model named in `models.plan` (default: Fable and Mythos models), keep it for the work where a wrong decision costs most: understanding the task, research, the plan, resolving the design review, rulings and checking results. It hands the build, the simplify pass and every fix to strong-tier subagents with a fixed brief, checks what comes back, and never finishes the build itself. Handing work from a planning-tier model to the strong tier is not "a cheaper model" in the usage inspector's sense: the strong tier stays the floor. Cloud routines keep their tiers. HANDOFF "Models" has the rule; `/autodeliver:loop` has the steps.
 - **Event-driven:** the Reviewer and Fixer run only on events. A Worker tick with nothing due exits in seconds.
 - **Review rounds:** round 1 is full; later rounds analyse the delta plus the previous findings; docs-only deltas check only docs. **The proof is always full.**
 - **Daily usage report:** waste ranked with evidence and exact edits, applied only after a human approves them.
 - **Design review scales by round, not by depth:** all lenses in round 1; later rounds re-run only the lenses with open findings; the round cap turns the rest into rulings. The usage inspector may propose a different lens set for a project, never a cheaper model for a lens.
-- **Weekly security sweep:** findings go to an issue, and phases must route each confirmed one. The same report carries the `## Drift` section from the system-doc check.
+- **Weekly security sweep:** findings go to an issue, and phases must route each confirmed one. The same report carries the `## Drift` section from the system-doc check. It uses the `security-audit` skill when the project has it (section 5b).
 
 ## 12. Changing the setup while work runs
 

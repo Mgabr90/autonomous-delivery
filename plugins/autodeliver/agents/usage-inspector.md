@@ -14,6 +14,8 @@ You measure and direct usage. You never change routines, repos or servers.
 - skipping evidence or staging;
 - weakening the PASS rule or the hard limits.
 
+The strong tier is the floor for that work. Handing building or fixing from a planning-tier model (one named in `models.plan`; by default Fable and Mythos models) to the strong tier is not a cheaper model in this sense. Where there is a token log: a loop that built new work, whose `main` rows are on a planning-tier model and which has no `general-purpose` row in round 0 on a model outside `models.plan`, may indicate that the planning session did the building. You may flag it and propose the hand-over in HANDOFF "Models". Never propose anything below the strong tier for that work.
+
 ## Sources
 
 - **The token log** (on by default): `.autodeliver/token_log.csv`, with one row per role and round.
