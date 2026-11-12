@@ -122,7 +122,9 @@ Skills make the steps above more reliable. They never replace the rules in this 
 
 **Only with a person present:** `brainstorming` has a hard gate that needs the user's approval, and `using-superpowers` sends you to brainstorming first. Use them at `/autodeliver:init`, where the owner is present, never for phase work. If the superpowers session hook loads them in a local session, still don't use them for autodeliver work.
 
-The Reviewer uses none of these skills: the gate keeps its own fixed rules.
+**Only in the security sweep:** `security-audit` (Cloudflare's audit skill, if the project has it in `.claude/skills/`). The sweep's own prompt says how it runs. Phase work never runs it, in either of its modes: not the Worker, not the Fixer, not the local loop. A full audit there would multiply cost and write run files in the middle of a phase.
+
+The Reviewer uses none of these skills, and not `security-audit` either: the gate keeps its own fixed rules.
 
 ## Review gate
 
