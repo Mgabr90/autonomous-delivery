@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- **Playbook:** two lessons (a mixed-direction fixture in the proof for right-to-left deliverables; size review rounds to the delta and check the usage budget before fanning out).
+
 ## 0.10.0 (2026-11-12)
 
 - **The security sweep uses Cloudflare's `security-audit` skill** ([cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill), MIT) when the project has it in `.claude/skills/`. It covers the sweep's first two bullets (entry points and their guards; auth, crypto, secrets, injection, uploads, SSRF). Without it, or without Node.js, or when its output folder is not git-ignored, the sweep does those bullets by hand as before and says why.
