@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Playbook:** two lessons (score an AI retry with the function that builds the output; list the alert classifier in the boundary when a plan adds a warning path).
 - **Playbook:** two lessons (a mixed-direction fixture in the proof for right-to-left deliverables; size review rounds to the delta and check the usage budget before fanning out).
 
 ## 0.10.0 (2026-11-12)
