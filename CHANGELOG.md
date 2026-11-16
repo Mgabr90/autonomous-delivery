@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Playbook:** six lessons (guards follow a text into the output; backstops with negative lists; distinct inputs and scratch-copy mutants; probe before dropping an entry class; acceptance run on the final commit; no code through shell heredocs).
 - **Playbook:** two lessons (check the owner's reference cases against the exact rule during design review; a diagnostic line of ids and rule inputs in the deciding stage).
 - **Playbook:** two lessons (score an AI retry with the function that builds the output; list the alert classifier in the boundary when a plan adds a warning path).
 - **Playbook:** two lessons (a mixed-direction fixture in the proof for right-to-left deliverables; size review rounds to the delta and check the usage budget before fanning out).
