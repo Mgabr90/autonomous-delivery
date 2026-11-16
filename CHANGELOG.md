@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- **`/autodeliver:loop`:** a review that stops without a verdict (for example on a usage limit) is logged at once with the agent id, sha and reset time, and the same reviewer is resumed after the reset (a fresh review only if the head moved); it is not a round, and the resume never rests on a background timer alone.
+- **Playbook:** three lessons (resume a reviewer stopped on a usage limit; a settings change that alters what a live system sends is a release, replayed on recent data first; capture raw vendor rows before fixing a live-data rule, and treat push signals as late or missing).
+
 - **Playbook:** three lessons (read base files from the base ref and fetch a case-clashing base by refspec; list positional test assertions when a fixed-order output gains a field; role briefs never restate procedure).
 - **Reviewer** (agent + routine prompt): mutants and base-branch runs go in a scratch copy or worktree, never in the work dir.
 - **Playbook:** six lessons (guards follow a text into the output; backstops with negative lists; distinct inputs and scratch-copy mutants; probe before dropping an entry class; acceptance run on the final commit; no code through shell heredocs).

@@ -44,6 +44,7 @@ Agent names: use `delivery-reviewer` and `delivery-fixer` if `.claude/agents/` h
 2. **Parse** the first line: `VERDICT: PASS` or `VERDICT: FAIL`.
    - **PASS:** stop.
    - **FAIL:** fix exactly the Blocking and Should-fix items, either in this session (it already holds the context) or by dispatching the `delivery-fixer` agent if the config sets `"fixer": "agent"` or this session is on a planning-tier model (then always the agent). Then run `proof_touched`. A planning-tier session runs it too: it is a check, not a fix.
+   - **No verdict line** (the reviewer stopped, for example on a usage limit): write the reviewer's agent id, the sha under review and the limit's reset time in the ledger at once. After the reset, resume that same agent with a message to finish the round (it keeps its context). If the head moved in the meantime, dispatch a fresh review of the new head instead. A stopped review is not a round. Don't leave the resume to a background timer alone: when this session can't wait for the reset, stop and report the loop as stopped without a verdict, and the next session starts a fresh review from the ledger.
 3. **Log the round** in the active ledger (`paths.ledgers`), or in `.autodeliver/loop-log.md` if there is no ledger: round, verdict, counts, files changed.
 4. **Loop.** If a finding comes back unchanged, use systematic debugging for the root cause before the next fix.
 5. **Stop guards**, checked before each new round:
