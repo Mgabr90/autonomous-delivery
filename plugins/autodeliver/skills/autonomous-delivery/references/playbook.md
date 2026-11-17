@@ -324,6 +324,10 @@ See `templates/staging/`.
 
 | What happened | Rule |
 |---|---|
+| Docs writers told "no secret values" complied, yet the gate blocked sentences saying where plaintext secrets were stored and which admin endpoint was protected only by a password. | Docs for a public or wide audience never tie a secret to its storage location or describe an open security finding; those go to a private owner list. The reviewer searches for location words, not only for values. |
+| Docs writers left owner TODOs that the infrastructure and catalog repos already answered (paths, retention, standard commands). | Before writing a TODO for the owner, search the related infrastructure and catalog repos; the reviewer classes an answerable TODO as Should-fix. |
+| A branch comparison on a fork showed 79 changed files; only one commit was the team's own. | Inventory a fork's changes by the team's own commits since the fork point, and decide what runs in production from deploy evidence (image tag, pinned commit, workflow runs), not from branch comparisons. |
+| Agents reading infrastructure files and ops notes printed live credentials into their tool output. | Read infrastructure and ops files through a redaction filter, or print only the lines being cited. |
 | Azure DevOps has no event for a PR label change, so a label can't fire the Fixer there. | On Azure DevOps the **Reviewer fires the Fixer** through the routine fire endpoint after posting FAIL (the label stays as a visible marker), and the Worker's watchdog re-fires a stalled Fixer the same way. |
 | The routine docs say cloning needs GitHub, yet routines with no repo attached cloned Azure DevOps repos fine with `git clone https://pat:$ADO_PAT@dev.azure.com/…` (`dev.azure.com` is on the default Trusted list). | On Azure DevOps, routines have `sources: []` and clone in the prompt's first step. |
 | A service hook POSTs its own event JSON; the fire endpoint reads only a top-level `text`, so the run started with no PR context. | Prompts never depend on the trigger: they find their work from the host state (open loop PRs without a review of the head). |
