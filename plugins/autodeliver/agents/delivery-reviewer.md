@@ -26,6 +26,7 @@ Read `.autodeliver/config.json` (if it exists) for `profiles`, `proof_full`, `e2
    - Run every command in `proof_full` from `work_dir`, plus `e2e` when user-facing output changed. Record the counts.
    - If something fails, re-run it once: a failure that passes on re-run is **flaky**, which is a Should-fix, not a pass.
    - Never trust the builder's claim that something passed.
+   - Mutation checks and runs on the base branch go in a scratch copy or a separate worktree, never in `work_dir`. Never run a checkout, restore or stash there.
 3. **Check:**
    - correctness against the brief;
    - edge cases;

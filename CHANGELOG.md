@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased
+
+- **Playbook:** one lesson and a correction (check that every time in a "the vendor signal is late" comparison is recorded, not inferred, and keep inferred values distinguishable; the earlier vendor-fields row no longer claims a late push or prescribes "the earlier of push and poll").
+
+- **Playbook:** four lessons (secret locations are as sensitive as secret values in widely read docs; search infrastructure repos before an owner TODO; inventory a fork by the team's own commits and deploy evidence; read infrastructure files through a redaction filter).
+- **`/autodeliver:loop`:** a review that stops without a verdict (for example on a usage limit) is logged at once with the agent id, sha and reset time, and the same reviewer is resumed after the reset (a fresh review only if the head moved); it is not a round, and the resume never rests on a background timer alone.
+- **Playbook:** three lessons (resume a reviewer stopped on a usage limit; a settings change that alters what a live system sends is a release, replayed on recent data first; capture raw vendor rows before fixing a live-data rule, and treat push signals as late or missing).
+
+- **Playbook:** three lessons (read base files from the base ref and fetch a case-clashing base by refspec; list positional test assertions when a fixed-order output gains a field; role briefs never restate procedure).
+- **Reviewer** (agent + routine prompt): mutants and base-branch runs go in a scratch copy or worktree, never in the work dir.
+- **Playbook:** six lessons (guards follow a text into the output; backstops with negative lists; distinct inputs and scratch-copy mutants; probe before dropping an entry class; acceptance run on the final commit; no code through shell heredocs).
+- **Playbook:** two lessons (check the owner's reference cases against the exact rule during design review; a diagnostic line of ids and rule inputs in the deciding stage).
+- **Playbook:** two lessons (score an AI retry with the function that builds the output; list the alert classifier in the boundary when a plan adds a warning path).
+- **Playbook:** two lessons (a mixed-direction fixture in the proof for right-to-left deliverables; size review rounds to the delta and check the usage budget before fanning out).
+
 ## 0.10.0 (2026-11-12)
 
 - **The security sweep uses Cloudflare's `security-audit` skill** ([cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill), MIT) when the project has it in `.claude/skills/`. It covers the sweep's first two bullets (entry points and their guards; auth, crypto, secrets, injection, uploads, SSRF). Without it, or without Node.js, or when its output folder is not git-ignored, the sweep does those bullets by hand as before and says why.
