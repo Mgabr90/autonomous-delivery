@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Playbook:** one lesson and a correction (check that every time in a "the vendor signal is late" comparison is recorded, not inferred, and keep inferred values distinguishable; the earlier vendor-fields row no longer claims a late push or prescribes "the earlier of push and poll").
+
 - **Playbook:** four lessons (secret locations are as sensitive as secret values in widely read docs; search infrastructure repos before an owner TODO; inventory a fork by the team's own commits and deploy evidence; read infrastructure files through a redaction filter).
 - **`/autodeliver:loop`:** a review that stops without a verdict (for example on a usage limit) is logged at once with the agent id, sha and reset time, and the same reviewer is resumed after the reset (a fresh review only if the head moved); it is not a round, and the resume never rests on a background timer alone.
 - **Playbook:** three lessons (resume a reviewer stopped on a usage limit; a settings change that alters what a live system sends is a release, replayed on recent data first; capture raw vendor rows before fixing a live-data rule, and treat push signals as late or missing).
