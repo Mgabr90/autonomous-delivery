@@ -22,7 +22,9 @@ Use the `design-reviewer` agent (`autodeliver:design-reviewer` if `.claude/agent
 - the lens;
 - the document path;
 - the paths of the referenced material;
-- round 1.
+- round 1;
+- the closing line "Deliver your full report as the final text of your reply." (in a session that is not in auto mode the
+  hand-back tool can be refused, and a reviewer then ends with no report).
 
 **Never** add a summary, your reasoning, the alternatives you considered, or what you think of the document. If you wrote the document in this session, that rule matters most.
 
