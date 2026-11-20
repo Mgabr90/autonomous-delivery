@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- **Reviewer briefs end with "Deliver your full report as the final text of your reply."** (`loop.md`, `design-review.md`): in a session that is not in auto mode the hand-back tool can be refused, and reviewers then ended with no report.
+- **Playbook:** nine lessons from a data-pipeline loop (measure assumed signals before design review; end-to-end dry run on real data in the build proof; pin native bindings and prove in a fresh venv; fixtures from the code's defaults; separate work folders and per-item saves for parallel agents; record user overrides as decisions; date-check a cause before naming it).
+
 ## 0.10.0 (2026-11-12)
 
 - **The security sweep uses Cloudflare's `security-audit` skill** ([cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill), MIT) when the project has it in `.claude/skills/`. It covers the sweep's first two bullets (entry points and their guards; auth, crypto, secrets, injection, uploads, SSRF). Without it, or without Node.js, or when its output folder is not git-ignored, the sweep does those bullets by hand as before and says why.
