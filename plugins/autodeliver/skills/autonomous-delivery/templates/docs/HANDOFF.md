@@ -82,10 +82,13 @@ Then the remaining owner action is just the go-ahead in chat.
        is clicked in the dry run of any change to that output. Prefer stable one-item URLs.
      - **Data sent to an outside service.** When a change widens what goes to an outside service (an AI model, an API),
        add a test that plants personal data and credentials in each new field and asserts they are stripped.
+     - A test that pins a formula or an ordering rule has a case for each term alone, for the tie-break and for each filter, so that changing any one of them fails a test. A sort that is not stable also gets a case whose expected order flips, not only reversed input.
+     - A test on a file that later phases also edit (service units, install scripts, server config) asserts the lines it owns, never a span that runs to the end of the file.
 2. **Design review (goldfish), before any building.** Dispatch the `design-reviewer` agent once per lens, in parallel: `zoom-out`, `comprehension`, `critic` and `readiness` (or the lenses set in `design_review.lenses` in `.autodeliver/config.json`).
    - **Isolation is the point.** Each brief contains only the lens, the plan path, the research brief path, the paths of this file, the roadmap and `{{SYSTEM}}`, and the round number. Never send a summary of your reasoning, the alternatives you liked, or why you think the plan is right.
    - Resolve every Blocking and Should-fix finding yourself: change the plan, or write a ruling with its cost if wrong. Re-dispatch only the lenses that had findings, with their previous findings.
    - Stop after `design_review.rounds` rounds (default 2). Anything still open becomes a ruling with its cost if wrong, and building starts. The design review never waits for the user.
+   - **Close the review before any build starts:** every round has run, and its plan changes and rulings are written into the plan. Never start building while a round is open, and never send plan amendments to a builder that is already running.
    - **Except:** an open Blocking that crosses a hard limit or makes the design fail unsafe can't be accepted by ruling. Change the plan or split the phase, even past the round cap.
    - Record each round in the ledger as ONE commit, pushed as soon as the lenses return: each lens's verdict and findings, what changed in the plan, and the rulings made.
 3. **Each task:**
@@ -107,7 +110,7 @@ Then the remaining owner action is just the go-ahead in chat.
 ## Models
 
 - **The strong tier is the floor.** Building, reviewing, fixing and security work is never handed to a model below the strong tier: `models.strong` in the config, or Opus when it is not set (what the review and fix agents run on).
-- **A planning-tier model plans; it does not build.** A local session is on a planning-tier model when its own model id contains one of the names in `models.plan` (default: `fable`, `mythos`). It keeps that model for understanding the task, research, the plan and its decisions, resolving the design review, rulings, dispatching agents and checking what they return. It may write the plan, the ledger and notes, and make a one-line fix that is needed to hand work over. It hands the build, the simplify pass and every fix to strong-tier subagents, and never finishes the build itself. `/autodeliver:loop` has the steps: the brief, the checks on return and the retry limit.
+- **A planning-tier model plans; it does not build.** A local session is on a planning-tier model when its own model id contains one of the names in `models.plan` (default: `fable`, `mythos`). It keeps that model for understanding the task, research, the plan and its decisions, resolving the design review, rulings, dispatching agents and checking what they return. It may write the plan, the ledger and notes, and make a one-line fix that is needed to hand work over. It hands the build, the simplify pass and every fix to strong-tier subagents, and never finishes the build itself. `/autodeliver:loop` has the steps: the brief, the checks on return and the retry limit. When it hands several phases to builders at once (local mode only), `/autodeliver:loop` "Parallel builds" has the rules: a worktree per builder, shared helpers first, and a roster for direct messages between builders.
 - **Cloud routines keep their tiers:** Worker, Reviewer, Fixer and security sweep on the strong model. Don't set a routine to a planning-tier model.
 - A session on the strong tier, or on a lower model the user chose, works as before.
 
@@ -155,6 +158,7 @@ The Reviewer uses none of these skills, and not `security-audit` either: the gat
   - a file changed outside the plan's file boundary with no ruling that extends it (delivery files, lockfiles and the evidence folder are exempt);
   - an implementation that departs from the plan's design or decisions with no ruling recording the change;
   - a change to the system's shape (components, interfaces, data, outside services) without the matching `{{SYSTEM}}` update.
+- **Report a test gap in full.** When a test pins a formula or an ordering rule, the gate checks the whole matrix from step 1's test plan in one round and lists every case no test catches, never one per round.
 - Accepted decisions (cite them) and later-phase items (cite the roadmap row) are not findings.
 - **The boundary grows by ruling, not by accident.** When a task needs a file outside the boundary, add it with a ruling in the ledger (why, and the cost if wrong) before changing it. The simplify pass stays within files the phase already changed.
 - **Fail safe:** never treat an unsent notice as sent, and never take an irreversible step that relies on a call that didn't happen.

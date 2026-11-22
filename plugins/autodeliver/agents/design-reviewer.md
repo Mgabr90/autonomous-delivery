@@ -65,10 +65,13 @@ Can a fresh session build this on the first attempt **without making a design de
 - **Zero-decision rule:** schemas, API shapes, file locations, dependencies, error handling and edge-case behaviour are decided in the plan (or by a cited ruling), not left to the builder. Each open decision is a finding.
 - **File boundary:** an explicit list of repository-relative paths to be created, changed or deleted. A glob is allowed only for generated output. Check that the listed paths exist (for changes) or that their folders make sense (for new files).
 - **Tasks:** each has precise steps and a done-when that can be checked; the order leaves the work buildable and testable after each task.
-- **Test plan:** named cases, happy path and edge cases, for every behaviour the phase adds; for non-software profiles, the profile's checks (same sources as the critic lens). Each of these is a finding when missing:
-  - an output that must reflect source facts without a traced data path and a planted-fact dry run;
-  - a link that relies on another product's undocumented search or filter behaviour, not clicked in the dry run;
-  - data newly sent to an outside service without a test that personal data and credentials are stripped from each new field (HANDOFF step 1 "Test plan").
+- **Test plan:** named cases, happy path and edge cases, for every behaviour the phase adds; for non-software profiles, the profile's checks (same sources as the critic lens).
+  - An output that must reflect source facts has a traced data path and a planted-fact dry run.
+  - A link that relies on another product's undocumented search or filter behaviour is clicked in the dry run.
+  - Data newly sent to an outside service has a test that personal data and credentials are stripped from each new field (HANDOFF step 1 "Test plan").
+  - A test that pins a formula or an ordering rule has a case for each term alone, for the tie-break and for each filter, so that changing any one of them fails a test; a sort that is not stable also has a case whose expected order flips, not only reversed input.
+  - A test on a file that later phases also edit asserts the lines it owns, never a span that runs to the end of the file.
+  - Each gap is a finding.
 - The plan includes its own end-of-phase steps: simplify pass, full proof, system-doc update, staging and evidence where the profile needs them.
 
 ### drift: design vs reality

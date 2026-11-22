@@ -8,6 +8,11 @@
 - **Reviewer briefs end with "Deliver your full report as the final text of your reply."** (`loop.md`, `design-review.md`): in a session that is not in auto mode the hand-back tool can be refused, and reviewers then ended with no report.
 - **Playbook:** nine lessons from a data-pipeline loop (measure assumed signals before design review; end-to-end dry run on real data in the build proof; pin native bindings and prove in a fresh venv; fixtures from the code's defaults; separate work folders and per-item saves for parallel agents; record user overrides as decisions; date-check a cause before naming it).
 - **Playbook:** two lessons (read a writing job's log before rerunning it; check the plan's decisions before calling a parity gap a defect).
+- **Playbook:** nine lessons from a parallel multi-phase delivery, with these rule changes:
+  - close the design review before any build starts, and never send plan amendments to a running builder (`loop.md`, HANDOFF step 2, Worker prompt, playbook 5a);
+  - a test that pins a formula or ordering rule covers each term alone, the tie-break and each filter, and the gate reports every gap in that matrix in one round (HANDOFF test plan and "Review gate", `design-reviewer` readiness lens, `delivery-reviewer`, Reviewer prompt);
+  - a test on a file that later phases also edit asserts only the lines it owns (HANDOFF test plan, readiness lens);
+  - parallel builds in local mode: a worktree per builder, shared helpers first, a roster for direct messages between builders, merge rules written against the gated tests (`/autodeliver:loop`, with pointers from HANDOFF "Models" and playbook section 8).
 
 ## 0.10.0 (2026-11-12)
 

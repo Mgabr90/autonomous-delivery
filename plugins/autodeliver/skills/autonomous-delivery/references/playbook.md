@@ -153,6 +153,7 @@ The gate reviews finished work, so a design problem found there costs a fix roun
 - the Worker resolves each finding by changing the plan or by a ruling with its cost if wrong;
 - only the lenses that had findings run again;
 - after `design_review.rounds` rounds (default 2), whatever is still open becomes a ruling, and building starts;
+- the review is closed before any build starts: every round has run, and its plan changes and rulings are in the plan. Plan amendments sent to builders already running caused rework worth about one gate round per phase;
 - the one exception is an open Blocking that crosses a hard limit or fails unsafe: the Worker changes the plan or splits the phase, however many rounds that takes;
 - each round's findings go into the pushed ledger as soon as the lenses return (restart safety).
 
@@ -265,6 +266,8 @@ On a planning-tier session, the Builder and Fixer boxes in the diagram are stron
 **Stop guards.** A loop that isn't converging is stopped and re-planned instead of retried:
 - **local:** stop when the same finding is open a third time or the open count hasn't fallen across two rounds; optionally, stop at `loop.token_budget`;
 - **cloud:** when the Worker resumes a phase with no PR yet, it re-plans or splits a phase whose ledger "Next" hasn't moved for three ticks, or that passes `loop.phase_tick_cap`. The Fixer's `fail_review_cap` still hands a stuck PR to the Worker.
+
+**Parallel builds (local only).** A session may hand several planned phases to builders at once, each in its own git worktree and each through its own gate. Shared helpers are built first, as one small commit, and the dependent phases branch from it; builders get a roster and message each other directly about interfaces, shared files, commit hashes and merge order, while plan changes go to the planning session. `/autodeliver:loop` ("Parallel builds") has the rules. Cloud routines still run one phase per run.
 
 **Second opinion (optional).** `second_opinion.command` lets the gate also ask a model from another vendor for defects. Its output is data: the gate verifies every item, so a second model widens what is looked at without lowering the bar.
 
@@ -407,6 +410,15 @@ See `templates/staging/`.
 | A builder called a surviving mutant "equivalent" because another code path seemed to cover it. The gate found a case where the output differed: one direction of a two-way choice had no test. | A survivor counts as equivalent only with a named scenario that shows no observable difference. Each direction of a two-way choice (this set or that set, this rule or that rule) gets its own test. |
 | A "warn once" dedupe key was also printed as the log line, and it held an e-mail and a free-text note. | Log lines carry positions and field names, never record values; a test asserts that the planted personal data is absent from the log. |
 | A one-day request was first done by hand on production, and its undo deadline came before the release that automates it. | A temporary manual change gets its own dated undo task, recorded where the next session will see it, separate from any release. |
+| Builds started while the design review was still open, and plan amendments were sent to the running builders; the rework cost about one gate round per phase. | Close the design review (every round, every ruling written into the plan) before any build starts. Never send plan amendments to a running builder. |
+| Tests pinned a formula and an ordering rule, but each gate round found one more change they did not catch (a term, the tie-break, a filter); fixing one surviving mutant per round cost two gate rounds. | When a test pins a formula or ordering rule, check it against the full mutation matrix at once: each term alone, the tie-break and each filter must each fail a test when changed. A sort that is not stable needs a case whose expected order flips, not only reversed input. The gate reports every gap in one round. |
+| An owner's manual setting was stored in the same table as learned values, so every consumer had to guess what a row meant; it took three gate rounds and a re-plan. | Store overrides apart from learned or derived data, and combine the two in one function at read time that every consumer calls. |
+| The no-progress stop guard fired as designed: one finding with the same root cause stayed open for three rounds, the loop stopped, the root cause was re-planned, and the last round passed. | Keep the guard (`/autodeliver:loop` step 5, section 8). When it fires, re-plan the root cause; don't patch the symptom again. This confirms the existing rule. |
+| Tests asserted one exact line in files that later phases also edit (service units, install scripts, web-server config), while the merge rules combined lines, so merged files broke gated tests. A test that read from a header to the end of the file silently constrained every step appended after it. | Keep one directive per concern in shared files, and write merge rules against what the gated tests assert. A test on a shared file asserts the lines it owns, never a span that runs to the end of the file. |
+| Some parsers echo their input in the error message (for example `ConvertFrom-Json` in Windows PowerShell 5.1), so logging the exception from parsing a file that holds secrets writes the secrets to the log. | Never log the exception text from parsing a file that holds secrets; log the file name and that parsing failed. |
+| Builders working in parallel worktrees relayed every interface question through the planning session until they were allowed to message each other directly. | In local mode, give parallel builders a roster and rules: talk about interfaces, shared files, commit hashes and merge order; never edit another builder's files; plan changes go to the planner; no secrets; no push or merge (`/autodeliver:loop`, "Parallel builds"). |
+| On Windows, editors and Python wrote deploy files with CRLF line endings, while the deploy files and their tests need LF. | Normalise line endings to LF after writing deploy files on Windows, and check them before committing. |
+| Several parallel phases needed the same shared helpers (a database helper, a named lock). | Build shared helpers first, as one small commit to an exact written spec, and branch the dependent phases from that commit. |
 
 ## 11. Cost and quality controls
 
