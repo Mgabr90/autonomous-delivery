@@ -18,7 +18,7 @@ Every session reads this file before doing anything else. It is the charter: wha
 
 - **Decide on your own.** Don't stop to ask. Log every ruling in the ledger as `R<n> — decision — why — cost if wrong`, and index product, data or scope rulings in `{{DECISIONS}}`.
 - **Quality first.** Never trade proof, review depth or verification for tokens.
-- Commit and push the ledger after every task, and at least every 30 minutes, with the exact next step written down. Each Worker tick is a fresh session that resumes only from what is pushed. Write each task's close-out (review result plus 'task N complete; next') as ONE commit.
+- Commit and push the ledger after every task, and at least every 30 minutes, with the exact next step written down. Each Worker tick is a fresh session that resumes only from what is pushed. A local session can end at a usage limit at any moment, so it keeps the ledger's "Resume here" current at each milestone (design-review round, builder hand-over and return, gate round), not only when the limit is near. Write each task's close-out (review result plus 'task N complete; next') as ONE commit.
 - **Restart safety.** The cloud container can restart at any time and kill running subagents, and a session that ends keeps only what was pushed.
   - Commit each finished step, and push before every long step: the full e2e, the full test suite, or a staging ship. While no phase PR is open, a push fires nothing. Once the PR is open, keep to one push per fix round.
   - Write review findings into the committed ledger as soon as a review returns: the full text, by id, not only in a git-ignored workspace.
@@ -67,10 +67,11 @@ Then the remaining owner action is just the go-ahead in chat.
 
 1. **Research, then plan.** Get a sourced brief from the `researcher` agent into `{{PLANS}}<phase>-research.md`. Then write the phase plan in `{{PLANS}}<phase>-plan.md`. The plan is a design document as well as a task list, with these sections:
    - **Goal and why:** the roadmap row, the problem it solves, and what done looks like.
-   - **Context:** the parts of `{{SYSTEM}}` this phase touches, and links to the research brief and the rulings it relies on. If `{{SYSTEM}}` is still the empty template, the plan's first task fills it from the code as it stands.
+   - **Context:** the parts of `{{SYSTEM}}` this phase touches, and links to the research brief and the rulings it relies on. If `{{SYSTEM}}` is still the empty template, the plan's first task fills it from the code as it stands. When this phase applies a change another plan asked for, quote that plan's current text verbatim, with its path and section: the requesting plan's text wins over any paraphrase, summary or older version.
    - **Design:** components, interfaces and data flow, at that level only.
    - **Alternatives considered:** each with the reason it was rejected.
    - **Risks and fail-safe:** failure modes, absent services, security and privacy, rollback.
+     - For each guard on an irreversible or privacy-relevant act, list every term of its condition with what can change between the check and the act, and what re-checks it right before the act (or why nothing can change).
    - **Decisions:** every choice a builder would otherwise have to make (schemas, API shapes, file locations, dependencies, error handling, edge cases), each as a ruling with its cost if wrong.
    - **File boundary:** the exact repository-relative paths to create, change or delete. Use globs only for generated output. The delivery files listed under "Where things live", lockfiles and the evidence folder are exempt and need no listing.
    - **Tasks:** each with steps and a done-when. Include the end-of-phase steps below and the `{{SYSTEM}}` update when the phase changes the system's shape.
@@ -83,6 +84,7 @@ Then the remaining owner action is just the go-ahead in chat.
      - **Data sent to an outside service.** When a change widens what goes to an outside service (an AI model, an API),
        add a test that plants personal data and credentials in each new field and asserts they are stripped.
      - A test that pins a formula or an ordering rule has a case for each term alone, for the tie-break and for each filter, so that changing any one of them fails a test. A sort that is not stable also gets a case whose expected order flips, not only reversed input.
+     - A test that pins a guard condition has a case for each of its terms, so that dropping or inverting any one term fails a test.
      - A test on a file that later phases also edit (service units, install scripts, server config) asserts the lines it owns, never a span that runs to the end of the file.
 2. **Design review (goldfish), before any building.** Dispatch the `design-reviewer` agent once per lens, in parallel: `zoom-out`, `comprehension`, `critic` and `readiness` (or the lenses set in `design_review.lenses` in `.autodeliver/config.json`).
    - **Isolation is the point.** Each brief contains only the lens, the plan path, the research brief path, the paths of this file, the roadmap and `{{SYSTEM}}`, and the round number. Never send a summary of your reasoning, the alternatives you liked, or why you think the plan is right.
@@ -95,7 +97,7 @@ Then the remaining owner action is just the go-ahead in chat.
    - test-first or check-first work;
    - guard skills if available (clean-code, test, docs);
    - a per-task review;
-   - a commit with its ledger line.
+   - a commit with its ledger line, made only when the proof's own exit code is 0. Run each proof command on its own, never through a pipe: with `| tail` the shell reports `tail`'s exit code, not the proof's.
 4. **End of phase:**
    - ONE simplify pass over the whole phase diff (its own `refactor(simplify)` commit), limited to files the phase already changed, then the full proof: `{{PROOF_FULL}}`;
    - the final whole-phase review.
@@ -110,7 +112,7 @@ Then the remaining owner action is just the go-ahead in chat.
 ## Models
 
 - **The strong tier is the floor.** Building, reviewing, fixing and security work is never handed to a model below the strong tier: `models.strong` in the config, or Opus when it is not set (what the review and fix agents run on).
-- **A planning-tier model plans; it does not build.** A local session is on a planning-tier model when its own model id contains one of the names in `models.plan` (default: `fable`, `mythos`). It keeps that model for understanding the task, research, the plan and its decisions, resolving the design review, rulings, dispatching agents and checking what they return. It may write the plan, the ledger and notes, and make a one-line fix that is needed to hand work over. It hands the build, the simplify pass and every fix to strong-tier subagents, and never finishes the build itself. `/autodeliver:loop` has the steps: the brief, the checks on return and the retry limit. When it hands several phases to builders at once (local mode only), `/autodeliver:loop` "Parallel builds" has the rules: a worktree per builder, shared helpers first, and a roster for direct messages between builders.
+- **A planning-tier model plans; it does not build.** A local session is on a planning-tier model when its own model id contains one of the names in `models.plan` (default: `fable`, `mythos`). It keeps that model for understanding the task, research, the plan and its decisions, resolving the design review, rulings, dispatching agents and checking what they return. It may write the plan, the ledger and notes, and make a one-line fix that is needed to hand work over. It hands the build, the simplify pass and every fix to strong-tier subagents, and never finishes the build itself. `/autodeliver:loop` has the steps: the brief, the checks on return and the retry limit. When it hands several phases to builders at once (local mode only), `/autodeliver:loop` "Parallel builds" has the rules: a worktree per builder (the worktree folder git-ignored, explicit paths staged), shared helpers first, a roster for direct messages between builders, and the requesting plan's text copied verbatim for cross-plan requests.
 - **Cloud routines keep their tiers:** Worker, Reviewer, Fixer and security sweep on the strong model. Don't set a routine to a planning-tier model.
 - A session on the strong tier, or on a lower model the user chose, works as before.
 
@@ -129,7 +131,7 @@ Skills make the steps above more reliable. They never replace the rules in this 
 | Each task | `test-driven-development` | test-first by hand |
 | Per-task review | `requesting-code-review` | a review subagent with a narrow brief |
 | Simplify pass | Claude Code's `/simplify origin/{{MAIN}}...HEAD` (four cleanup reviewers, then the fixes; always pass the range, because the default diff can be empty on a pushed branch), committed as one `refactor(simplify)`, limited to files the phase already changed | review the diff yourself for reuse, simplification, efficiency and altitude |
-| Before any "done", "green" or PR | `verification-before-completion` | run the proof and quote its output before claiming anything |
+| Before any "done", "green" or PR | `verification-before-completion` | run the proof, each command on its own and never through a pipe, and quote its output and exit code before claiming anything |
 | Answering review findings (Fixer) | `receiving-code-review`, then `test-driven-development` | verify each finding, then fix it test-first |
 | Stuck PR, repeated finding, failing proof | `systematic-debugging` | root cause before any fix |
 
@@ -158,7 +160,7 @@ The Reviewer uses none of these skills, and not `security-audit` either: the gat
   - a file changed outside the plan's file boundary with no ruling that extends it (delivery files, lockfiles and the evidence folder are exempt);
   - an implementation that departs from the plan's design or decisions with no ruling recording the change;
   - a change to the system's shape (components, interfaces, data, outside services) without the matching `{{SYSTEM}}` update.
-- **Report a test gap in full.** When a test pins a formula or an ordering rule, the gate checks the whole matrix from step 1's test plan in one round and lists every case no test catches, never one per round.
+- **Report a test gap in full.** When a test pins a formula, an ordering rule or a guard condition, the gate checks the whole matrix from step 1's test plan in the first round that sees the rule and lists every case no test catches, never one per round. A guard on an irreversible or privacy-relevant act always gets a mutation sweep: one mutant per term, dropped or inverted, each of which must fail a test, run in a throwaway copy, never in the work under review.
 - Accepted decisions (cite them) and later-phase items (cite the roadmap row) are not findings.
 - **The boundary grows by ruling, not by accident.** When a task needs a file outside the boundary, add it with a ruling in the ledger (why, and the cost if wrong) before changing it. The simplify pass stays within files the phase already changed.
 - **Fail safe:** never treat an unsent notice as sent, and never take an irreversible step that relies on a call that didn't happen.

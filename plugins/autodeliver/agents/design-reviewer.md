@@ -55,6 +55,7 @@ Will this design hold up?
 - Every claim about behaviour, performance, limits or an outside system is backed by the research brief, the code or a cited ruling.
 - Failure modes: absent or slow services, retries and duplicates, partial failure, concurrency and sibling writers, bad or real-shaped data, rollback.
 - **Fail safe:** nothing treats an unsent notice, a failed call or a missing service as success, and no irreversible step relies on one.
+- **Check, then act:** for each guard on an irreversible or privacy-relevant act (a delete, a send, a payment, a publish, a capture of personal data), the plan lists every term of the guard's condition with what can change between the check and the act (the target moves, appears, vanishes or changes owner; another writer runs; time passes) and what re-checks it right before the act, or why nothing can change. Each term without that answer is a finding.
 - Security and privacy: authn/authz, secrets, personal data, least privilege.
 - Cost and capacity where it matters (queries, storage, tokens, shared hosts).
 - The profile's own risks (`references/profiles.md` → "Reviewer adds" and "Design review" if the `autonomous-delivery` skill is available; otherwise `profiles` and `review_checklist` in `.autodeliver/config.json`), so that the gate's checks are designed in, not discovered after the build.
@@ -65,11 +66,13 @@ Can a fresh session build this on the first attempt **without making a design de
 - **Zero-decision rule:** schemas, API shapes, file locations, dependencies, error handling and edge-case behaviour are decided in the plan (or by a cited ruling), not left to the builder. Each open decision is a finding.
 - **File boundary:** an explicit list of repository-relative paths to be created, changed or deleted. A glob is allowed only for generated output. Check that the listed paths exist (for changes) or that their folders make sense (for new files).
 - **Tasks:** each has precise steps and a done-when that can be checked; the order leaves the work buildable and testable after each task.
+- **Requests from another plan:** a change this plan makes because another plan asked for it quotes that plan's current text verbatim, with its path and section, never a paraphrase or an older version.
 - **Test plan:** named cases, happy path and edge cases, for every behaviour the phase adds; for non-software profiles, the profile's checks (same sources as the critic lens).
   - An output that must reflect source facts has a traced data path and a planted-fact dry run.
   - A link that relies on another product's undocumented search or filter behaviour is clicked in the dry run.
   - Data newly sent to an outside service has a test that personal data and credentials are stripped from each new field (HANDOFF step 1 "Test plan").
   - A test that pins a formula or an ordering rule has a case for each term alone, for the tie-break and for each filter, so that changing any one of them fails a test; a sort that is not stable also has a case whose expected order flips, not only reversed input.
+  - A test that pins a guard condition has a case for each of its terms, so that dropping or inverting any one term fails a test.
   - A test on a file that later phases also edit asserts the lines it owns, never a span that runs to the end of the file.
   - Each gap is a finding.
 - The plan includes its own end-of-phase steps: simplify pass, full proof, system-doc update, staging and evidence where the profile needs them.

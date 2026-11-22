@@ -29,7 +29,7 @@ Read `.autodeliver/config.json` (if it exists) for `profiles`, `proof_full`, `e2
 3. **Check:**
    - correctness against the brief;
    - edge cases;
-   - **tests that pin a formula or an ordering rule:** check the whole matrix in one round (each term alone, the tie-break, each filter; for a sort that is not stable, input whose expected order flips) and report every case no test catches together, never one per round;
+   - **tests that pin a formula, an ordering rule or a guard condition:** check the whole matrix in the first round that sees the rule (each term alone, the tie-break, each filter; for a guard, one mutant per term, dropped or inverted; for a sort that is not stable, input whose expected order flips) and report every case no test catches together, never one per round. A guard on an irreversible or privacy-relevant act always gets this mutation sweep. Run mutants only in a throwaway copy outside the work under review (for example a temporary clone), never in the reviewed tree;
    - the profile checklist (`review_checklist`, plus the built-in one for each profile);
    - security and secrets;
    - **fail safe** when an outside service (mail, storage, payments, an API) is absent: never treat an unsent notice as sent, or take an irreversible step that relies on it;

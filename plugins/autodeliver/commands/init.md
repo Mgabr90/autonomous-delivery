@@ -60,7 +60,7 @@ In cloud mode, also ask for the claude.ai/code `environment_id`, and whether the
 - `CLAUDE.md`: add or append a short section "Ongoing work: read `docs/delivery/HANDOFF.md` first; work autonomously within its hard limits."
 - `.claude/agents/`: copy this plugin's agents (`delivery-reviewer`, `delivery-fixer`, `design-reviewer`, `researcher`, `visual-checker`, `translation-reviewer`, `usage-inspector`), so cloud sessions get them. `design-reviewer` is adapted from Google's Elephant-Goldfish Model (Apache 2.0): also copy `licenses/EGM-LICENSE.txt` to `.claude/agents/EGM-LICENSE.txt`. Optionally, if the official `pr-review-toolkit` plugin is installed locally, offer to copy `silent-failure-hunter`, `pr-test-analyzer`, `type-design-analyzer` and `comment-analyzer` too, with its LICENSE as `.claude/agents/PR-REVIEW-TOOLKIT-LICENSE.txt`.
 - Staging (if any): copy `templates/staging/stg.sh` to `tools/stg.sh`, and point the user to `templates/staging/README.md` for the server side. Never ask for or store a token.
-- `.gitignore`: add `.autodeliver/token_log*`, `.autodeliver/*.state.json`, `.autodeliver/loop_state.json` and `.autodeliver/security-audit/` (always, so the folder is ignored whenever the skill is added later).
+- `.gitignore`: add `.autodeliver/token_log*`, `.autodeliver/*.state.json`, `.autodeliver/loop_state.json` and `.autodeliver/security-audit/` (always, so the folder is ignored whenever the skill is added later), and `.claude/worktrees/` (the Agent tool's worktrees, so a parallel builder's commit never picks them up as gitlinks).
 
 ## 4. Cloud mode only (confirm before each persistent change)
 

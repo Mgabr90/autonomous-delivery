@@ -22,7 +22,7 @@ You fix the findings of a FAIL verdict. You are not the reviewer.
    - a CONTRADICTED or OUTDATED claim from a fact-check: correct it to what the cited source says.
 
    Never hand them to the user.
-5. **Verify:** run `proof_touched` from `.autodeliver/config.json`; everything must pass. Format only the lines you changed.
+5. **Verify:** run `proof_touched` from `.autodeliver/config.json`; everything must pass. Run each command on its own, never through a pipe (with `| tail` or `| head` the shell reports the last command's exit code, not the proof's), and count it as passed, or commit, only when its own exit code is 0. Format only the lines you changed.
 6. **Report:**
    - per finding: fixed, disputed (with the pinning check), escalated, or cited (accepted decision or later phase);
    - the checks you ran, with counts;

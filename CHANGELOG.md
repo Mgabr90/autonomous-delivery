@@ -13,6 +13,13 @@
   - a test that pins a formula or ordering rule covers each term alone, the tie-break and each filter, and the gate reports every gap in that matrix in one round (HANDOFF test plan and "Review gate", `design-reviewer` readiness lens, `delivery-reviewer`, Reviewer prompt);
   - a test on a file that later phases also edit asserts only the lines it owns (HANDOFF test plan, readiness lens);
   - parallel builds in local mode: a worktree per builder, shared helpers first, a roster for direct messages between builders, merge rules written against the gated tests (`/autodeliver:loop`, with pointers from HANDOFF "Models" and playbook section 8).
+- **Playbook:** six lessons on guards and proof hygiene, with these rule changes:
+  - a plan that guards an irreversible or privacy-relevant act lists, per guard term, what can change between the check and the act and what re-checks it (`design-reviewer` critic lens, HANDOFF step 1 "Risks and fail-safe", playbook 5a);
+  - the gate runs a mutation sweep over every guard term (one mutant per term, dropped or inverted) in the first round that sees the guard, in a throwaway copy, and reports every survivor together; plans name a test case per guard term (`delivery-reviewer`, Reviewer prompt, HANDOFF test plan and "Review gate", readiness lens);
+  - builders and fixers run each proof command on its own, never through a pipe, and commit only when its own exit code is 0 (`/autodeliver:loop` build and simplify briefs, return check and fix step, `delivery-fixer`, Worker and Fixer prompts, HANDOFF step 3 and "Skills");
+  - parallel builders stage explicit paths, and `.claude/worktrees/` is git-ignored (`/autodeliver:loop` "Parallel builds", `/autodeliver:init`, HANDOFF "Models", playbook section 8);
+  - a cross-plan request is applied from the requesting plan's current text, copied verbatim (`/autodeliver:loop` "Parallel builds", HANDOFF step 1 "Context", readiness lens, playbook 5a and section 8);
+  - the resume note is kept current at each milestone in local runs too, not only near a usage limit (`/autodeliver:loop`, HANDOFF "Autonomy charter").
 
 ## 0.10.0 (2026-11-12)
 
