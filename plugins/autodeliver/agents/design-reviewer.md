@@ -56,6 +56,7 @@ Will this design hold up?
 - Failure modes: absent or slow services, retries and duplicates, partial failure, concurrency and sibling writers, bad or real-shaped data, rollback.
 - **Fail safe:** nothing treats an unsent notice, a failed call or a missing service as success, and no irreversible step relies on one.
 - **Check, then act:** for each guard on an irreversible or privacy-relevant act (a delete, a send, a payment, a publish, a capture of personal data), the plan lists every term of the guard's condition with what can change between the check and the act (the target moves, appears, vanishes or changes owner; another writer runs; time passes) and what re-checks it right before the act, or why nothing can change. Each term without that answer is a finding.
+- **Accepted residuals:** each gap the plan knowingly leaves open is worded by its precondition in the real world (for example "a record already open before the watcher started"), never by one example sequence. A residual worded by an example is a finding: the next variant of the same precondition either leaks or gets argued over.
 - Security and privacy: authn/authz, secrets, personal data, least privilege.
 - Cost and capacity where it matters (queries, storage, tokens, shared hosts).
 - The profile's own risks (`references/profiles.md` → "Reviewer adds" and "Design review" if the `autonomous-delivery` skill is available; otherwise `profiles` and `review_checklist` in `.autodeliver/config.json`), so that the gate's checks are designed in, not discovered after the build.
@@ -72,7 +73,10 @@ Can a fresh session build this on the first attempt **without making a design de
   - A link that relies on another product's undocumented search or filter behaviour is clicked in the dry run.
   - Data newly sent to an outside service has a test that personal data and credentials are stripped from each new field (HANDOFF step 1 "Test plan").
   - A test that pins a formula or an ordering rule has a case for each term alone, for the tie-break and for each filter, so that changing any one of them fails a test; a sort that is not stable also has a case whose expected order flips, not only reversed input.
-  - A test that pins a guard condition has a case for each of its terms, so that dropping or inverting any one term fails a test.
+  - A test that pins a guard condition has a case for each of its terms, written in the same task as the guard, so that dropping or inverting any one term fails a test. Every guard on an irreversible act (delete, send, overwrite, publish) or a privacy-relevant one has this matrix.
+  - A privacy or safety guard over a state machine whose input events can be lost, reordered or never seen has a seeded, model-based test from the guard's first version: generated event sequences, the real-world state simulated by its own oracle (independent of the code under test), and the invariant asserted on every sequence except the plan's named accepted residuals.
+  - A performance or time-budget measurement records machine-wide CPU with each sample, and the plan sets the other-process load above which a run is invalid.
+  - A document section that other files or outputs point to has a test that pins its heading and key line.
   - A test on a file that later phases also edit asserts the lines it owns, never a span that runs to the end of the file.
   - Each gap is a finding.
 - The plan includes its own end-of-phase steps: simplify pass, full proof, system-doc update, staging and evidence where the profile needs them.

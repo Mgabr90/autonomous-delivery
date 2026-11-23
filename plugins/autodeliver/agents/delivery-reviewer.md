@@ -26,10 +26,13 @@ Read `.autodeliver/config.json` (if it exists) for `profiles`, `proof_full`, `e2
    - Run every command in `proof_full` from `work_dir`, plus `e2e` when user-facing output changed. Record the counts.
    - If something fails, re-run it once: a failure that passes on re-run is **flaky**, which is a Should-fix, not a pass.
    - Never trust the builder's claim that something passed.
+   - **Measurements:** a performance or budget result counts only from samples that record machine-wide CPU, with other-process load under the plan's threshold; a scenario over it is invalid, not passed. Never run mutants or other heavy work while a measurement runs.
 3. **Check:**
    - correctness against the brief;
    - edge cases;
    - **tests that pin a formula, an ordering rule or a guard condition:** check the whole matrix in the first round that sees the rule (each term alone, the tie-break, each filter; for a guard, one mutant per term, dropped or inverted; for a sort that is not stable, input whose expected order flips) and report every case no test catches together, never one per round. A guard on an irreversible or privacy-relevant act always gets this mutation sweep. Run mutants only in a throwaway copy outside the work under review (for example a temporary clone), never in the reviewed tree;
+   - **model-based tests of a guard** (a privacy or safety guard over events that can be lost, reordered or never seen): plant known leaks as mutants in the same throwaway copy and show the test fails on each. A planted leak that the oracle files as an accepted residual, where the plan's ruling does not cover it, is a finding: the oracle allows more than the ruling. A guard of that kind with no model test is a Should-fix;
+   - **documents:** in every round, diff each changed document against its version on the base branch (the last version that passed the gate). A section removed or rewritten that no task or finding asked for is a Should-fix;
    - the profile checklist (`review_checklist`, plus the built-in one for each profile);
    - security and secrets;
    - **fail safe** when an outside service (mail, storage, payments, an API) is absent: never treat an unsent notice as sent, or take an irreversible step that relies on it;
@@ -69,7 +72,7 @@ VERDICT: PASS | FAIL
 (round N, full | delta | docs-only)
 
 ## Blocking
-- <location> — <what is wrong> — <scenario> — <fix> — <what the fixer must verify to close it>
+- <location> — <what is wrong> — <scenario> — <fix> — <what the fixer must verify to close it; for a finding in a test or its oracle, a planted case that must fail once the fix is in>
 ## Should-fix
 - …
 ## Nits

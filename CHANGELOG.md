@@ -20,6 +20,14 @@
   - parallel builders stage explicit paths, and `.claude/worktrees/` is git-ignored (`/autodeliver:loop` "Parallel builds", `/autodeliver:init`, HANDOFF "Models", playbook section 8);
   - a cross-plan request is applied from the requesting plan's current text, copied verbatim (`/autodeliver:loop` "Parallel builds", HANDOFF step 1 "Context", readiness lens, playbook 5a and section 8);
   - the resume note is kept current at each milestone in local runs too, not only near a usage limit (`/autodeliver:loop`, HANDOFF "Autonomy charter").
+- **Playbook:** seven lessons from review-gate loops, and one existing row strengthened, with these rule changes:
+  - a privacy or safety guard over a state machine whose events can be lost, reordered or never seen gets a seeded, model-based test with its own oracle from the guard's first version, and the gate plants known leaks as mutants to show the test catches them (HANDOFF test plan and "Review gate", `design-reviewer` readiness lens, `delivery-reviewer`, Reviewer prompt);
+  - a finding in a test or its oracle names its closing check, a planted case that must fail once the fix is in, and the fixer runs it and quotes the result (`delivery-reviewer` and Reviewer prompt reply format, `delivery-fixer`, Fixer prompt, HANDOFF "Review gate");
+  - an accepted residual is worded by its real-world precondition, never by one example sequence (HANDOFF step 1 "Risks and fail-safe", `design-reviewer` critic lens);
+  - one test per guard term is written in the same task as the guard, for every guard on an irreversible act (delete, send, overwrite, publish) or a privacy-relevant one, so the gate's mutation sweep confirms rather than discovers (HANDOFF test plan, readiness lens);
+  - performance and budget measurements record machine-wide CPU per sample and are invalid over a threshold the plan sets; on a shared machine they run in a short quiet slot, claimed only after checking what is running, and the gate runs no mutants during one (HANDOFF test plan and "Review gate", `/autodeliver:loop` "Quiet slot for measurements", `delivery-reviewer`, Reviewer prompt, readiness lens);
+  - a document section that other files point to gets a test pinning its heading and key line; the gate diffs each changed document against the base branch in every round, and the fixer reads the diff of each document it edited (HANDOFF test plan and "Review gate", readiness lens, `delivery-reviewer`, Reviewer prompt, `delivery-fixer`, Fixer prompt);
+  - two row-only lessons: `$` in a pattern evaluated by Python's `re` also matches before a final newline; a test harness checks its environment's preconditions at set-up and stops early with an actionable message.
 
 ## 0.10.0 (2026-11-12)
 

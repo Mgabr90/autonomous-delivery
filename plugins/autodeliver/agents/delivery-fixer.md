@@ -14,6 +14,8 @@ You fix the findings of a FAIL verdict. You are not the reviewer.
    - if it is real, fix it test-first (or check-first for non-code: add the failing check, then fix);
    - if it is not real, add a test or check that pins the correct behaviour, and explain why.
 
+   For a finding in a test or its oracle, run the planted case the finding names as its closing check (a reintroduced bug, or a case just outside an accepted residual), in a throwaway copy that is never committed, and show the test fails on it; quote the result. An edit to the test is not enough on its own.
+
    If a finding was raised before and is back, find the root cause before changing anything (systematic debugging), and add a regression check for the reviewer's exact scenario. If you disputed it before, implement the requested behaviour, as long as it is safe.
 4. **Items a session can resolve:**
    - a visual check: run the `visual-checker` agent;
@@ -22,7 +24,7 @@ You fix the findings of a FAIL verdict. You are not the reviewer.
    - a CONTRADICTED or OUTDATED claim from a fact-check: correct it to what the cited source says.
 
    Never hand them to the user.
-5. **Verify:** run `proof_touched` from `.autodeliver/config.json`; everything must pass. Run each command on its own, never through a pipe (with `| tail` or `| head` the shell reports the last command's exit code, not the proof's), and count it as passed, or commit, only when its own exit code is 0. Format only the lines you changed.
+5. **Verify:** run `proof_touched` from `.autodeliver/config.json`; everything must pass. Run each command on its own, never through a pipe (with `| tail` or `| head` the shell reports the last command's exit code, not the proof's), and count it as passed, or commit, only when its own exit code is 0. Format only the lines you changed. Before committing, read the diff of every document you edited (`git diff -- <file>`) and restore any section the findings did not name.
 6. **Report:**
    - per finding: fixed, disputed (with the pinning check), escalated, or cited (accepted decision or later phase);
    - the checks you ran, with counts;
