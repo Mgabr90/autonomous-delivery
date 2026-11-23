@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Playbook:** three lessons, written into the test plan (HANDOFF step 1, `design-reviewer` readiness lens): trace the data path and dry-run a planted fact before changing a limit; click third-party deep links that rely on undocumented search or filter behaviour; test that personal data and credentials are stripped from data newly sent to an outside service.
 - **Reviewer briefs end with "Deliver your full report as the final text of your reply."** (`loop.md`, `design-review.md`): in a session that is not in auto mode the hand-back tool can be refused, and reviewers then ended with no report.
 - **Playbook:** nine lessons from a data-pipeline loop (measure assumed signals before design review; end-to-end dry run on real data in the build proof; pin native bindings and prove in a fresh venv; fixtures from the code's defaults; separate work folders and per-item saves for parallel agents; record user overrides as decisions; date-check a cause before naming it).
 - **Playbook:** two lessons (read a writing job's log before rerunning it; check the plan's decisions before calling a parity gap a defect).

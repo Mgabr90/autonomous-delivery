@@ -74,7 +74,14 @@ Then the remaining owner action is just the go-ahead in chat.
    - **Decisions:** every choice a builder would otherwise have to make (schemas, API shapes, file locations, dependencies, error handling, edge cases), each as a ruling with its cost if wrong.
    - **File boundary:** the exact repository-relative paths to create, change or delete. Use globs only for generated output. The delivery files listed under "Where things live", lockfiles and the evidence folder are exempt and need no listing.
    - **Tasks:** each with steps and a done-when. Include the end-of-phase steps below and the `{{SYSTEM}}` update when the phase changes the system's shape.
-   - **Test plan:** named cases, happy path and edge cases (for non-software profiles, the profile's checks).
+   - **Test plan:** named cases, happy path and edge cases (for non-software profiles, the profile's checks). Also:
+     - **Data path.** When an output must reflect facts that people add to a source (notes, records, documents), trace the
+       path from that source to the output section before changing any limit or prompt. The dry run plants a known fact
+       in the source and finds it in the output.
+     - **Third-party deep links.** A link that relies on undocumented search or filter behaviour in another product's UI
+       is clicked in the dry run of any change to that output. Prefer stable one-item URLs.
+     - **Data sent to an outside service.** When a change widens what goes to an outside service (an AI model, an API),
+       add a test that plants personal data and credentials in each new field and asserts they are stripped.
 2. **Design review (goldfish), before any building.** Dispatch the `design-reviewer` agent once per lens, in parallel: `zoom-out`, `comprehension`, `critic` and `readiness` (or the lenses set in `design_review.lenses` in `.autodeliver/config.json`).
    - **Isolation is the point.** Each brief contains only the lens, the plan path, the research brief path, the paths of this file, the roadmap and `{{SYSTEM}}`, and the round number. Never send a summary of your reasoning, the alternatives you liked, or why you think the plan is right.
    - Resolve every Blocking and Should-fix finding yourself: change the plan, or write a ruling with its cost if wrong. Re-dispatch only the lenses that had findings, with their previous findings.
