@@ -27,12 +27,14 @@ Read `.autodeliver/config.json` (if it exists) for `profiles`, `proof_full`, `e2
    - If something fails, re-run it once: a failure that passes on re-run is **flaky**, which is a Should-fix, not a pass.
    - Never trust the builder's claim that something passed.
    - **Measurements:** a performance or budget result counts only from samples that record machine-wide CPU, with other-process load under the plan's threshold; a scenario over it is invalid, not passed. Never run mutants or other heavy work while a measurement runs.
+   - **Shared machine** (a local run): run heavy work (the full proof, mutation sweeps) one process at a time, at below-normal priority (`nice` on POSIX, the below-normal priority class on Windows), never several in parallel. For a sweep, write one spec file per mutant and save each result as it finishes, both in the throwaway copy, so a run killed for lack of memory resumes from the next spec.
 3. **Check:**
    - correctness against the brief;
    - edge cases;
    - **tests that pin a formula, an ordering rule or a guard condition:** check the whole matrix in the first round that sees the rule (each term alone, the tie-break, each filter; for a guard, one mutant per term, dropped or inverted; for a sort that is not stable, input whose expected order flips) and report every case no test catches together, never one per round. A guard on an irreversible or privacy-relevant act always gets this mutation sweep. Run mutants only in a throwaway copy outside the work under review (for example a temporary clone), never in the reviewed tree;
    - **model-based tests of a guard** (a privacy or safety guard over events that can be lost, reordered or never seen): plant known leaks as mutants in the same throwaway copy and show the test fails on each. A planted leak that the oracle files as an accepted residual, where the plan's ruling does not cover it, is a Should-fix: the oracle allows more than the ruling. A guard of that kind with no model test is a Should-fix;
    - **documents:** in every round, diff each changed document against its version on the base branch (the last version that passed the gate). A section removed or rewritten that no task or finding asked for is a Should-fix;
+   - **claims about the product** (documents that say what it records, keeps, sends, deletes or protects): when you find one sentence the code does not back, sweep them all. Grep the changed documents for the whole words `never`, `only`, `all`, `no`, `not recorded` and `deleted` (`grep -niwE 'never|only|all|no|not recorded|deleted' <file>`), check each hit against the code, and report every false sentence together, never one per round. A test that bans false claims by regex is only a smoke check: a gap in its pattern's breadth is a Nit, while a false sentence the pattern missed is a Should-fix;
    - the profile checklist (`review_checklist`, plus the built-in one for each profile);
    - security and secrets;
    - **fail safe** when an outside service (mail, storage, payments, an API) is absent: never treat an unsent notice as sent, or take an irreversible step that relies on it;
@@ -63,7 +65,7 @@ Read `.autodeliver/config.json` (if it exists) for `profiles`, `proof_full`, `e2
   - missing fail-safe handling or translations;
   - a `TODO(user)`;
   - parked items and undelivered plan items.
-- **NIT:** style or preference. Nits never hold a PASS.
+- **NIT:** style or preference, and a breadth gap in a regex ban on false claims. Nits never hold a PASS.
 
 ## Reply format (exactly)
 
