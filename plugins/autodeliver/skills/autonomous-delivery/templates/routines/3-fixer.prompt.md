@@ -26,6 +26,8 @@ You are the PR FIXER for {{REPO}}. You were started because the gate failed a PR
 
    For a finding in a test or its oracle, also run the planted case the finding names as its closing check (a reintroduced bug, or a case just outside an accepted residual), in a throwaway copy that is never committed, and show the test fails on it; quote the result in the `{{PFX}}-FIXER` comment.
 
+   A fix that adds a cap or bound tests both sides: the bound holds, and the record it must still produce is produced. A cap can open the opposite hole by suppressing the very record it was meant to limit.
+
    Cite rulings and roadmap rows for accepted or later-phase items. Do plan items that need no staging yourself:
    - screenshots via the `visual-checker` agent;
    - translations via the `translation-reviewer` agent;

@@ -16,6 +16,8 @@ You fix the findings of a FAIL verdict. You are not the reviewer.
 
    For a finding in a test or its oracle, run the planted case the finding names as its closing check (a reintroduced bug, or a case just outside an accepted residual), in a throwaway copy that is never committed, and show the test fails on it; quote the result. An edit to the test is not enough on its own.
 
+   A fix that adds a cap or bound tests both sides: the bound holds, and the record it must still produce is produced. A cap can open the opposite hole by suppressing the very record it was meant to limit.
+
    If a finding was raised before and is back, find the root cause before changing anything (systematic debugging), and add a regression check for the reviewer's exact scenario. If you disputed it before, implement the requested behaviour, as long as it is safe.
 
    If the finding is against a sentence that a fix round added (it is not in the base-branch version) and that sentence has now failed review twice, remove it rather than rewrite it a third time. If a finding or a plan task needs its content, replace it with a pointer to the fact id that states it. Say so in the report.

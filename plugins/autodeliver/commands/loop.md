@@ -43,7 +43,7 @@ If the task depends on external facts (library or API behaviour, versions, stand
   - hold this session's heavy agent work for the slot's length: builders, test suites, and the gate's mutant runs;
   - each sample records machine-wide CPU, and a scenario whose other-process load passes the plan's threshold is invalid and is run again;
   - keep the slot short: only a scenario that failed a limit needs it; a scenario far below its limit is judged on its quiet samples.
-- **Heavy review work on a shared machine** (the gate's mutation sweeps and full proofs): one process at a time, at below-normal priority (`nice` on POSIX, the below-normal priority class on Windows), never several in parallel. A memory-starved machine kills background runs, so a sweep keeps one spec file per mutant and saves each result as it finishes, both in its throwaway copy, and a killed run resumes from the next spec. This does not stop parallel builds; it governs how each gate runs its heavy work.
+- **Heavy review work on a shared machine** (the gate's mutation sweeps and full proofs): one process at a time, at below-normal priority (`nice` on POSIX, the below-normal priority class on Windows), never several in parallel. A memory-starved machine kills background runs, so a sweep keeps one spec file per mutant and saves each result as it finishes, both in its throwaway copy, and a killed run resumes from the next spec. This does not stop parallel builds; it governs how each gate runs its heavy work. For a phase its plan marks security-heavy, the gate runs a sweep in every round, so budget one per round from round 1.
 
 ## Rounds 1…cap
 
