@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Playbook:** three lessons (reuse the widest existing pattern for a sensitive-value mask; a ruling that relaxes a rule marks every old statement superseded; each fail-soft branch on a send path gets an end-to-end test).
 - **Playbook:** four lessons from a settings-feature loop (own dependency install per building tree and no forced removal after a build, also written into the build brief in `loop.md`; an "equivalent" mutant needs a named no-difference scenario and each direction of a two-way choice its own test; logs carry positions and field names, never record values; a temporary manual production change gets its own dated undo task).
 - **Playbook:** six lessons from a backfill and photo-reading loop (restate all-or-nothing when a failure table is rewritten; one-shot reviewed backfills instead of "upload what is missing"; pinned A/B inputs; a live AI check for new input shapes; pairwise state-table tests; resumable write commands).
 - **Playbook:** three lessons, written into the test plan (HANDOFF step 1, `design-reviewer` readiness lens): trace the data path and dry-run a planted fact before changing a limit; click third-party deep links that rely on undocumented search or filter behaviour; test that personal data and credentials are stripped from data newly sent to an outside service.
