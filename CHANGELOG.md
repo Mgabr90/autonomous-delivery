@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.11.0 (2026-11-27)
 
 Lessons from the loops of 12 to 26 November, consolidated from the open lessons branches. The rule changes below are written into every copy that carries the rule; the remaining lessons are rows in the lessons table (playbook section 10).
 
