@@ -24,12 +24,12 @@ Every session reads this file before doing anything else. It is the charter: wha
   - Save each review report verbatim, nits and notes included, in the round it arrives: one file per report in `{{LEDGERS}}<phase>-reviews/`, named after the review and its round, committed as soon as the review returns and never only in a git-ignored workspace. The ledger holds the findings by id and the rulings, and links the files. A report posted as a PR comment is already saved.
   - After a restart, or after stopping any agent that edits files before it reports (a builder, a fixer, a reviewer that plants mutants), in order:
     1. Run `git status` and `git log origin/<branch>..HEAD`, and push any stranded commits.
-    2. Check uncommitted edits (`git diff`) before keeping them. Restore anything a stopped agent left, such as a planted mutant or a half-made edit.
+    2. Check uncommitted edits (`git diff`) before keeping them. Undo only what a stopped agent left (a planted mutant, a half-made edit), hunk by hunk, never by a whole-file or whole-tree checkout over your own uncommitted work.
     3. Restart local services such as the test database.
     4. Restore files that a cut-off run regenerated or mutated: compare the work files' hashes with those saved before the run, so no mutation is left in place.
     5. Re-run the interrupted step in full.
     6. Record the incident in the ledger.
-- **Agents.** Apart from the design-review lenses, run one build or fix agent at a time; when several units of work wait, the one closest to done goes first. Only the main session starts runs on shared infrastructure (remote runners, servers shared with live systems): a sub-agent hands over a hash manifest and is given no route to start them.
+- **Agents.** Apart from the design-review lenses (and, in local mode, the parallel builds that `/autodeliver:loop` describes), run one build or fix agent at a time; when several units of work wait, the one closest to done goes first. Only the main session starts runs on shared infrastructure (remote runners, servers shared with live systems): a sub-agent hands over a hash manifest and is given no route to start them.
 
 ## No dependency on the user
 
@@ -91,10 +91,20 @@ A limit over files ("no X in any file") covers every file the project writes: li
        is clicked in the dry run of any change to that output. Prefer stable one-item URLs.
      - **Data sent to an outside service.** When a change widens what goes to an outside service (an AI model, an API),
        add a test that plants personal data and credentials in each new field and asserts they are stripped.
+     - **Numbers already sent.** When a figure must match numbers already sent to people, recover the exact query or
+       script and its window first (from the repo or the session that sent them). That query is the spec, and the sent
+       counts are the test oracle.
+     - **Data coverage per tenant.** Before a figure is compared with an outside number or shown for every tenant, read
+       the store's coverage (first and last date per tenant) and, per tenant, the distinct values and fill rate of each
+       field it reads. Older rows of a newly added field need a backfill; the figure is not shown for a tenant whose
+       values do not fit.
      - **Live system with no staging copy.** For a change to a live system with no staging copy, the dry-run cases and
        the live-vs-source check (see step 5).
      - A test that pins a formula or an ordering rule has a case for each term alone, for the tie-break and for each filter, so that changing any one of them fails a test. A sort that is not stable also gets a case whose expected order flips, not only reversed input.
      - A test that pins a guard condition has a case for each of its terms, written in the same task as the guard, so that dropping or inverting any one term fails a test. Every guard on an irreversible act (delete, send, overwrite, publish) or a privacy-relevant one gets this matrix: the gate's mutation sweep then confirms it rather than discovering it.
+     - **Call-site arguments.** For a guarded pure function, each argument its caller computes (a window start, a
+       filtered set, a flag) has at least one integration-level test through the caller that fails when the argument
+       is swapped for a plausible wrong value (another anchor time, a narrower or wider set).
      - A privacy or safety guard over a state machine whose input events can be lost, reordered or never seen gets a seeded, model-based test with the guard's first version, not after the gate finds leaks. The test generates event sequences, simulates the real-world state with its own oracle (independent of the code under test) and asserts the invariant, for example "no output reveals X", on every sequence except the accepted residuals named in the plan. Hand-written cases alone miss other members of the same leak class.
      - An "at most N per window" rule (a rate limit, a lockout, a de-duplication) has a case that drives the worst-case shape, many keys each retried enough to cross each threshold, not only the literal flood. A cap or bound also has a case showing that the record it must still produce is produced: a cap can suppress the very record it was meant to limit.
      - A multi-step counter sequence that must stay consistent has a test that drives it from real concurrent threads, each with its own connection. Nesting the steps on one thread runs the inner transactions as savepoints and proves nothing about two writers.
@@ -103,16 +113,6 @@ A limit over files ("no X in any file") covers every file the project writes: li
      - When the phase writes documents that say what the product does (what it records, keeps, sends, deletes or protects), the plan states that behaviour once, as one numbered fact block in a file it names, and every other document points to fact ids instead of restating them. A claims table ties each fact id to the code that does it, and a test checks that the fact ids in the documents match the table. Each restatement is one more paraphrase that can drift from the code.
      - Each people-facing sentence that says what the product does or promises has a behaviour test that fails when the product stops doing it; a sentence that points to a fact id is covered by that fact's test. A test that pins only the wording can pin a false sentence.
      - A test on a file that later phases also edit (service units, install scripts, server config) asserts the lines it owns, never a span that runs to the end of the file.
-     - **Call-site arguments.** For a guarded pure function, each argument its caller computes (a window start, a
-       filtered set, a flag) has at least one integration-level test through the caller that fails when the argument
-       is swapped for a plausible wrong value (another anchor time, a narrower or wider set).
-     - **Numbers already sent.** When a figure must match numbers already sent to people, recover the exact query or
-       script and its window first (from the repo or the session that sent them). That query is the spec, and the sent
-       counts are the test oracle.
-     - **Data coverage per tenant.** Before a figure is compared with an outside number or shown for every tenant, read
-       the store's coverage (first and last date per tenant) and, per tenant, the distinct values and fill rate of each
-       field it reads. Older rows of a newly added field need a backfill; the figure is not shown for a tenant whose
-       values do not fit.
 2. **Design review (goldfish), before any building.** Dispatch the `design-reviewer` agent once per lens, in parallel: `zoom-out`, `comprehension`, `critic` and `readiness` (or the lenses set in `design_review.lenses` in `.autodeliver/config.json`).
    - **Isolation is the point.** Each brief contains only the lens, the plan path, the research brief path, the paths of this file, the roadmap and `{{SYSTEM}}`, and the round number. Never send a summary of your reasoning, the alternatives you liked, or why you think the plan is right.
    - Resolve every Blocking and Should-fix finding yourself: change the plan, or write a ruling with its cost if wrong. Re-dispatch only the lenses that had findings, with their previous findings. After each change to the plan, re-read every people-facing sentence that depends on what changed, and correct the ones it made false.

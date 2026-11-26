@@ -79,6 +79,7 @@ Can a fresh session build this on the first attempt **without making a design de
   - Data newly sent to an outside service has a test that personal data and credentials are stripped from each new field.
   - A figure that must match numbers already sent has the exact source query or script, its window and the sent counts as the test oracle.
   - A figure compared with an outside number or shown for every tenant has the store's coverage per tenant and, per tenant, the distinct values and fill rate of each field it reads.
+  - A change to a live system with no staging copy has its dry-run cases and the live-vs-source check (HANDOFF step 5).
   - A test that pins a formula or an ordering rule has a case for each term alone, for the tie-break and for each filter, so that changing any one of them fails a test; a sort that is not stable also has a case whose expected order flips, not only reversed input.
   - A test that pins a guard condition has a case for each of its terms, written in the same task as the guard, so that dropping or inverting any one term fails a test. Every guard on an irreversible act (delete, send, overwrite, publish) or a privacy-relevant one has this matrix.
   - A guarded pure function whose caller computes its arguments has a named integration-level test per argument that fails when the argument is swapped for a plausible wrong value.
