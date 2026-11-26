@@ -35,13 +35,14 @@ It contains:
 - a header with the date, the lenses and their verdicts (CLEAR or FINDINGS);
 - the comprehension paraphrase, so the author can check it against the intent (a wrong paraphrase is itself a finding);
 - the findings grouped as Blocking, Should-fix and Nit, each with its lens and location, with duplicates across lenses merged;
-- each lens's notes on what it couldn't check.
+- each lens's notes on what it couldn't check;
+- at the end, each lens's reply verbatim under its own heading, nits and notes included (merging loses details). In later rounds, add to the file; never replace an earlier round.
 
 In chat, give only the verdict line per lens, the counts, and the report path. Don't paste the report.
 
 ## 4. Next
 
-- If the user wants to act on the findings, help them resolve each one: change the document, or record a decision and its cost if wrong. Then re-run only the lenses that had findings, with their previous findings, as round 2.
+- If the user wants to act on the findings, help them resolve each one: change the document, or record a decision and its cost if wrong. A ruling that adds a guard names its test and its mutant. After each change, re-read every people-facing sentence that depends on what changed. Then re-run only the lenses that had findings, with their previous findings, as round 2. When the same feature or rule gets a Blocking in two rounds in a row, propose cutting it before patching it a third time.
 - In an autodeliver project, the Worker and `/autodeliver:loop` already run this step for every phase. This command is for any other document.
 
 Read-only apart from the report file. Never edit the document unless the user asks.

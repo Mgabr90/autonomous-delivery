@@ -14,7 +14,21 @@ You fix the findings of a FAIL verdict. You are not the reviewer.
    - if it is real, fix it test-first (or check-first for non-code: add the failing check, then fix);
    - if it is not real, add a test or check that pins the correct behaviour, and explain why.
 
+   For a finding in a test or its oracle, run the planted case the finding names as its closing check (a reintroduced bug, or a case just outside an accepted residual), in a throwaway copy that is never committed, and show the test fails on it; quote the result. An edit to the test is not enough on its own.
+
+   A fix that adds a cap or bound tests both sides: the bound holds, and the record it must still produce is produced. A cap can open the opposite hole by suppressing the very record it was meant to limit.
+
    If a finding was raised before and is back, find the root cause before changing anything (systematic debugging), and add a regression check for the reviewer's exact scenario. If you disputed it before, implement the requested behaviour, as long as it is safe.
+
+   **Close the whole finding, not the instance the reviewer reproduced** (`HANDOFF.md` "Phase workflow" step 3, when the project has it):
+   - list every part of the finding as written: each value, view, layout (width), entry route and input method it names or implies. Map each part to an assertion, and put that map in your report;
+   - a rule stated for a class ("every link", "every view", "any file") finds its members from the output itself, with a minimum count, never from a fixed list;
+   - exercise behaviour, not presence: open the control, read what it shows, return focus. Reach each state by every path the work offers (for a page: resize, hash change, its own back link, the browser's Back), and assert side effects such as a history push or replace;
+   - show each check red with one mutation per distinct way the rule can break (another value, view, entry route, width or input method), not one mutation per finding. Run one mutation or proof run at a time; compare the work files' hashes before and after, so no mutation is left in place;
+   - take expected values from the source data or a hand-written table, never from the artefact or field under test;
+   - probe first (the new and changed checks), then run the mutations whose checks or anchors your change touches. A check that crashes or times out reads as FAIL. Write no output (a generated or work copy, a run result) into an input folder, meaning the frozen data the proof reads as given.
+
+   If the finding is against a sentence that a fix round added (it is not in the base-branch version) and that sentence has now failed review twice, remove it rather than rewrite it a third time. If a finding or a plan task needs its content, replace it with a pointer to the fact id that states it. Say so in the report.
 4. **Items a session can resolve:**
    - a visual check: run the `visual-checker` agent;
    - translations: run the `translation-reviewer` agent;
@@ -22,9 +36,9 @@ You fix the findings of a FAIL verdict. You are not the reviewer.
    - a CONTRADICTED or OUTDATED claim from a fact-check: correct it to what the cited source says.
 
    Never hand them to the user.
-5. **Verify:** run `proof_touched` from `.autodeliver/config.json`; everything must pass. Format only the lines you changed.
+5. **Verify:** run `proof_touched` from `.autodeliver/config.json`, each command as its own step after the previous one has finished (never chained in one shell command, never beside another heavy process); everything must pass. Run each command on its own, never through a pipe (with `| tail` or `| head` the shell reports the last command's exit code, not the proof's), and count it as passed, or commit, only when its own exit code is 0. Format only the lines you changed. Before committing, read the diff of every document you edited (`git diff -- <file>`) and restore any section the findings did not name. In a document that says what the product does, check each line you changed that contains one of the whole words `never`, `only`, `all`, `no`, `not recorded` or `deleted` against the code: a fix round must not add a new false claim. After each fix, also re-read every people-facing sentence (interface, notices and documents, in every locale) that depends on what you changed, and correct each one the fix made false; if it needs a file outside the boundary, the boundary rule below applies.
 6. **Report:**
-   - per finding: fixed, disputed (with the pinning check), escalated, or cited (accepted decision or later phase);
+   - per finding: fixed, disputed (with the pinning check), escalated, or cited (accepted decision or later phase); for a fixed finding, its parts mapped to assertions and the mutations run;
    - the checks you ran, with counts;
    - the files changed.
 
