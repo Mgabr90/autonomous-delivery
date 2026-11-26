@@ -454,6 +454,9 @@ See `templates/staging/`.
 | A mask for a sensitive identifier was written as a fresh, narrow pattern; the gate found the same identifier passing unmasked with other separators and another digit script, while the repo already had a wider pattern for it. | A mask or detector for a sensitive value reuses the project's widest existing pattern for that value (any separators, other digit scripts) and is tested with each written form. |
 | A later ruling relaxed an earlier "never" rule, and two statements of the old rule stayed in the design doc. | A ruling that relaxes or reverses a rule searches the plan for the old rule's wording and marks each statement superseded in the same change. |
 | Fail-soft branches added to a send path (a lookup fails, the time limit passes, a lookup must run before the claim) were tested only through the helper; every branch survived the mutation sweep. | Each fail-soft branch on a path that sends or publishes has a test that runs the whole send through it and asserts what was sent, and the call order when the rule is about order. |
+| Categories were defined on displayed cell text; the design review found they did not cover the empty cells the code leaves for unread values, and had no precedence. | Classification rules are written against the producer's typed state, not its display text, list every value the producer can emit, and state a precedence when classes can overlap. |
+| A precedence rule (class A beats class B) was tested in one input order only; a mutant that picks the first sorted answer survived. | A precedence rule is tested in each order of its inputs. |
+| A one-time data fix described in the design was done by hand but not written to the round log; the gate counted it as missing evidence. | A manual or one-time step is logged with its results the same day it runs, before the gate. |
 
 ## 11. Cost and quality controls
 
