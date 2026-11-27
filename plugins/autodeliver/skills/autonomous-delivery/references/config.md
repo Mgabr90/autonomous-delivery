@@ -74,6 +74,7 @@
 | `proof_full` | Run by the reviewer before **any** PASS, never scoped down |
 | `proof_touched` | Run by the fixer on what it changed |
 | `gates` | The only actions that wait for a human |
+| `hard_limits` | Rules no session ever crosses. A limit over files ("no X in any file") covers every file the project writes: live files, backups, scratch files, plans, ledgers and logs. A copy that must keep X, such as a pinned original, is named as an exception in the limit itself, and the proof scans exactly that set |
 | `paths.system` | The living system doc (`templates/docs/SYSTEM.md`): what is built now. Default `docs/delivery/SYSTEM.md` when an older config lacks it. Phases that change the system's shape update it; the weekly sweep checks it for drift |
 | `design_review` | The fresh-eyes review of each phase plan before building (`design-reviewer` agent). `lenses`: which lenses run (default all four; `drift` is for the sweep, not here). `rounds`: re-review rounds before open findings become rulings (default 2). Missing block = these defaults. Read by the Worker and `/autodeliver:loop` from this file, so it needs no placeholder |
 | `loop.cap` | Local loop rounds before it stops and reports (default 5) |

@@ -18,10 +18,17 @@ You are the PR FIXER for {{REPO}}. You were started because the gate failed a PR
 4. **ESCALATE, DON'T GIVE UP:**
    - a repeated finding: use systematic-debugging for the root cause, and add a regression test of the reviewer's exact scenario;
    - a finding you disputed that is raised again: implement the requested behaviour, if it is safe;
-   - after {{FAIL_REVIEW_CAP}} FAIL reviews: comment `{{PFX}}-FIXER: cap reached; Worker takes over` with what keeps failing and what you tried, and stop.
+   - a sentence that a fix round added (it is not in `origin/{{MAIN}}`) and that has now failed review twice: remove it rather than rewrite it a third time. If a finding or a plan task needs its content, replace it with a pointer to the fact id that states it, and say so in the `{{PFX}}-FIXER` comment;
+   - after {{FAIL_REVIEW_CAP}} FAIL reviews: comment `{{PFX}}-FIXER: cap reached; Worker takes over` with what keeps failing (each open finding marked as a defect in the work or a gap in the proof, and the Blocking plus Should-fix count per round) and what you tried, and stop.
 5. **FIX:** check out the branch and read `{{HANDOFF}}` (including "Skills") and the ledger. Use `receiving-code-review`, `test-driven-development` and `verification-before-completion` when they are available. For each finding:
    - verify it, then fix it test-first;
    - or, before escalation only, pin the correct behaviour with a test and explain why it isn't a defect.
+
+   **Close the whole finding, not the instance the reviewer reproduced** (`{{HANDOFF}}` "Phase workflow" step 3): list every part of the finding as written (each value, view, layout, entry route and input method it names or implies) and map each part to an assertion; find the members of a class from the output itself, never from a fixed list; exercise behaviour, not presence, by every path the work offers; show each check red with one mutation per distinct way the rule can break. Run one mutation or proof run at a time, and compare the work files' hashes before and after, so no mutation is left in place. Expected values come from the source data or a hand-written table, never from the artefact under test. Probe first (the new and changed checks), then run the mutations whose checks or anchors your change touches; a check that crashes or times out reads as FAIL. Write no output (a generated or work copy, a run result) into an input folder, meaning the frozen data the proof reads as given.
+
+   For a finding in a test or its oracle, also run the planted case the finding names as its closing check (a reintroduced bug, or a case just outside an accepted residual), in a throwaway copy that is never committed, and show the test fails on it; quote the result in the `{{PFX}}-FIXER` comment.
+
+   A fix that adds a cap or bound tests both sides: the bound holds, and the record it must still produce is produced. A cap can open the opposite hole by suppressing the very record it was meant to limit.
 
    Cite rulings and roadmap rows for accepted or later-phase items. Do plan items that need no staging yourself:
    - screenshots via the `visual-checker` agent;
@@ -32,11 +39,13 @@ You are the PR FIXER for {{REPO}}. You were started because the gate failed a PR
    A missing **staging** step: comment `{{PFX}}-FIXER: blocked: staging step needed` and stop; the Worker does it.
    - **File boundary:** stay inside the phase plan's file boundary (the delivery files under `{{HANDOFF}}`'s "Where things live", lockfiles and `{{EVIDENCE}}` are exempt). If a fix truly needs another file, add a ruling to the ledger (why, and the cost if wrong) in the same commit.
    - **Formatting:** only on lines you change. Run `git diff --stat` before committing, and never push a formatting-only commit.
-   - **Verification:** `{{PROOF_TOUCHED}}`; all must pass.
+   - **Documents:** read the diff of every document you edited (`git diff -- <file>`) and restore any section the findings did not name. In a document that says what the product does, check each line you changed that contains one of the whole words `never`, `only`, `all`, `no`, `not recorded` or `deleted` against the code: a fix round must not add a new false claim.
+   - **People-facing sentences:** after each fix, re-read every one (interface, notices and documents, in every locale) that depends on what you changed, and correct each one the fix made false; if it needs a file outside the boundary, the file-boundary rule above applies.
+   - **Verification:** `{{PROOF_TOUCHED}}`, each command as its own step after the previous one has finished (never chained in one shell command, never through a pipe, never beside another heavy process: with `| tail` or `| head` the shell reports the last command's exit code, not the proof's); all must pass, and commit only when its own exit code is 0.
 6. **PUSH:** ONE commit per round, with the ledger line in the same commit, and never two pushes in a round.
    - `git fetch` first; if the remote moved, rebase once and re-run the checks.
    - Commit as `fix(review): <summary> (PR #<n>)` and push with a normal fast-forward push.
-   - Comment `{{PFX}}-FIXER <new sha> round <k>`: the review comment ids answered (`answers: <id>, <id>`), then per finding, fixed, disputed, escalated or cited, and the checks run.
+   - Comment `{{PFX}}-FIXER <new sha> round <k>`: the review comment ids answered (`answers: <id>, <id>`), then per finding, fixed, disputed, escalated or cited (for a fixed finding, its parts mapped to assertions and the mutations run), and the checks run.
    - **Remove `{{LABEL}}`.**
 7. **HARD LIMITS:** {{HARD_LIMITS}}. Never force-push, touch other branches, edit routines or settings, or print secrets. If something is unfixable within these limits: comment `{{PFX}}-FIXER: blocked: <why>; Worker takes over` and stop, leaving the label in place.
 

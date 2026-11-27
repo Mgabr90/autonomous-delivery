@@ -52,10 +52,14 @@ Could someone new to this project build from this plan without the planner in th
 
 ### critic: the hostile design critic
 Will this design hold up?
-- Every claim about behaviour, performance, limits or an outside system is backed by the research brief, the code or a cited ruling.
+- Every claim about behaviour, performance, limits or an outside system is backed by the research brief, the code, a measurement in the plan or a cited ruling. A feature whose existence depends on a quality that can be measured (recognition accuracy, speed, how a platform behaves) has its spike's numbers in the plan; a platform fact nobody has measured is marked `unmeasured`. Each gap is a finding.
 - Failure modes: absent or slow services, retries and duplicates, partial failure, concurrency and sibling writers, bad or real-shaped data, rollback.
 - **Fail safe:** nothing treats an unsent notice, a failed call or a missing service as success, and no irreversible step relies on one.
+- **Check, then act:** for each guard on an irreversible or privacy-relevant act (a delete, a send, a payment, a publish, a capture of personal data), the plan lists every term of the guard's condition with what can change between the check and the act (the target moves, appears, vanishes or changes owner; another writer runs; time passes) and what re-checks it right before the act, or why nothing can change. Each term without that answer is a finding.
+- **Ways in:** for each rule about an action (who may do it, what blocks it, what must come before or after it), the plan has one table with a row for every way into the action (page, API, command line, timer, hardware key, file, intent or deep link from another app) and what the rule does there. Search the repo for ways in the table misses. A missing table or row is a finding; report all missing rows of one table as one finding.
+- **Accepted residuals:** each gap the plan knowingly leaves open is worded by its precondition in the real world (for example "a record already open before the watcher started"), never by one example sequence. A residual worded by an example is a finding: the next variant of the same precondition either leaks or gets argued over.
 - Security and privacy: authn/authz, secrets, personal data, least privilege.
+- **Limits and counters:** rate limits, lockout counters and audit de-duplication are security state, kept in their own store with expiry bound to their window, never in a cache that evicts entries or applies a default timeout (a flood or an idle gap resets them silently). A multi-step counter sequence that must stay consistent runs in one transaction. A phase that adds or changes authentication, authorization, rate limits, lockouts, audit records or secrets says it is security-heavy, so the gate budgets a mutation sweep into every round. Each gap is a finding.
 - Cost and capacity where it matters (queries, storage, tokens, shared hosts).
 - The profile's own risks (`references/profiles.md` → "Reviewer adds" and "Design review" if the `autonomous-delivery` skill is available; otherwise `profiles` and `review_checklist` in `.autodeliver/config.json`), so that the gate's checks are designed in, not discovered after the build.
 - The hard limits are respected by design.
@@ -63,12 +67,30 @@ Will this design hold up?
 ### readiness: the builder who has to do it
 Can a fresh session build this on the first attempt **without making a design decision**?
 - **Zero-decision rule:** schemas, API shapes, file locations, dependencies, error handling and edge-case behaviour are decided in the plan (or by a cited ruling), not left to the builder. Each open decision is a finding.
+- **Data contract and input freeze** (when the work reads data inputs): the plan names the inputs and their shape, the point at which they freeze, where outputs go (never into an input folder), and how a later change to an input is declared. A missing one is a finding.
 - **File boundary:** an explicit list of repository-relative paths to be created, changed or deleted. A glob is allowed only for generated output. Check that the listed paths exist (for changes) or that their folders make sense (for new files).
-- **Tasks:** each has precise steps and a done-when that can be checked; the order leaves the work buildable and testable after each task.
-- **Test plan:** named cases, happy path and edge cases, for every behaviour the phase adds; for non-software profiles, the profile's checks (same sources as the critic lens). Each of these is a finding when missing:
-  - an output that must reflect source facts without a traced data path and a planted-fact dry run;
-  - a link that relies on another product's undocumented search or filter behaviour, not clicked in the dry run;
-  - data newly sent to an outside service without a test that personal data and credentials are stripped from each new field (HANDOFF step 1 "Test plan").
+- **Tasks:** each has precise steps and a done-when that can be checked; the order leaves the work buildable and testable after each task. When the plan marks platform facts `unmeasured`, measuring them is the first task, before any task that depends on them.
+- **Rulings that add a guard** (a check, a limit, a refusal) each name the test that pins it and the mutant that test must fail on, and the test plan lists both.
+- **People-facing texts** (consent, notice and warning texts, and texts that make people a promise or ask them to agree) are in the plan word for word in every locale.
+- **Requests from another plan:** a change this plan makes because another plan asked for it quotes that plan's current text verbatim, with its path and section, never a paraphrase or an older version.
+- **Test plan:** named cases, happy path and edge cases, for every behaviour the phase adds; for non-software profiles, the profile's checks (same sources as the critic lens). Each item below that the plan lacks is a finding:
+  - An output that must reflect source facts has a traced data path and a planted-fact dry run.
+  - A link that relies on another product's undocumented search or filter behaviour is clicked in the dry run.
+  - Data newly sent to an outside service has a test that personal data and credentials are stripped from each new field.
+  - A figure that must match numbers already sent has the exact source query or script, its window and the sent counts as the test oracle.
+  - A figure compared with an outside number or shown for every tenant has the store's coverage per tenant and, per tenant, the distinct values and fill rate of each field it reads.
+  - A change to a live system with no staging copy has its dry-run cases and the live-vs-source check (HANDOFF step 5).
+  - A test that pins a formula or an ordering rule has a case for each term alone, for the tie-break and for each filter, so that changing any one of them fails a test; a sort that is not stable also has a case whose expected order flips, not only reversed input.
+  - A test that pins a guard condition has a case for each of its terms, written in the same task as the guard, so that dropping or inverting any one term fails a test. Every guard on an irreversible act (delete, send, overwrite, publish) or a privacy-relevant one has this matrix.
+  - A guarded pure function whose caller computes its arguments has a named integration-level test per argument that fails when the argument is swapped for a plausible wrong value.
+  - A privacy or safety guard over a state machine whose input events can be lost, reordered or never seen has a seeded, model-based test from the guard's first version: generated event sequences, the real-world state simulated by its own oracle (independent of the code under test), and the invariant asserted on every sequence except the plan's named accepted residuals.
+  - An "at most N per window" rule has a case that drives the worst-case shape (many keys times enough retries to cross each threshold), not only the literal flood; a cap or bound also has a case showing the record it must still produce is produced.
+  - A multi-step counter sequence that must stay consistent has a test from real concurrent threads, each with its own connection; nesting on one thread runs as savepoints and proves nothing.
+  - A performance or time-budget measurement records machine-wide CPU with each sample, and the plan sets the other-process load above which a run is invalid.
+  - A document section that other files or outputs point to has a test that pins its heading and key line.
+  - A phase that writes documents saying what the product does (what it records, keeps, sends, deletes or protects) states that behaviour once, in one numbered fact block in a named file, and the other documents point to fact ids instead of restating it. A claims table ties each fact id to the code, with a test that the ids in the documents match the table, and the end-of-phase steps include the claims sweep (each whole-word hit of `never`, `only`, `all`, `no`, `not recorded` and `deleted` in those documents checked against the code, with the list committed) and a fact check of the fact block against the code by an agent that did not write the documents.
+  - Each people-facing sentence that says what the product does or promises has a behaviour test that fails when the product stops doing it (a sentence that points to a fact id is covered by that fact's test); a test of the wording alone does not count.
+  - A test on a file that later phases also edit asserts the lines it owns, never a span that runs to the end of the file (HANDOFF step 1 "Test plan").
 - The plan includes its own end-of-phase steps: simplify pass, full proof, system-doc update, staging and evidence where the profile needs them.
 
 ### drift: design vs reality

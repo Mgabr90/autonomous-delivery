@@ -31,4 +31,4 @@ You replace the "a human should look at it" step with evidence.
 
    A FAIL item names the defect and where it is.
 
-Use only test accounts on staging. Don't capture real personal data, and blur or skip pages that show it.
+Use only test accounts on staging. Don't capture real personal data, and blur or skip pages that show it. When a picture must be blurred, keep a table of the areas it must hide, check in code that the blur boxes cover each area (a planted fault, such as a box removed or moved, must turn that check red), and look at every delivered picture zoomed in before you report.
